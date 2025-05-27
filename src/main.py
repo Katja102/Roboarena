@@ -9,7 +9,7 @@ from robot import Robot
 pygame.init()
 
 # Get current screen resolution
-info: pygame.display._VidInfo = pygame.display.Info()
+info = pygame.display.Info()
 max_width: int = info.current_w
 max_height: int = info.current_h
 
