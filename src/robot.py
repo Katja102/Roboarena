@@ -2,12 +2,22 @@ import pygame
 import math
 
 # Maximum acceleration values
-a_max = 1
-a_alpha_max = 1
+a_max: float = 1
+a_alpha_max: float = 1
 
 
 class Robot:
-    def __init__(self, screen, x, y, radius, direction, color, a, a_alpha):
+    def __init__(
+        self,
+        screen: pygame.Surface,
+        x: int,
+        y: int,
+        radius: int,
+        direction: int,
+        color: tuple[int, int, int],
+        a: float,
+        a_alpha: float,
+    ):
         self.screen = screen
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordinate of center
@@ -21,7 +31,7 @@ class Robot:
         self.v = 1  # speed for moving
         self.v_alpha = 1  # speed for turning
 
-    def draw_robot(self):
+    def draw_robot(self) -> None:
         # draw robot (circle)
         pygame.draw.circle(self.screen, self.color, (self.x, self.y), self.r)
 
@@ -45,7 +55,7 @@ class Robot:
             self.screen, (0, 0, 0), (right_eye_x, right_eye_y), eye_radius
         )
 
-    def update_player(self, robots):
+    def update_player(self, robots: list["Robot"]) -> None:
         # Update player position based on key inputs
         self.draw_robot()
 
@@ -58,7 +68,7 @@ class Robot:
         # Check for collisions
         self.robot_collision(robots)
 
-    def update_enemy(self, goal, robots):
+    def update_enemy(self, goal: "Robot", robots: list["Robot"]) -> None:
         # Move towards a goal position
         x_to_goal = goal.x - self.x
         y_to_goal = goal.y - self.y
@@ -80,7 +90,9 @@ class Robot:
         self.draw_robot()
         self.robot_collision(robots)
 
-    def move_circle(self, point, r, angle, robots):
+    def move_circle(
+        self, point: tuple[int, int], r: int, angle: int, robots: list["Robot"]
+    ) -> None:
         # Move in a circle around a point
         self.x = point[0] + r * math.cos(angle * math.pi / 180)
         self.y = point[1] + r * math.sin(angle * math.pi / 180)
@@ -88,7 +100,7 @@ class Robot:
         self.draw_robot()
         self.robot_collision(robots)
 
-    def robot_collision(self, robots):
+    def robot_collision(self, robots: list["Robot"]) -> None:
         # Detect and react to collisions with other robots
         for robot in robots:
             if robot != self:

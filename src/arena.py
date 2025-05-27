@@ -3,17 +3,22 @@ import config
 
 
 class Arena:
-    def __init__(self, screen, rows, columns, textures):
+    def __init__(
+        self,
+        screen: pygame.Surface,
+        rows: int,
+        columns: int,
+        textures: dict[str, pygame.Surface]
+    ):
         self.screen = screen  # current game screen
         self.rows = rows  # number of rows
         self.columns = columns  # number of columns
         self.textures = textures  # possible tile textures
-        self.grid = None  # will hold the tile data (for drawing)
-        self.initialise_map()  # fill grid with floor and outer walls
+        self.grid = self.initialise_map()  # fill grid with floor and outer walls
         self.map_picture = None  # complete map for the arena, to render it only once
 
-    def initialise_map(self):
-        self.grid = []
+    def initialise_map(self) -> list[list[str]]:
+        grid = []
         for r in range(self.rows):
             current_row = []
             for c in range(self.columns):
@@ -21,9 +26,10 @@ class Arena:
                     current_row.append("wall")  # outer edges
                 else:
                     current_row.append("ground")  # inner tiles
-            self.grid.append(current_row)
+            grid.append(current_row)
+        return grid
 
-    def create_map(self, map_data):
+    def create_map(self, map_data: list[list[str]]) -> None:
         expected_rows = self.rows - 2
         expected_columns = self.columns - 2
         for row in map_data:  # check if map_data is in invalid format
@@ -45,7 +51,7 @@ class Arena:
                 # map to map_data with format-Offset 1
         self.draw_map_picture()
 
-    def draw_map_picture(self):
+    def draw_map_picture(self) -> None:
         width = self.columns * config.TILE_SIZE
         height = self.rows * config.TILE_SIZE
         self.map_picture = pygame.Surface((width, height))
@@ -55,10 +61,11 @@ class Arena:
                 y = row * config.TILE_SIZE
                 tile_type = self.grid[row][col]
                 texture = self.textures[tile_type].convert()
-                texture = pygame.transform.scale(texture,
-                                                 (config.TILE_SIZE, config.TILE_SIZE))
+                texture = pygame.transform.scale(
+                    texture, (config.TILE_SIZE, config.TILE_SIZE)
+                )
                 self.map_picture.blit(texture, (x, y))
 
-    def draw_map(self):
+    def draw_map(self) -> None:
         if self.map_picture:
             self.screen.blit(self.map_picture, (0, 0))
