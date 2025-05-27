@@ -1,7 +1,7 @@
 import config
 
 
-def get_map1():
+def get_map1() -> list:
     # Initialize empty 25 x 46 inner field
     map1 = []
     for row in range(25):
@@ -63,7 +63,7 @@ def get_map1():
 
 
 # creates a map based on an input text file
-def get_map(input=None):
+def get_map(input=None) -> list:
     # error handling: if no file is provided, the default map from above will be used
     if input is None:
         print(
