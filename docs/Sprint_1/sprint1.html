@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            1. Sprint
+        </title>
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <h1>1. Sprint (11.4. - 25.4.):</h1>
+        <h3>Die ersten Schritte, bevor unser Projekt richtig starten kann:</h3>
+        <ul>
+            <li>Wir wollen mit Python und pyGame arbeiten, also haben wir erstmal alles heruntergeladen und eingerichtet.
+                 (jeder für sich allein)</li>
+            <li>Wir haben ein Github Repository für unser Projekt erstellt. (Katja)<br>
+                <img src = "screenshots/Repo_erstellen.webp"><br>
+                <a href="https://github.com/Katja102/Roboarena"> hier gehts zum Repository</a> </li>
+            <li>Und eine Github Action dafür eingerichtet, die für jeden neuen Pull Request einen Flake8 Test durchführt. (Walid)<br>
+                <img src = "screenshots/Screenshot_Flake8_PR.png"><br>
+                <img src = "screenshots/Screenshot_Flake8.png"> <br>
+                Um zu prüfen, ob der Test auch funktioniert haben wir in einem Testbranch eine Datei erstellt, die einige Probleme enthält:<br>
+                <img src = "screenshots/Screenshot_falscher_testcode.png"><br>
+                Und tatsächlich hat unser Test die Probleme erkannt!<br>
+                <img src = "screenshots/Screenshot_test_error.png"><br>
+            </li>
+            <li>Zuletzt haben wir diese Seite erstellt, in der wir über unsere Sprints berichten. (Sarah)</li>
+        </ul>
+        <br><br>
+        <h3>Nachdem alles vorbereitet war, haben wir unser erstes kleines Programm mit pygame erstellt:</h3>
+        <p>
+            Gestartet haben wir mit einem Spiel, bei dem man ein Viereck mit Hilfe der Pfeiltasten der Tastatur
+            durch ein Labyrinth bewegen muss. Ziel des Spiels ist es, den Zielbereich zu erreichen.
+            Trifft man die Wände, verliert man ein Leben, wobei man mit 3 Leben startet. (Walid)<br>
+            <img src = "screenshots/Spiel_basic.png">
+            <br>
+            Dann hat jedes der anderen Teammitglieder das Spiel Stück für Stück erweitert.
+            Es folgte...<br>
+            ... ein 2. Level, (Katja)<br>
+            <img src = "screenshots/Spiel_level2.png">
+            <br>
+            ... ein Slowdown-Button, der das Viereck kurzzeitig verlangsamt (Sarah)<br>
+            <img src = "screenshots/Spiel_slow.png">
+            <br>
+            ... und eine sich bewegende Wand, die sonst aber wie alle anderen Wände funktioniert.
+             (Nico)<br>
+            <img src = "screenshots/Spiel_obstacle.png">
+            <br>
+            Die Änderungen wurden alle auf separaten branches erstellt und nach Pull Requests und Reviews in den main branch gemerged.
+
+        </p>
+        <a style="display: block; text-align: center;" href="../index.html">zurück zur Startseite</a>
+    </body>
+</html>

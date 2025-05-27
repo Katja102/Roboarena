@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>3. Sprint</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <h1>3. Sprint (9.5. - 23.5.):</h1>
+    <h3>Graphics Design</h3>
+    Damit unsere Arena ansprechender aussieht, nutzen wir für die verschiedenen Bereiche
+     statt den Farben nun Texturen. Wir haben frei verfügbare Texturen aus dem Internet verwendet und diese durch
+     ein online tool seamless gemacht, damit man sie beliebig
+     aneinander fügen kann ohne dass ein Übergang zu sehen ist.
+     <ul>
+        <li>Grundfläche der Arena: <img src="screenshots/Floor.png" width="100" height="100"></li>
+        <li>Wände: <img src="screenshots/Wall.png" width="100" height="100"></li>
+        <li>Sand: <img src="screenshots/Sand.png" width="100" height="100"></li>
+        <li>Gebüsch: <img src="screenshots/Bush.png" width="100" height="100"></li>
+        <li>Lava: <img src="screenshots/Lava.png" width="100" height="100"></li>
+        <li>Eis: <img src="screenshots/Ice.png" width="100" height="100"></li>
+     </ul>
+     (Nico)
+    <h3>Coding</h3>
+    <ul>
+        <li>
+            Der Code wurde so angepasst, dass bei der Darstellung der Arena jetzt auch die Texturen
+             verwendet werden. Dies verursachte aber zu viel Rechenaufwand und dadurch ließ sich der Roboter
+             nicht mehr bewegen. Um das zu beheben, wurde eine neue Funktion erstellt, die die Arena nun einmal
+             zu Beginn initialisiert und abspeichert, so dass im Game-Loop jeweils nur noch das fertige Arenabild 
+             dargestellt werden muss.<br>
+             <img src="screenshots/Screenshot_arena_with_textures.png" alt="Arena mit Texturen" width="800"><br>
+             (Sarah)
+        </li>
+        <li>
+            Um später einfach neue Level hinzufügen zu können, kann man nun eine Arena einfach in einer txt-Datei
+            gestalten. Die Datei wird dann eingelesen und in eine Map umgewandelt. Daraus kann dann die Arena
+            dargestellt werden. Die Datei muss so viele Zeilen und Spalten haben wie die Arena groß ist,
+            in unserem Fall 46 Spalten und 25 Zeilen. Jedes Zeichen entspricht einem der verschiedenen Bereiche
+            (g = Grundfläche (ground), w = Wand (wall), l = Lava (lava), i = eis (ice), s = Sand (sand), b = Gebüsch (bush)).
+            So sieht dann z.B. die Datei zur oben gezeigten Arena aus:<br>
+            <img src="screenshots/Screenshot_text-file_for_arena.png" alt="txt-Datei zur Arena"><br>
+            Durch entsprechende Fehlermeldungen wird dem Nutzer geholfen, die korrekten Maße einzuhalten.
+            Wird keine Datei übergeben, wird eine default-Map verwendet.<br>
+            (Sarah)
+        </li>
+    </ul>
+    <h3>Coding Robot Movement</h3>
+    <ul>
+        <li>
+            Es wurden verschiedene Funktionen gemacht in denen sich die Roboter auf verschiedene Arten bewegen können. 
+            Eine Funktion bringt den gegebenen Roboter dazu in Kreis mit einem gewünschten Radius zu fahren.
+            Eine um den eigenen Roboter zu bewegen (Pfeiltasten für Richtung und a/d für Drehung).
+            Zusätzlich lässt eine Funktion den Roboter einen anderen verfolgen.<br>
+            In den Video sieht man den blauen Roboter im Kreis fahren und der pinke und grüne Roboter verfolgen den 
+            weißen Roboter, der durch die Tastatur kontrolliert wird.<br>
+             <video width="1000" controls autoplay>
+                <source src="screenshots/video_robot_movement.mov" type="video/mp4">
+            </video><br>
+            Die Effekte der Umgebung (Wände, Sand, ...) müssen noch gecoded werden.<br>
+            (Katja)
+        </li>
+    </ul>
+    <h3>AI-tool</h3>
+    <ul>
+    <li>
+        Zuerst wurde der Code zur Map-Erstellung mit kurzen, leicht verständlichen Kommentaren mithilfe von ChatGPT dokumentiert.
+        Auch der Code für die Bewegungslogik der Roboter wurde kommentiert – hier waren die Kommentare besonders hilfreich.<br><br>
+        <br><img src="screenshots/Documentation.png" alt="externe Dokumentation hinzugefügt" width="50%"><br>
+        Das Parsen einer <code>.txt</code>-Datei zur Map-Erstellung wurde erfolgreich getestet. Die Testdatei war schnell erstellt und funktionierte einwandfrei.
+        <br><img src="screenshots/screenshot_text_for_map2.png" alt=".txt Datei für die 2. Test-Map" width="20%"><br>
+        Allerdings konnte die KI bei der konkreten Erstellung dieser Datei nicht sinnvoll unterstützen.<br><br>
+        Die gezeichnete Test-Map, die per KI generiert wurde diente als Inspiration.<br><br>
+        <br><img src="screenshots/skizze.png" alt="Inspiration" width="20%"><br>
+        <br><img src="screenshots/screenshot_map2.png" alt="Inspiration" width="50%"><br>
+        Um Flake8 besser an die automatische Formatierung mit Black anzupassen, wurde mit Hilfe von ChatGPT eine <code>.flake8</code>-Datei erstellt.
+        Diese dient als Konfigurationsdatei und legt unter anderem die maximale Zeilenlänge für GitHub-Aktionen fest.
+        Die gewählte Länge passt perfekt zur Formatierung von Black, sodass keine Konflikte mehr auftreten und alles automatisch formatiert werden kann.<br><br>
+        (Walid)
+    </li>
+</ul>
+
+    <h3>Sonstiges (Absprachen, Probleme, Fragen etc.)</h3>
+    <ul>
+        <li>
+            Unser Größenproblem aus dem voherigen Sprint wurde gelöst. Wir arbeiten mit einer festen Anzahl an tiles
+            (nötig, damit man die Arena in der text-Datei gestalten kann). Die Größe der tiles wird aber flexibel an die
+            Bildschirmgröße angepasst, sodass die Arena den kompletten Bildschirm überdeckt und man unseren gewünschten
+            full-screen Eindruck hat.<br>
+            (Walid)
+    </ul>
+
+    <a style="display: block; text-align: center;" href="../index.html">zurück zur Startseite</a>
+</body>
+</html>

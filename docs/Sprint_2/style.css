@@ -1,0 +1,82 @@
+/* Grundlayout */
+body {
+    background-color: #f9f9f9;
+    font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    color: #222;
+    margin: 0;
+    padding: 0 12%;
+    line-height: 1.7;
+}
+
+/* Überschriften */
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #111;
+    margin-top: 2rem;
+}
+
+h2, h3 {
+    margin-top: 2.5rem;
+    color: #333;
+    font-size: 1.5rem;
+    border-left: 4px solid #0077cc;
+    padding-left: 0.5rem;
+}
+
+/* Listen */
+ul {
+    padding-left: 1.2rem;
+    margin: 1rem 0;
+}
+
+ul li {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Farbige Listenelemente */
+li[style*="black"] { color: #444; }
+li[style*="green"] { color: #317c2f; }
+li[style*="red"] { color: #c0392b; }
+li[style*="orange"] { color: #e67e22; }
+li[style*="lightskyblue"] { color: #3498db; }
+
+/* Text */
+p {
+    margin: 1rem 0;
+    font-size: 1.05rem;
+}
+
+/* Code-Styling */
+code {
+    background-color: #f0f0f0;
+    font-family: 'Courier New', monospace;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    color: #555;
+}
+
+/* Bilder */
+img {
+    display: block;
+    margin: 1rem auto;
+    max-width: 100%;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Link unten */
+a {
+    display: block;
+    text-align: center;
+    margin: 3rem 0 2rem;
+    font-size: 1rem;
+    text-decoration: none;
+    color: #0077cc;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #005fa3;
+}

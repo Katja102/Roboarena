@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>2. Sprint</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <h1>2. Sprint (25.4. - 9.5.):</h1>
+
+    <h3>Game Design</h3>
+    <p>
+        Wir haben uns zunächst überlegt, wie unser Spiel funktioniert:<br>
+        Man befindet sich als Spieler in einer Roboarena. Dabei ist man selbst auch ein Roboter.
+        Zusätzlich befinden sich noch weitere Roboter in der Arena, welche von uns programmiert werden.
+        Hierbei haben wir auch noch die Option, es zu einem Multiplayer-Spiel zu erweitern.
+        Die Roboter schießen sich gegenseitig ab. Wird man getroffen, verliert man ein Leben, wobei man
+        mit 3 Leben startet. Sind alle 3 Leben weg, hat man verloren. Hat man es geschafft, als letzter in der
+        Arena übrig zu bleiben, hat man gewonnen.<br><br>
+        Die Arena hat verschiedene Felder, mit jeweils besonderen Funktionen:
+    </p>
+    <ul>
+        <li style="color: black;">Wände: man kann nicht durch gelangen und kann sie nutzen, um sich zu verstecken</li>
+        <li style="color: green;">Büsche: hier kann man sich verstecken, d.h. wird von den anderen Robotern nicht gesehen</li>
+        <li style="color: red;">Lava: berührt man die Lava, verliert man ein Leben</li>
+        <li style="color: orange;">Sand: man kann sich hier nur langsamer bewegen</li>
+        <li style="color: lightskyblue;">Eis: man "rutscht aus" (versch. Ideen, wie man das realisiert)</li>
+    </ul>
+
+    <p>
+        Dann haben wir uns noch überlegt, wie unser Spiel strukturiert sein wird,
+        d.h. welche Bildschirme es geben wird:
+    </p>
+    <ul>
+        <li>Startseite/Hauptmenü (Willkommen, kurze Spielanleitung, Button zu Einstellungen)</li>
+        <li>Roboter- und Schwierigkeitsauswahl</li>
+        <li>Spielbildschirm</li>
+        <li>Menü (Button zu Hauptmenü, Hilfeseite, Einstellungen, Spiel schließen, zurück zum Spiel)</li>
+        <li>Hilfeseite</li>
+        <li>Einstellungen (Helligkeit, Lautstärke, Sprache)</li>
+        <li>Game Over / Gewonnen</li>
+    </ul>
+
+    <p>
+        (Entwicklung Spielidee, Gestaltung Spielfeld & Auswahl der Bildschirme: alle zusammen,
+        Wireframes/Sketches: Nico)
+    </p>
+
+    <h3>Wireframe</h3>
+    <p>
+        Ein Wireframe wurde mithilfe von AdobeXD erstellt, der vor allem die funktionalität die wir später in unserem Spiel haben möchten darstellt.
+        Das Design ist dabei recht simpel gehalten.
+    </p>
+    <img src="screenshots/Screenshot_Startseite.png" alt="Startseite" width="500">
+
+    <p>
+        Abgesehen von der Startseite soll es dann noch Einstellungen geben, man soll den schwierigkeitsgrad ändern können
+        und man soll zwischen vier Klassen wählen können.
+    </p>
+    <img src="screenshots/Difficulty.png" alt="Difficulty" width="500">
+    <img src="screenshots/Options.png" alt="Options" width="500">
+    <img src="screenshots/Klassenauswahl.png" alt="Difficulty" width="500">
+
+
+    <h3>Coding</h3>
+    <ul>
+        <li>
+            Eine eigene Klasse <code>Arena</code> wurde erstellt. Diese Klasse verwaltet ein Spielfeld als 2D-Liste mit verschiedenen Geländetypen wie "boden", "rand", "lava", "eis", "sand" und "gebuesch".
+            Für diesen Zweck hat die Klasse einige Methoden bereitgestellt bekommen:
+            <ul>
+                <li><code>initialise_map()</code>: Die äußeren Ränder werden automatisch mit "rand" gefüllt, der Rest zunächst mit "boden".</li>
+                <li><code>create_map(map_data)</code>: Aus einer gegebenen 2D-Liste (aktuell 46x23) wird <code>self.grid</code> angepasst.</li>
+                <li><code>draw_map()</code>: Zeichnet das Spielfeld mit den Einträgen aus <code>self.grid</code>.</li>
+            </ul>
+            <img src="screenshots/Arena_Klasse.png" alt="Arena Klasse">
+        </li>
+        <br>
+
+        <li>
+            Die Darstellung der Arena erfolgt farbbasiert mit Hilfe von <code>pygame.draw.rect</code>. Alle Farben wurden zentral über ein Dictionary <code>COLORS</code> definiert:
+            <ul>
+                <li>boden: grau</li>
+                <li>rand: dunkelgrau</li>
+                <li>lava: rot</li>
+                <li>eis: hellblau</li>
+                <li>sand: orange</li>
+                <li>gebuesch: grün</li>
+            </ul>
+            <img src="screenshots/arena_feldtypen.png" alt="Feldtypen">
+        </li>
+        <br>
+
+        <li>
+            Die Karte selbst wird in <code>map.py</code> erstellt. Dort wurde eine eigene Karte definiert mit verschiedenen Bereichen wie Lava-Feldern, Eisflächen, Sandzonen und Gebüsch.<br>
+            <img src="screenshots/Map_Code.png" alt="Map-Code">
+        </li>
+        <br>
+
+        <li>
+            Um alles zu testen, wurde eine eigene Datei <code>main.py</code> erstellt. In dieser Datei wird das Pygame-Fenster geöffnet, die Arena geladen und dargestellt.
+            So konnte geprüft werden, ob die Karte korrekt angezeigt wird.<br>
+            Die Fenstergröße wurde auf 1920x1000 Pixel gesetzt (48 Spalten × 40px und 25 Zeilen × 40px).
+            Es wurde bewusst keine Full-HD-Auflösung (1920×1080) gewählt, da Pygame die Windows-Taskleiste nicht berücksichtigt und das Fenster bei voller Höhe sonst über den oberen Bildschirmrand hinausgeht – inklusive der Fensterleiste.
+            Diese Werte stehen in einer eigenen Datei <code>config.py</code>.<br>
+            <img src="screenshots/testlauf_arena.png" alt="Testlauf Arena">
+        </li>
+        <br>
+
+        <li>
+            <strong>Zeichnung der Map:</strong><br>
+            <img src="screenshots/Map_Zeichnung.png" alt="Map Zeichnung (Handskizze)">
+        </li>
+        <br>
+
+        <li>
+            <strong>Ergebnis (umgesetzt in Pygame):</strong><br>
+            <img src="screenshots/Map_Result.png" alt="Map Ergebnis"><br>
+            (Coding Arena: Walid)
+        </li>
+        <br>
+
+        <li>
+            Um Roboter zu erstellen, verändern usw., wurde eine Klasse <code>Robot</code> erstellt.
+            Ein Roboter ist zunächst nur ein Kreis mit x/y-Koordinate der Mitte, Radius, Bewegungsrichtung und Farbe.<br>
+            <img src="screenshots/Screenshot_Robot_class.png" alt="Roboter Klasse">
+        </li>
+        <br>
+
+        <li>
+            Zusätzlich enthält die Klasse noch eine Methode, um den Roboter zu zeichnen.
+            Um die Bewegungsrichtung des Roboters anzuzeigen, bekommt der Roboter dabei noch Augen, die
+            in die Bewegungsrichtung schauen. Die Richtung wird in Grad angegeben, wobei 0° nach rechts zeigt.<br>
+            <img src="screenshots/Screenshot_draw_robot.png" alt="Funktion draw_robot()">
+        </li>
+        <br>
+
+        <li>
+            Um die Roboter zu testen und zu veranschaulichen, wurden drei verschiedene Beispielroboter erstellt.<br>
+            <img src="screenshots/Screenshot_create_robot.png" alt="Roboter erstellen"><br>
+            Diese wurden in die Arena eingefügt.<br>
+            <img src="screenshots/Screenshot_arena_with_robots.png" alt="Arena mit Roboter"><br>
+            (Coding Roboter: Sarah)
+        </li>
+        <br>
+
+        <li>
+            Die Bewegung für den Roboter des Spielers wurde in main in der Game loop erstellt.
+            Zusammen mit den Variablen für die Geschwindigkeit beim Bewegen und drehen werden die gedrückten Tasten 
+            in die Richtungen übersetzt.
+            Den Roboter kann man nun kontinuierlich in alle Richtungen (incl. diagonal,...) bewegen und unabhängig davon drehen.
+            Die Pfeiltasten werden für die Bewegung werden benutzt und die Tasten a und d für die Drehung. <br>
+            <img src="screenshots/Movement.png" alt="Movement code erstellen"><br>
+            (Coding Bewegungen: Katja)
+        </li>
+        <br>
+
+        
+    </ul>
+
+    <h3>Sonstiges (Absprachen, Probleme, Fragen etc.)</h3>
+    <ul>
+        <li>Wir haben uns entschieden mit einem Kanban-board zu arbeiten und es erstellt. (Katja)</li>
+        <li>Wie immer dokumentieren wir den Sprint auf dieser GitHub.io page
+        (Seite erstellen: Sarah, Einfügen der Ergebnisse der einzelnen Aufgaben: jeder für seine Aufgabe)</li>
+        <li>
+            Zusätzlich wurde eine Datei <code>.flake8</code> erstellt, in der die maximale Zeilenlänge auf 90 Zeichen gesetzt wurde.
+            Damit gibt es keine Konflikte mit dem automatischen Formatierer Black, der ähnliche Zeilenlängen verwendet.
+            So werden unnötige Warnungen beim Testen mit Flake8 vermieden.<br>
+            <img src="screenshots/flake8_fix.png" alt="Flake8 Screenshot">
+        </li>
+        <li>
+            Nachdem wir uns als Team besprochen haben, haben wir entschieden, die Arena doch noch zu verkleinern,
+            da man sie nur vollständig sieht, wenn man die Skalierung am Bildschirm auf 100% hat. Viele von uns haben
+            sie jedoch auf über 100%. Die Änderung ist bereits in einem anderen branch erfolgt,
+            wir haben dazu jedoch noch eine Frage, deshalb ist es noch nicht gemerged.
+        </li>
+    </ul>
+
+    <a style="display: block; text-align: center;" href="../index.html">zurück zur Startseite</a>
+</body>
+</html>
