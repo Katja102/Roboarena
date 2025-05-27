@@ -31,13 +31,13 @@ print(f"Fenster: {window_width}x{window_height}")
 print(f"TILE_SIZE: {config.TILE_SIZE}")
 
 # Load map and arena
-arena = Arena(screen, config.ROWS, config.COLUMNS, config.TEXTURES)
+arena: Arena = Arena(screen, config.ROWS, config.COLUMNS, config.TEXTURES)
 arena.create_map(map.get_map("test-level.txt"))
 
-player = Robot(screen, 500, 500, 20, 180, (255, 255, 255), 1, 1)
-enemy1 = Robot(screen, 800, 300, 30, 0, (0, 100, 190), 1, 1)
-enemy2 = Robot(screen, 300, 600, 40, 50, (255, 50, 120), 1, 1)
-enemy3 = Robot(screen, 1200, 600, 40, 50, (0, 250, 0), 1, 1)
+player: Robot = Robot(screen, 500, 500, 20, 180, (255, 255, 255), 1, 1)
+enemy1: Robot = Robot(screen, 800, 300, 30, 0, (0, 100, 190), 1, 1)
+enemy2: Robot = Robot(screen, 300, 600, 40, 50, (255, 50, 120), 1, 1)
+enemy3: Robot = Robot(screen, 1200, 600, 40, 50, (0, 250, 0), 1, 1)
 
 robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 

@@ -29,7 +29,7 @@ class Arena:
             grid.append(current_row)
         return grid
 
-    def create_map(self, map_data: list) -> None:
+    def create_map(self, map_data: list[list[str]]) -> None:
         expected_rows = self.rows - 2
         expected_columns = self.columns - 2
         for row in map_data:  # check if map_data is in invalid format

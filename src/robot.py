@@ -9,7 +9,7 @@ a_alpha_max: float = 1
 class Robot:
     def __init__(
         self,
-        screen,
+        screen: pygame.Surface,
         x: int,
         y: int,
         radius: int,
