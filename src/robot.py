@@ -2,8 +2,8 @@ import pygame
 import math
 
 # Maximum acceleration values
-a_max = 1
-a_alpha_max = 1
+a_max: float = 1
+a_alpha_max: float = 1
 
 
 class Robot:

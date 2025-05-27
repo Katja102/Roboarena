@@ -9,18 +9,19 @@ from robot import Robot
 pygame.init()
 
 # Get current screen resolution
-info = pygame.display.Info()
-max_width, max_height = info.current_w, info.current_h
+info: pygame.display._VidInfo = pygame.display.Info()
+max_width: int = info.current_w
+max_height: int = info.current_h
 
 # Calculate TILE_SIZE to fit the fixed grid into the screen
 config.TILE_SIZE = min(max_width // config.COLUMNS, max_height // config.ROWS)
 
 # set window size
-window_width = config.TILE_SIZE * config.COLUMNS
-window_height = config.TILE_SIZE * config.ROWS
+window_width: int = config.TILE_SIZE * config.COLUMNS
+window_height: int = config.TILE_SIZE * config.ROWS
 
 # Create window (not fullscreen)
-screen = pygame.display.set_mode((window_width, window_height))
+screen: pygame.Surface = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Roboarena")
 clock = pygame.time.Clock()
 
@@ -38,10 +39,10 @@ enemy1 = Robot(screen, 800, 300, 30, 0, (0, 100, 190), 1, 1)
 enemy2 = Robot(screen, 300, 600, 40, 50, (255, 50, 120), 1, 1)
 enemy3 = Robot(screen, 1200, 600, 40, 50, (0, 250, 0), 1, 1)
 
-robots = [player, enemy1, enemy2, enemy3]
+robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
-circle_tick = 50
-angle = 180
+circle_tick: int = 50
+angle: int = 180
 
 
 # Game loop
