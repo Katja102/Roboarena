@@ -16,7 +16,7 @@ class Robot:
         direction: int,
         color: tuple[int, int, int],
         a: float,
-        a_alpha: float,
+        a_alpha: float
     ):
         self.screen = screen
         self.x = x  # x-coordiante of center
@@ -30,6 +30,7 @@ class Robot:
         self.a_alpha_max = a_alpha_max  # maximal acceleration for turning
         self.v = 1  # speed for moving
         self.v_alpha = 1  # speed for turning
+        self.lives = 3  # current lives of the robot
 
     def draw_robot(self) -> None:
         # draw robot (circle)
@@ -54,6 +55,15 @@ class Robot:
         pygame.draw.circle(
             self.screen, (0, 0, 0), (right_eye_x, right_eye_y), eye_radius
         )
+
+        # draw lives
+        font = pygame.font.SysFont('Arial', self.r, False, False)
+        number_writing = font.render(str(self.lives), True, (0,0,0))
+        number_rect = number_writing.get_rect() # rectangle with size of number
+        lives_x = self.x - number_rect.centerx # place number in the center of robot circle
+        lives_y = self.y - number_rect.centery
+        self.screen.blit(number_writing, [lives_x, lives_y])
+
 
     def update_player(self, robots: list["Robot"]) -> None:
         # Update player position based on key inputs
