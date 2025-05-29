@@ -31,6 +31,8 @@ class Robot:
         self.v = 1  # speed for moving
         self.v_alpha = 1  # speed for turning
         self.lives = 3  # current lives of the robot
+        self.last_shot_time = 0  # time of last shot
+        self.shot_break_duration = 1000  # min duration of break between shots
 
     def draw_robot(self) -> None:
         # draw robot (circle)
@@ -126,11 +128,17 @@ class Robot:
                     self.y += 10 * math.sin(angle_away * math.pi / 180)
 
     def shoot(self):
+        current_time = pygame.time.get_ticks()
+        # make sure there is a break between the shots
+        if current_time - self.last_shot_time < self.shot_break_duration:
+            return None
+        # shoot, if there is enough time
         from bullet import Bullet
         alpha_rad = math.radians(self.alpha)
         # start outsinde of the robot
         start_x = self.x + self.r * math.cos(alpha_rad)
         start_y = self.y + self.r * math.sin(alpha_rad)
         bullet = Bullet(self.screen, int(start_x), int(start_y), self.alpha, 5 , (0,0,0)) # create bullet
+        self.last_shot_time = current_time
         return bullet
 

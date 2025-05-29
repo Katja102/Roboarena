@@ -59,7 +59,8 @@ while running:
             event.key == pygame.K_RETURN or event.key == pygame.K_s
             ):
             bullet = player.shoot()
-            bullets.append(bullet)
+            if bullet:
+                bullets.append(bullet)
 
     screen.fill((220, 220, 220))  # light gray background
     arena.draw_map()
