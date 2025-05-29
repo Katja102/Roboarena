@@ -22,7 +22,7 @@ class Robot:
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordinate of center
         self.r = radius  # radius of circle
-        self.alpha = direction  # direction of the robot
+        self.alpha = direction  # direction of the robot in degree
         self.color = color  # color of the robot
         self.a = a  # current acceleration for moving
         self.a_alpha = a_alpha  # current acceleration for turning
@@ -97,8 +97,9 @@ class Robot:
             if abs(angle_to_goal - self.alpha) < 180:
                 angle_to_goal *= -1
         self.alpha += math.copysign(self.v_alpha, angle_to_goal)
-        self.draw_robot()
-        self.robot_collision(robots)
+        if self.lives > 0:
+            self.draw_robot()
+            self.robot_collision(robots)
 
     def move_circle(
         self, point: tuple[int, int], r: int, angle: int, robots: list["Robot"]
@@ -123,3 +124,13 @@ class Robot:
                     angle_away = angle_to_goal
                     self.x += 10 * math.cos(angle_away * math.pi / 180)
                     self.y += 10 * math.sin(angle_away * math.pi / 180)
+
+    def shoot(self):
+        from bullet import Bullet
+        alpha_rad = math.radians(self.alpha)
+        # start outsinde of the robot
+        start_x = self.x + self.r * math.cos(alpha_rad)
+        start_y = self.y + self.r * math.sin(alpha_rad)
+        bullet = Bullet(self.screen, int(start_x), int(start_y), self.alpha, 5 , (0,0,0)) # create bullet
+        return bullet
+
