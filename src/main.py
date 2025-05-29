@@ -55,9 +55,10 @@ while running:
             event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
         ):
             running = False
+        # check, if user used a key for shooting
         if event.type == pygame.KEYDOWN and (
             event.key == pygame.K_RETURN or event.key == pygame.K_s
-            ):
+        ):
             bullet = player.shoot()
             if bullet:
                 bullets.append(bullet)
@@ -72,7 +73,7 @@ while running:
     enemy1.move_circle((800, 300), 50, angle, robots)
     enemy2.update_enemy(player, robots)
     enemy3.update_enemy(player, robots)
-    for bullet in bullets[:]: 
+    for bullet in bullets[:]:
         bullet.update_bullet(arena)
         bullet.collision_with_robots(player, robots)
         if not bullet.alive:

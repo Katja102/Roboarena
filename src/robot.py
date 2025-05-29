@@ -16,7 +16,7 @@ class Robot:
         direction: int,
         color: tuple[int, int, int],
         a: float,
-        a_alpha: float
+        a_alpha: float,
     ):
         self.screen = screen
         self.x = x  # x-coordiante of center
@@ -60,10 +60,12 @@ class Robot:
         )
 
         # draw lives
-        font = pygame.font.SysFont('Arial', self.r, False, False)
-        number_writing = font.render(str(self.lives), True, (0,0,0))
-        number_rect = number_writing.get_rect() # rectangle with size of number
-        lives_x = self.x - number_rect.centerx # place number in the center of robot circle
+        font = pygame.font.SysFont("Arial", self.r, False, False)
+        number_writing = font.render(str(self.lives), True, (0, 0, 0))
+        number_rect = number_writing.get_rect()  # rectangle with size of number
+        lives_x = (
+            self.x - number_rect.centerx
+        )  # place number in the center of robot circle
         lives_y = self.y - number_rect.centery
         self.screen.blit(number_writing, [lives_x, lives_y])
 
@@ -72,14 +74,18 @@ class Robot:
         power_width = self.r * 2
         power_x = self.x - self.r
         power_y = self.y + (1.5 * self.r)
-        pygame.draw.rect(self.screen,
-                         (255, 255, 255),
-                         pygame.Rect(power_x, power_y, power_width, power_height)) # empty bar
+        pygame.draw.rect(
+            self.screen,
+            (255, 255, 255),
+            pygame.Rect(power_x, power_y, power_width, power_height),
+            2,
+        )  # empty bar
         power_amount_width = power_width * (self.power / 100)
-        pygame.draw.rect(self.screen, (0, 200, 0),
-                         pygame.Rect(power_x, power_y, power_amount_width, power_height)) # current power
-
-
+        pygame.draw.rect(
+            self.screen,
+            (0, 200, 0),
+            pygame.Rect(power_x, power_y, power_amount_width, power_height),
+        )  # current power
 
     def update_player(self, robots: list["Robot"]) -> None:
         # Update player position based on key inputs
@@ -96,7 +102,7 @@ class Robot:
 
         # recharge power
         if self.power < 100:
-            self.power += 0.1
+            self.power += 0.05
 
     def update_enemy(self, goal: "Robot", robots: list["Robot"]) -> None:
         # Move towards a goal position
@@ -155,16 +161,17 @@ class Robot:
         if current_time - self.last_shot_time < self.shot_break_duration:
             return None
         # make sure there is enough power
-        if self.power <= 0:
+        if self.power <= 20:
             return None
-        # shoot, if there is enough time
+        # shoot, if there is enough time and power
         from bullet import Bullet
-        alpha_rad = math.radians(self.alpha)
-        # start outsinde of the robot
-        start_x = self.x + self.r * math.cos(alpha_rad)
-        start_y = self.y + self.r * math.sin(alpha_rad)
-        bullet = Bullet(self.screen, int(start_x), int(start_y), self.alpha, 5 , (0,0,0)) # create bullet
-        self.last_shot_time = current_time
-        self.power = self.power - 20
-        return bullet
 
+        alpha_rad = math.radians(self.alpha)
+        start_x = self.x + self.r * math.cos(alpha_rad)  # start outsinde of the robot
+        start_y = self.y + self.r * math.sin(alpha_rad)
+        bullet = Bullet(
+            self.screen, int(start_x), int(start_y), self.alpha, 5, (0, 0, 0)
+        )  # create bullet
+        self.last_shot_time = current_time  # update time of last shot
+        self.power -= 20  # update power
+        return bullet
