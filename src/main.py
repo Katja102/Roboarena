@@ -73,7 +73,7 @@ while running:
     enemy2.update_enemy(player, robots)
     enemy3.update_enemy(player, robots)
     for bullet in bullets[:]: 
-        bullet.update_bullet()
+        bullet.update_bullet(arena)
         bullet.collision_with_robots(player, robots)
         if not bullet.alive:
             bullets.remove(bullet)

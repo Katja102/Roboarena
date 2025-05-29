@@ -2,6 +2,7 @@ import pygame
 import math
 import config
 from robot import Robot
+from arena import Arena
 
 velocity = 5
 
@@ -27,7 +28,7 @@ class Bullet:
             self.color = color
             self.alive = True
 
-    def update_bullet(self) -> None:
+    def update_bullet(self, arena: Arena) -> None:
         # update bullet position
         direction_rad = math.radians(self.direction)
         self.currentx += self.velocity * math.cos(direction_rad)
@@ -42,7 +43,11 @@ class Bullet:
              self.alive = False
 
         # stop bullet, if it hits wall
-        # To-Do
+        current_col = int(self.currentx / config.TILE_SIZE)
+        current_row = int(self.currenty / config.TILE_SIZE)
+        if arena.grid[current_row][current_col] == "wall":
+             self.alive = False
+
 
         # draw bullet
         pygame.draw.circle(self.screen, self.color, (self.currentx, self.currenty), self.radius)

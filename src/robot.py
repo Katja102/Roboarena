@@ -33,6 +33,7 @@ class Robot:
         self.lives = 3  # current lives of the robot
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 1000  # min duration of break between shots
+        self.power = 100
 
     def draw_robot(self) -> None:
         # draw robot (circle)
@@ -66,6 +67,19 @@ class Robot:
         lives_y = self.y - number_rect.centery
         self.screen.blit(number_writing, [lives_x, lives_y])
 
+        # draw power-bar
+        power_height = self.r / 2
+        power_width = self.r * 2
+        power_x = self.x - self.r
+        power_y = self.y + (1.5 * self.r)
+        pygame.draw.rect(self.screen,
+                         (255, 255, 255),
+                         pygame.Rect(power_x, power_y, power_width, power_height)) # empty bar
+        power_amount_width = power_width * (self.power / 100)
+        pygame.draw.rect(self.screen, (0, 200, 0),
+                         pygame.Rect(power_x, power_y, power_amount_width, power_height)) # current power
+
+
 
     def update_player(self, robots: list["Robot"]) -> None:
         # Update player position based on key inputs
@@ -79,6 +93,10 @@ class Robot:
 
         # Check for collisions
         self.robot_collision(robots)
+
+        # recharge power
+        if self.power < 100:
+            self.power += 0.1
 
     def update_enemy(self, goal: "Robot", robots: list["Robot"]) -> None:
         # Move towards a goal position
@@ -102,6 +120,10 @@ class Robot:
         if self.lives > 0:
             self.draw_robot()
             self.robot_collision(robots)
+
+        # recharge power
+        if self.power < 100:
+            self.power += 0.05
 
     def move_circle(
         self, point: tuple[int, int], r: int, angle: int, robots: list["Robot"]
@@ -132,6 +154,9 @@ class Robot:
         # make sure there is a break between the shots
         if current_time - self.last_shot_time < self.shot_break_duration:
             return None
+        # make sure there is enough power
+        if self.power <= 0:
+            return None
         # shoot, if there is enough time
         from bullet import Bullet
         alpha_rad = math.radians(self.alpha)
@@ -140,5 +165,6 @@ class Robot:
         start_y = self.y + self.r * math.sin(alpha_rad)
         bullet = Bullet(self.screen, int(start_x), int(start_y), self.alpha, 5 , (0,0,0)) # create bullet
         self.last_shot_time = current_time
+        self.power = self.power - 20
         return bullet
 
