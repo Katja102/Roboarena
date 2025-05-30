@@ -7,11 +7,11 @@ from random import randint
 
 class Map:
     def __init__(self, file_path: str, player_count: int = 4):
+        # Save path and player count
         self.file_path = file_path
         self.player_count = player_count
+        # Load map from file
         self.inner_map: List[List[str]] = self.get_map()
-        self.rows = len(self.inner_map)
-        self.cols = len(self.inner_map[0])
 
     def tile_to_pixel(self, x: int, y: int) -> Tuple[int, int]:
         """Convert tile (col, row) to pixel (x, y)"""
@@ -20,28 +20,25 @@ class Map:
         return (px, py)
 
     def generate_spawn_positions(self) -> List[Tuple[int, int]]:
-        """Generate valid spawn positions (in pixels) with fixed horizontal spacing and random rows."""
+        """Generate spawn positions with fixed horizontal spacing and random rows."""
         spawn_positions: List[Tuple[int, int]] = []
         rows = len(self.inner_map)
         cols = len(self.inner_map[0])
         min_col_spacing = ceil(cols / self.player_count)
 
-        # Limit the initial column range to 70% of the minimum spacing
+        # Start spawning from a random column sector on the left
         start_col_limit = int(min_col_spacing * 0.7)
         start_col = randint(0, max(0, start_col_limit))
-        print(f"[DEBUG] min_col spacing: {min_col_spacing}, start_col: {start_col}")
 
         for i in range(self.player_count):
             col = start_col + i * min_col_spacing
             row = randint(1, rows - 2)  # Avoid top and bottom edge
 
-            # Retry until a valid tile is found
+            # Try again if tile is not walkable
             while self.inner_map[row][col] in ("wall", "lava"):
                 row = randint(1, rows - 2)
-
             px, py = self.tile_to_pixel(col, row)
             spawn_positions.append((px, py))
-            print(f"[DEBUG] Player {i} -> tile ({col}, {row}) -> pixel ({px}, {py})")
 
         return spawn_positions
 
@@ -70,12 +67,11 @@ class Map:
         ]
 
     def get_tile_type(self, x: int, y: int) -> str:
+        """Return the tile type at (x, y) if it's inside the map."""
         rows = len(self.inner_map)
         cols = len(self.inner_map[0])
         if 0 <= y < rows and 0 <= x < cols:
             return self.inner_map[y][x]
-        print(f"[ERROR] get_tile_type out of bounds: x={x}, y={y}")
-        return "out-of-bounds"
 
     def get_map(self) -> List[List[str]]:
         """Read the map file and convert characters to tile types."""
