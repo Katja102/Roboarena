@@ -158,9 +158,7 @@ class Robot:
                     self.x += 10 * math.cos(angle_away * math.pi / 180)
                     self.y += 10 * math.sin(angle_away * math.pi / 180)
 
-    def shoot(
-        self,
-    ) -> "Bullet":  # error message in editor does not lead to error when executing
+    def shoot(self):  # -> Bullet
         current_time = pygame.time.get_ticks()
         # make sure there is a break between the shots
         if current_time - self.last_shot_time < self.shot_break_duration:
