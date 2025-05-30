@@ -3,6 +3,10 @@ import config
 import math
 from arena import Arena
 
+# Constants
+ice_acceleration: float = 2
+sand_accerleration: float = 1 / 2
+
 
 class Robot:
     def __init__(
@@ -172,11 +176,11 @@ class Robot:
     def map_effects(self, arena: Arena, robots: list["Robot"]) -> None:
         touched_textures = self.touched_textures(arena)
         if "ice" in touched_textures:
-            self.v = self.speed * 2
-            self.v_alpha = self.speed_alpha * 2
+            self.v = self.speed * ice_acceleration
+            self.v_alpha = self.speed_alpha * ice_acceleration
         elif "sand" in touched_textures:
-            self.v = self.speed / 2
-            self.v_alpha = self.speed_alpha / 2
+            self.v = self.speed * sand_accerleration
+            self.v_alpha = self.speed_alpha * sand_accerleration
         elif "wall" in touched_textures:
             pass
         else:
