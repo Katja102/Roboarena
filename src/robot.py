@@ -7,6 +7,9 @@ from arena import Arena
 ice_acceleration: float = 2
 sand_accerleration: float = 1 / 2
 
+# Recharge-rate (how much power will be recharged every frame)
+recharge_rate: float = 0.05
+
 
 class Robot:
     def __init__(
@@ -24,12 +27,16 @@ class Robot:
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordinate of center
         self.r = radius  # radius of circle
-        self.alpha = direction  # direction of the robot
+        self.alpha = direction  # direction of the robot in degree
         self.color = color  # color of the robot
         self.v = speed  # current acceleration for moving
         self.v_alpha = speed_alpha  # current acceleration for turning
         self.speed = speed  # speed for moving
         self.speed_alpha = speed_alpha  # speed for turning
+        self.lives = 3  # current lives of the robot
+        self.last_shot_time = 0  # time of last shot
+        self.shot_break_duration = 1000  # min duration of break between shots
+        self.power = 100
 
     def draw_robot(self) -> None:
         # draw robot (circle)
@@ -55,6 +62,34 @@ class Robot:
             self.screen, (0, 0, 0), (right_eye_x, right_eye_y), eye_radius
         )
 
+        # draw lives
+        font = pygame.font.SysFont("Arial", self.r, False, False)
+        number_writing = font.render(str(self.lives), True, (0, 0, 0))
+        number_rect = number_writing.get_rect()  # rectangle with size of number
+        lives_x = (
+            self.x - number_rect.centerx
+        )  # place number in the center of robot circle
+        lives_y = self.y - number_rect.centery
+        self.screen.blit(number_writing, [lives_x, lives_y])
+
+        # draw power-bar
+        power_height = self.r / 2
+        power_width = self.r * 2
+        power_x = self.x - self.r
+        power_y = self.y + (1.5 * self.r)
+        pygame.draw.rect(
+            self.screen,
+            (255, 255, 255),
+            pygame.Rect(power_x, power_y, power_width, power_height),
+            2,
+        )  # empty bar
+        power_amount_width = power_width * (self.power / 100)
+        pygame.draw.rect(
+            self.screen,
+            (0, 200, 0),
+            pygame.Rect(power_x, power_y, power_amount_width, power_height),
+        )  # current power
+
     # Lets the player move the robot on map
     def update_player(
         self, robots: list["Robot"], arena: Arena, walls: list[pygame.Rect]
@@ -70,6 +105,10 @@ class Robot:
         y = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.v
         self.move_if_no_walls(x, y, walls)
         self.alpha += (keys[pygame.K_d] - keys[pygame.K_a]) * self.v_alpha
+
+        # recharge power
+        if self.power < 100:
+            self.power += recharge_rate
 
     # Lets a robot follow another robot
     def update_enemy(
@@ -102,6 +141,10 @@ class Robot:
             if abs(angle_to_goal - self.alpha) < 180:
                 angle_to_goal *= -1
         self.alpha += math.copysign(self.v_alpha, angle_to_goal)
+
+        # recharge power
+        if self.power < 100:
+            self.power += recharge_rate
 
     # Move in a circle around a point
     def move_circle(
@@ -206,3 +249,24 @@ class Robot:
         if newRect.collidelist(walls) == -1:
             self.x = xnew
             self.y = ynew
+
+    def shoot(self):  # -> Bullet
+        current_time = pygame.time.get_ticks()
+        # make sure there is a break between the shots
+        if current_time - self.last_shot_time < self.shot_break_duration:
+            return None
+        # make sure there is enough power
+        if self.power <= 20:
+            return None
+        # shoot, if there is enough time and power
+        from bullet import Bullet
+
+        alpha_rad = math.radians(self.alpha)
+        start_x = self.x + self.r * math.cos(alpha_rad)  # start outsinde of the robot
+        start_y = self.y + self.r * math.sin(alpha_rad)
+        bullet = Bullet(
+            self.screen, int(start_x), int(start_y), self.alpha, 5, (0, 0, 0)
+        )  # create bullet
+        self.last_shot_time = current_time  # update time of last shot
+        self.power -= 20  # update power
+        return bullet
