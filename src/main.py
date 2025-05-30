@@ -69,9 +69,13 @@ while running:
     if ticks > circle_tick:
         circle_tick += 50
         angle = (angle + 3) % 360
-    enemy1.move_circle((800, 300), 50, angle, robots, arena)
-    enemy2.update_enemy(player, robots, arena, walls)
-    enemy3.update_enemy(player, robots, arena, walls)
+    for robot in robots:
+        if robot == enemy1:
+            enemy1.move_circle((800, 300), 50, angle, robots, arena)
+        if robot == enemy2:
+            enemy2.update_enemy(player, robots, arena, walls)
+        if robot == enemy3:
+            enemy3.update_enemy(player, robots, arena, walls)
     for bullet in bullets[:]:
         bullet.update_bullet(arena)
         bullet.collision_with_robots(player, robots)
