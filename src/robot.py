@@ -5,6 +5,9 @@ import math
 a_max: float = 1
 a_alpha_max: float = 1
 
+# Recharge-rate (how much power will be recharged every frame)
+recharge_rate: float = 0.05
+
 
 class Robot:
     def __init__(
@@ -102,7 +105,7 @@ class Robot:
 
         # recharge power
         if self.power < 100:
-            self.power += 0.05
+            self.power += recharge_rate
 
     def update_enemy(self, goal: "Robot", robots: list["Robot"]) -> None:
         # Move towards a goal position
@@ -129,7 +132,7 @@ class Robot:
 
         # recharge power
         if self.power < 100:
-            self.power += 0.05
+            self.power += recharge_rate
 
     def move_circle(
         self, point: tuple[int, int], r: int, angle: int, robots: list["Robot"]
@@ -155,7 +158,9 @@ class Robot:
                     self.x += 10 * math.cos(angle_away * math.pi / 180)
                     self.y += 10 * math.sin(angle_away * math.pi / 180)
 
-    def shoot(self):
+    def shoot(
+        self,
+    ) -> "Bullet":  # error message in editor does not lead to error when executing
         current_time = pygame.time.get_ticks()
         # make sure there is a break between the shots
         if current_time - self.last_shot_time < self.shot_break_duration:

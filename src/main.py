@@ -56,9 +56,7 @@ while running:
         ):
             running = False
         # check, if user used a key for shooting
-        if event.type == pygame.KEYDOWN and (
-            event.key == pygame.K_RETURN or event.key == pygame.K_s
-        ):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
             bullet = player.shoot()
             if bullet:
                 bullets.append(bullet)
