@@ -8,7 +8,7 @@ class Arena:
         screen: pygame.Surface,
         rows: int,
         columns: int,
-        textures: dict[str, pygame.Surface]
+        textures: dict[str, pygame.Surface],
     ):
         self.screen = screen  # current game screen
         self.rows = rows  # number of rows
@@ -69,3 +69,24 @@ class Arena:
     def draw_map(self) -> None:
         if self.map_picture:
             self.screen.blit(self.map_picture, (0, 0))
+
+    def wall_tiles(self) -> list[tuple[int, int]]:
+        wall_tiles = []
+        for i in range(0, config.ROWS):
+            for j in range(0, config.COLUMNS):
+                if self.grid[i][j] == "wall":
+                    wall_tiles.append([j, i])
+        return wall_tiles
+
+    def walls(self) -> list[pygame.Rect]:
+        walls: list[pygame.Rect] = []
+        wall_tiles = self.wall_tiles()
+        for wall_tile in wall_tiles:
+            wall = pygame.Rect(
+                wall_tile[0] * config.TILE_SIZE,
+                wall_tile[1] * config.TILE_SIZE,
+                config.TILE_SIZE,
+                config.TILE_SIZE,
+            )
+            walls.append(wall)
+        return walls

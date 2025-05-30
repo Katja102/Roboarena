@@ -1,9 +1,11 @@
 import pygame
+import config
 import math
+from arena import Arena
 
-# Maximum acceleration values
-a_max: float = 1
-a_alpha_max: float = 1
+# Constants
+ice_acceleration: float = 2
+sand_accerleration: float = 1 / 2
 
 # Recharge-rate (how much power will be recharged every frame)
 recharge_rate: float = 0.05
@@ -18,8 +20,8 @@ class Robot:
         radius: int,
         direction: int,
         color: tuple[int, int, int],
-        a: float,
-        a_alpha: float,
+        speed: float,
+        speed_alpha: float,
     ):
         self.screen = screen
         self.x = x  # x-coordiante of center
@@ -27,12 +29,10 @@ class Robot:
         self.r = radius  # radius of circle
         self.alpha = direction  # direction of the robot in degree
         self.color = color  # color of the robot
-        self.a = a  # current acceleration for moving
-        self.a_alpha = a_alpha  # current acceleration for turning
-        self.a_max = a_max  # maximal acceleration for moving
-        self.a_alpha_max = a_alpha_max  # maximal acceleration for turning
-        self.v = 1  # speed for moving
-        self.v_alpha = 1  # speed for turning
+        self.v = speed  # current acceleration for moving
+        self.v_alpha = speed_alpha  # current acceleration for turning
+        self.speed = speed  # speed for moving
+        self.speed_alpha = speed_alpha  # speed for turning
         self.lives = 3  # current lives of the robot
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 1000  # min duration of break between shots
@@ -90,29 +90,44 @@ class Robot:
             pygame.Rect(power_x, power_y, power_amount_width, power_height),
         )  # current power
 
-    def update_player(self, robots: list["Robot"]) -> None:
-        # Update player position based on key inputs
-        self.draw_robot()
+    # Lets the player move the robot on map
+    def update_player(
+        self, robots: list["Robot"], arena: Arena, walls: list[pygame.Rect]
+    ) -> None:
+        # Check for collisions and effect
+        self.map_effects(arena, robots)
+        self.robot_collision(robots)
 
+        # Update player position based on key inputs
         keys = pygame.key.get_pressed()
 
-        self.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.v
-        self.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.v
+        x = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.v
+        y = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.v
+        self.move_if_no_walls(x, y, walls)
         self.alpha += (keys[pygame.K_d] - keys[pygame.K_a]) * self.v_alpha
-
-        # Check for collisions
-        self.robot_collision(robots)
 
         # recharge power
         if self.power < 100:
             self.power += recharge_rate
 
-    def update_enemy(self, goal: "Robot", robots: list["Robot"]) -> None:
+    # Lets a robot follow another robot
+    def update_enemy(
+        self,
+        goal: "Robot",
+        robots: list["Robot"],
+        arena: Arena,
+        walls: list[pygame.Rect],
+    ) -> None:
+        # Check for collisions and effect
+        self.map_effects(arena, robots)
+        self.robot_collision(robots)
+
         # Move towards a goal position
         x_to_goal = goal.x - self.x
         y_to_goal = goal.y - self.y
-        self.x += math.copysign(self.v, x_to_goal) / 3
-        self.y += math.copysign(self.v, y_to_goal) / 3
+        x = math.copysign(self.v, x_to_goal) / 3
+        y = math.copysign(self.v, y_to_goal) / 3
+        self.move_if_no_walls(x, y, walls)
 
         # Adjust rotation to face the goal
         rad_to_goal = math.atan2(y_to_goal, x_to_goal)
@@ -126,37 +141,114 @@ class Robot:
             if abs(angle_to_goal - self.alpha) < 180:
                 angle_to_goal *= -1
         self.alpha += math.copysign(self.v_alpha, angle_to_goal)
-        if self.lives > 0:
-            self.draw_robot()
-            self.robot_collision(robots)
 
         # recharge power
         if self.power < 100:
             self.power += recharge_rate
 
+    # Move in a circle around a point
     def move_circle(
-        self, point: tuple[int, int], r: int, angle: int, robots: list["Robot"]
+        self,
+        point: tuple[int, int],
+        r: int,
+        angle: int,
+        robots: list["Robot"],
+        arena: Arena,
     ) -> None:
-        # Move in a circle around a point
+        # Check for collisions and effect
+        self.map_effects(arena, robots)
+        self.robot_collision(robots)
+
         self.x = point[0] + r * math.cos(angle * math.pi / 180)
         self.y = point[1] + r * math.sin(angle * math.pi / 180)
         self.alpha = angle + 90  # rotate to face along the circle
-        self.draw_robot()
-        self.robot_collision(robots)
 
+    # React to collisions with other robots
     def robot_collision(self, robots: list["Robot"]) -> None:
-        # Detect and react to collisions with other robots
+        dist, robot = self.robot_dist(robots)
+        if dist <= 0:
+            rad_to_goal = math.atan2(robot.y - self.y, robot.x - self.x)
+            angle_to_goal = math.degrees(rad_to_goal) + 180 % 360
+            angle_away = angle_to_goal
+            self.x += 10 * math.cos(angle_away * math.pi / 180)
+            self.y += 10 * math.sin(angle_away * math.pi / 180)
+
+    # Detect nearest distance to other robots
+    def robot_dist(self, robots: list["Robot"]) -> tuple[float, "Robot"]:
+        distance = max(config.COLUMNS, config.ROWS) * config.TILE_SIZE
+        nearest_robot: Robot = self
         for robot in robots:
             if robot != self:
                 x_to_robot = robot.x - self.x
                 y_to_robot = robot.y - self.y
-                dist = math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2)
-                if dist <= robot.r + self.r:
-                    rad_to_goal = math.atan2(y_to_robot, x_to_robot)
-                    angle_to_goal = math.degrees(rad_to_goal) + 180 % 360
-                    angle_away = angle_to_goal
-                    self.x += 10 * math.cos(angle_away * math.pi / 180)
-                    self.y += 10 * math.sin(angle_away * math.pi / 180)
+                dist = (
+                    math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2) - self.r - robot.r
+                )
+                if dist < distance:
+                    distance = dist
+                    nearest_robot: Robot = robot
+        return (distance, nearest_robot)
+
+    # Get the list of tiles touched by the robot
+    def touched_tiles(self) -> list[tuple[int, int]]:
+        x_on_tiles = self.x / config.TILE_SIZE
+        y_on_tiles = self.y / config.TILE_SIZE
+        radius_on_tiles = self.r / config.TILE_SIZE
+        x_bounds = [
+            math.floor(x_on_tiles - radius_on_tiles),
+            math.floor(x_on_tiles + radius_on_tiles),
+        ]
+        y_bounds = [
+            math.floor(y_on_tiles - radius_on_tiles),
+            math.floor(y_on_tiles + radius_on_tiles),
+        ]
+        touching_tiles = []
+        for i in range(x_bounds[0], x_bounds[1] + 1):
+            for j in range(y_bounds[0], y_bounds[1] + 1):
+                touching_tiles.append([i, j])
+        return touching_tiles
+
+    # Get the textures of the tiles touched by the robot
+    def touched_textures(self, arena: Arena) -> list[str]:
+        touched_textures = []
+        for [i, j] in self.touched_tiles():
+            touched_textures.append(arena.grid[j][i])
+        return touched_textures
+
+    # Effect for robot from map
+    def map_effects(self, arena: Arena, robots: list["Robot"]) -> None:
+        touched_textures = self.touched_textures(arena)
+        if "ice" in touched_textures:
+            self.v = self.speed * ice_acceleration
+            self.v_alpha = self.speed_alpha * ice_acceleration
+        elif "sand" in touched_textures:
+            self.v = self.speed * sand_accerleration
+            self.v_alpha = self.speed_alpha * sand_accerleration
+        elif "wall" in touched_textures:
+            pass
+        else:
+            self.v = self.speed
+            self.v_alpha = self.speed_alpha
+        self.draw_robot()
+        if "lava" in touched_textures:
+            pass
+        if "bush" in touched_textures:
+            for [i, j] in self.touched_tiles():
+                if "bush" == arena.grid[j][i]:
+                    texture = config.TEXTURES["bush"].convert()
+                    tile = pygame.transform.scale(
+                        texture, (config.TILE_SIZE, config.TILE_SIZE)
+                    )
+                    self.screen.blit(tile, (i * config.TILE_SIZE, j * config.TILE_SIZE))
+
+    # moves robot if new position not in wall
+    def move_if_no_walls(self, x: float, y: float, walls: list[pygame.Rect]) -> None:
+        xnew = self.x + x
+        ynew = self.y + y
+        newRect = pygame.Rect(xnew - self.r, ynew - self.r, self.r * 2, self.r * 2)
+        if newRect.collidelist(walls) == -1:
+            self.x = xnew
+            self.y = ynew
 
     def shoot(self):  # -> Bullet
         current_time = pygame.time.get_ticks()
