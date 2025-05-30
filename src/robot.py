@@ -1,11 +1,11 @@
 import pygame
 import config
 import math
-from arena import Arena
+from map import Map
 
 # Constants
 ice_acceleration: float = 2
-sand_accerleration: float = 1 / 2
+sand_acceleration: float = 1 / 2
 
 # Recharge-rate (how much power will be recharged every frame)
 recharge_rate: float = 0.05
@@ -92,10 +92,10 @@ class Robot:
 
     # Lets the player move the robot on map
     def update_player(
-        self, robots: list["Robot"], arena: Arena, walls: list[pygame.Rect]
+        self, robots: list["Robot"], game_map: Map, walls: list[pygame.Rect]
     ) -> None:
         # Check for collisions and effect
-        self.map_effects(arena, robots)
+        self.map_effects(game_map, robots)
         self.robot_collision(robots)
 
         # Update player position based on key inputs
@@ -115,11 +115,11 @@ class Robot:
         self,
         goal: "Robot",
         robots: list["Robot"],
-        arena: Arena,
+        game_map: Map,
         walls: list[pygame.Rect],
     ) -> None:
         # Check for collisions and effect
-        self.map_effects(arena, robots)
+        self.map_effects(game_map, robots)
         self.robot_collision(robots)
 
         # Move towards a goal position
@@ -153,10 +153,10 @@ class Robot:
         r: int,
         angle: int,
         robots: list["Robot"],
-        arena: Arena,
+        game_map: Map,
     ) -> None:
         # Check for collisions and effect
-        self.map_effects(arena, robots)
+        self.map_effects(game_map, robots)
         self.robot_collision(robots)
 
         self.x = point[0] + r * math.cos(angle * math.pi / 180)
@@ -205,25 +205,25 @@ class Robot:
         touching_tiles = []
         for i in range(x_bounds[0], x_bounds[1] + 1):
             for j in range(y_bounds[0], y_bounds[1] + 1):
-                touching_tiles.append([i, j])
+                touching_tiles.append((i, j))
         return touching_tiles
 
     # Get the textures of the tiles touched by the robot
-    def touched_textures(self, arena: Arena) -> list[str]:
+    def touched_textures(self, game_map: Map) -> list[str]:
         touched_textures = []
         for [i, j] in self.touched_tiles():
-            touched_textures.append(arena.grid[j][i])
+            touched_textures.append(game_map.get_tile_type(i, j))
         return touched_textures
 
     # Effect for robot from map
-    def map_effects(self, arena: Arena, robots: list["Robot"]) -> None:
-        touched_textures = self.touched_textures(arena)
+    def map_effects(self, game_map: Map, robots: list["Robot"]) -> None:
+        touched_textures = self.touched_textures(game_map)
         if "ice" in touched_textures:
             self.v = self.speed * ice_acceleration
             self.v_alpha = self.speed_alpha * ice_acceleration
         elif "sand" in touched_textures:
-            self.v = self.speed * sand_accerleration
-            self.v_alpha = self.speed_alpha * sand_accerleration
+            self.v = self.speed * sand_acceleration
+            self.v_alpha = self.speed_alpha * sand_acceleration
         elif "wall" in touched_textures:
             pass
         else:
@@ -234,7 +234,7 @@ class Robot:
             pass
         if "bush" in touched_textures:
             for [i, j] in self.touched_tiles():
-                if "bush" == arena.grid[j][i]:
+                if game_map.get_tile_type(i, j) == "bush":
                     texture = config.TEXTURES["bush"].convert()
                     tile = pygame.transform.scale(
                         texture, (config.TILE_SIZE, config.TILE_SIZE)

@@ -10,51 +10,53 @@ class Arena:
         columns: int,
         textures: dict[str, pygame.Surface],
     ):
-        self.screen = screen  # current game screen
-        self.rows = rows  # number of rows
-        self.columns = columns  # number of columns
-        self.textures = textures  # possible tile textures
-        self.grid = self.initialise_map()  # fill grid with floor and outer walls
-        self.map_picture = None  # complete map for the arena, to render it only once
+        self.screen = screen
+        self.rows = rows
+        self.columns = columns
+        self.textures = textures
+        self.grid = self.initialise_map()
+        self.map_picture = None
 
     def initialise_map(self) -> list[list[str]]:
+        # Fill grid with floor and outer wall by default
         grid = []
         for r in range(self.rows):
             current_row = []
             for c in range(self.columns):
                 if c == 0 or r == 0 or r == self.rows - 1 or c == self.columns - 1:
-                    current_row.append("wall")  # outer edges
+                    current_row.append("wall")
                 else:
-                    current_row.append("ground")  # inner tiles
+                    current_row.append("ground")
             grid.append(current_row)
         return grid
 
     def create_map(self, map_data: list[list[str]]) -> None:
+        # Paste a map into the arena grid, offset by 1
         expected_rows = self.rows - 2
         expected_columns = self.columns - 2
-        for row in map_data:  # check if map_data is in invalid format
-            if len(map_data) != expected_rows:
-                raise ValueError(
-                    f"Map must have exactly {expected_rows}"
-                    f" rows but got {len(map_data)}."
-                )
+
+        if len(map_data) != expected_rows:
+            raise ValueError(
+                f"Map must have exactly {expected_rows} rows but got {len(map_data)}."
+            )
+        for row in map_data:
             if len(row) != expected_columns:
                 raise ValueError(
-                    f"Map must have exactly {expected_columns}"
-                    f" rows but got {len(row)}."
+                    f"Each map row must have exactly {expected_columns} columns."
                 )
+
         for r in range(expected_rows):
             for c in range(expected_columns):
-                self.grid[r + 1][c + 1] = map_data[r][
-                    c
-                ]  # assign inner tiles of current
-                # map to map_data with format-Offset 1
+                self.grid[r + 1][c + 1] = map_data[r][c]
+
         self.draw_map_picture()
 
     def draw_map_picture(self) -> None:
+        # Render the full map once as a surface
         width = self.columns * config.TILE_SIZE
         height = self.rows * config.TILE_SIZE
         self.map_picture = pygame.Surface((width, height))
+
         for row in range(self.rows):
             for col in range(self.columns):
                 x = col * config.TILE_SIZE
@@ -67,26 +69,6 @@ class Arena:
                 self.map_picture.blit(texture, (x, y))
 
     def draw_map(self) -> None:
+        # Draw the pre-rendered map to the screen
         if self.map_picture:
             self.screen.blit(self.map_picture, (0, 0))
-
-    def wall_tiles(self) -> list[tuple[int, int]]:
-        wall_tiles = []
-        for i in range(0, config.ROWS):
-            for j in range(0, config.COLUMNS):
-                if self.grid[i][j] == "wall":
-                    wall_tiles.append([j, i])
-        return wall_tiles
-
-    def walls(self) -> list[pygame.Rect]:
-        walls: list[pygame.Rect] = []
-        wall_tiles = self.wall_tiles()
-        for wall_tile in wall_tiles:
-            wall = pygame.Rect(
-                wall_tile[0] * config.TILE_SIZE,
-                wall_tile[1] * config.TILE_SIZE,
-                config.TILE_SIZE,
-                config.TILE_SIZE,
-            )
-            walls.append(wall)
-        return walls
