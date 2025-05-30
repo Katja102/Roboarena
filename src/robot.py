@@ -5,6 +5,9 @@ import math
 a_max: float = 1
 a_alpha_max: float = 1
 
+# Recharge-rate (how much power will be recharged every frame)
+recharge_rate: float = 0.05
+
 
 class Robot:
     def __init__(
@@ -22,7 +25,7 @@ class Robot:
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordinate of center
         self.r = radius  # radius of circle
-        self.alpha = direction  # direction of the robot
+        self.alpha = direction  # direction of the robot in degree
         self.color = color  # color of the robot
         self.a = a  # current acceleration for moving
         self.a_alpha = a_alpha  # current acceleration for turning
@@ -30,6 +33,10 @@ class Robot:
         self.a_alpha_max = a_alpha_max  # maximal acceleration for turning
         self.v = 1  # speed for moving
         self.v_alpha = 1  # speed for turning
+        self.lives = 3  # current lives of the robot
+        self.last_shot_time = 0  # time of last shot
+        self.shot_break_duration = 1000  # min duration of break between shots
+        self.power = 100
 
     def draw_robot(self) -> None:
         # draw robot (circle)
@@ -55,6 +62,34 @@ class Robot:
             self.screen, (0, 0, 0), (right_eye_x, right_eye_y), eye_radius
         )
 
+        # draw lives
+        font = pygame.font.SysFont("Arial", self.r, False, False)
+        number_writing = font.render(str(self.lives), True, (0, 0, 0))
+        number_rect = number_writing.get_rect()  # rectangle with size of number
+        lives_x = (
+            self.x - number_rect.centerx
+        )  # place number in the center of robot circle
+        lives_y = self.y - number_rect.centery
+        self.screen.blit(number_writing, [lives_x, lives_y])
+
+        # draw power-bar
+        power_height = self.r / 2
+        power_width = self.r * 2
+        power_x = self.x - self.r
+        power_y = self.y + (1.5 * self.r)
+        pygame.draw.rect(
+            self.screen,
+            (255, 255, 255),
+            pygame.Rect(power_x, power_y, power_width, power_height),
+            2,
+        )  # empty bar
+        power_amount_width = power_width * (self.power / 100)
+        pygame.draw.rect(
+            self.screen,
+            (0, 200, 0),
+            pygame.Rect(power_x, power_y, power_amount_width, power_height),
+        )  # current power
+
     def update_player(self, robots: list["Robot"]) -> None:
         # Update player position based on key inputs
         self.draw_robot()
@@ -67,6 +102,10 @@ class Robot:
 
         # Check for collisions
         self.robot_collision(robots)
+
+        # recharge power
+        if self.power < 100:
+            self.power += recharge_rate
 
     def update_enemy(self, goal: "Robot", robots: list["Robot"]) -> None:
         # Move towards a goal position
@@ -87,8 +126,13 @@ class Robot:
             if abs(angle_to_goal - self.alpha) < 180:
                 angle_to_goal *= -1
         self.alpha += math.copysign(self.v_alpha, angle_to_goal)
-        self.draw_robot()
-        self.robot_collision(robots)
+        if self.lives > 0:
+            self.draw_robot()
+            self.robot_collision(robots)
+
+        # recharge power
+        if self.power < 100:
+            self.power += recharge_rate
 
     def move_circle(
         self, point: tuple[int, int], r: int, angle: int, robots: list["Robot"]
@@ -113,3 +157,24 @@ class Robot:
                     angle_away = angle_to_goal
                     self.x += 10 * math.cos(angle_away * math.pi / 180)
                     self.y += 10 * math.sin(angle_away * math.pi / 180)
+
+    def shoot(self):  # -> Bullet
+        current_time = pygame.time.get_ticks()
+        # make sure there is a break between the shots
+        if current_time - self.last_shot_time < self.shot_break_duration:
+            return None
+        # make sure there is enough power
+        if self.power <= 20:
+            return None
+        # shoot, if there is enough time and power
+        from bullet import Bullet
+
+        alpha_rad = math.radians(self.alpha)
+        start_x = self.x + self.r * math.cos(alpha_rad)  # start outsinde of the robot
+        start_y = self.y + self.r * math.sin(alpha_rad)
+        bullet = Bullet(
+            self.screen, int(start_x), int(start_y), self.alpha, 5, (0, 0, 0)
+        )  # create bullet
+        self.last_shot_time = current_time  # update time of last shot
+        self.power -= 20  # update power
+        return bullet

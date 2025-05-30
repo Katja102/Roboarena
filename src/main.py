@@ -4,6 +4,7 @@ import config
 import map
 from arena import Arena
 from robot import Robot
+from bullet import Bullet
 
 # Initialisation
 pygame.init()
@@ -40,6 +41,7 @@ enemy2: Robot = Robot(screen, 300, 600, 40, 50, (255, 50, 120), 1, 1)
 enemy3: Robot = Robot(screen, 1200, 600, 40, 50, (0, 250, 0), 1, 1)
 
 robots: list[Robot] = [player, enemy1, enemy2, enemy3]
+bullets: list[Bullet] = []
 
 circle_tick: int = 50
 angle: int = 180
@@ -53,6 +55,11 @@ while running:
             event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
         ):
             running = False
+        # check, if user used a key for shooting
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+            bullet = player.shoot()
+            if bullet:
+                bullets.append(bullet)
 
     screen.fill((220, 220, 220))  # light gray background
     arena.draw_map()
@@ -64,6 +71,14 @@ while running:
     enemy1.move_circle((800, 300), 50, angle, robots)
     enemy2.update_enemy(player, robots)
     enemy3.update_enemy(player, robots)
+    for bullet in bullets[:]:
+        bullet.update_bullet(arena)
+        bullet.collision_with_robots(player, robots)
+        if not bullet.alive:
+            bullets.remove(bullet)
+    for robot in robots:
+        if robot.lives == 0:
+            robots.remove(robot)
     pygame.display.flip()
     clock.tick(60)
 
