@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import pygame
 import config
-from math import ceil
+from math import sqrt, ceil
 from random import randint
 
 
@@ -20,26 +20,40 @@ class Map:
         return (px, py)
 
     def generate_spawn_positions(self) -> List[Tuple[int, int]]:
-        """Generate spawn positions with fixed horizontal spacing and random rows."""
+        """Generate spaced-out spawn positions (pixels) avoiding invalid tiles."""
         spawn_positions: List[Tuple[int, int]] = []
+        spawn_tiles: List[Tuple[int, int]] = []
+
         rows = len(self.inner_map)
         cols = len(self.inner_map[0])
-        min_col_spacing = ceil(cols / self.player_count)
 
-        # Start spawning from a random column sector on the left
-        start_col_limit = int(min_col_spacing * 0.7)
-        start_col = randint(0, max(0, start_col_limit))
+        min_col_dist = ceil(cols / self.player_count)
+        min_row_dist = ceil(rows / self.player_count)
+        min_euclidean_dist = sqrt(min_col_dist ** 2 + min_row_dist ** 2)
 
-        for i in range(self.player_count):
-            col = start_col + i * min_col_spacing
-            row = randint(1, rows - 2)  # Avoid top and bottom edge
+        attempts = 0
+        while len(spawn_tiles) < self.player_count:
+            col = randint(2, cols - 3)
+            row = randint(2, rows - 3)
+            attempts += 1
 
-            # Try again if tile is not walkable
-            while self.inner_map[row][col] in ("wall", "lava"):
-                row = randint(1, rows - 2)
-            px, py = self.tile_to_pixel(col, row)
-            spawn_positions.append((px, py))
+            if self.inner_map[row][col] in ("wall", "lava", "bush"):
+                continue
 
+            too_close = False
+            for (c, r) in spawn_tiles:
+                dist = sqrt((col - c) ** 2 + (row - r) ** 2)
+                if dist < min_euclidean_dist:
+                    too_close = True
+                    break
+
+            if not too_close:
+                spawn_tiles.append((col, row))
+                px, py = self.tile_to_pixel(col, row)
+                spawn_positions.append((px, py))
+                print(f"[INFO] Player {len(spawn_tiles) - 1} -> tile ({col}, {row}) -> pixel ({px}, {py})")
+
+        print(f"Found {self.player_count} spawnpoints in {attempts} attempts.")
         return spawn_positions
 
     def walls(self) -> List[pygame.Rect]:
