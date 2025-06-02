@@ -10,12 +10,12 @@ class Arena:
         columns: int,
         textures: dict[str, pygame.Surface],
     ):
-        self.screen = screen
-        self.rows = rows
-        self.columns = columns
-        self.textures = textures
-        self.grid = self.initialise_map()
-        self.map_picture = None
+        self.screen = screen  # current game screen
+        self.rows = rows  # number of rows
+        self.columns = columns  # number of columns
+        self.textures = textures  # possible tile textures
+        self.grid = self.initialise_map()  # fill grid with floor and outer walls
+        self.map_picture = None  # complete map for the arena, to render it only once
 
     def initialise_map(self) -> list[list[str]]:
         # Fill grid with floor and outer wall by default
