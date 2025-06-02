@@ -39,9 +39,9 @@ walls = game_map.walls()
 
 # Create robots using spawn positions
 spawn_positions = game_map.generate_spawn_positions()
-player = Robot(screen, *spawn_positions[0], 20, 180, (255, 255, 255), 1, 1)
+player = Robot(screen, *spawn_positions[0], 20, 180, (255, 255, 255), 1, 1)  #
 enemy1 = Robot(screen, *spawn_positions[1], 30, 0, (0, 100, 190), 1, 1)
-enemy2 = Robot(screen, *spawn_positions[2], 40, 50, (255, 50, 120), 1, 1)
+enemy2 = Robot(screen, *spawn_positions[2], 60, 50, (255, 50, 120), 1, 1)
 enemy3 = Robot(screen, *spawn_positions[3], 40, 50, (0, 250, 0), 1, 1)
 robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
@@ -74,7 +74,7 @@ while running:
         angle = (angle + 3) % 360
     for robot in robots:
         if robot == enemy1:
-            enemy1.move_circle((800, 300), 50, angle, robots, game_map)
+            enemy1.move_circle(spawn_positions[1], 50, angle, robots, game_map)
         if robot == enemy2:
             enemy2.update_enemy(player, robots, game_map, walls)
         if robot == enemy3:
