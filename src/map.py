@@ -29,7 +29,7 @@ class Map:
 
         min_col_dist = ceil(cols / self.player_count)
         min_row_dist = ceil(rows / self.player_count)
-        min_euclidean_dist = sqrt(min_col_dist ** 2 + min_row_dist ** 2)
+        min_euclidean_dist = sqrt(min_col_dist**2 + min_row_dist**2)
 
         attempts = 0
         while len(spawn_tiles) < self.player_count:
@@ -41,7 +41,7 @@ class Map:
                 continue
 
             too_close = False
-            for (c, r) in spawn_tiles:
+            for c, r in spawn_tiles:
                 dist = sqrt((col - c) ** 2 + (row - r) ** 2)
                 if dist < min_euclidean_dist:
                     too_close = True
@@ -51,7 +51,10 @@ class Map:
                 spawn_tiles.append((col, row))
                 px, py = self.tile_to_pixel(col, row)
                 spawn_positions.append((px, py))
-                print(f"[INFO] Player {len(spawn_tiles) - 1} -> tile ({col}, {row}) -> pixel ({px}, {py})")
+                print(
+                    f"[INFO] Player {len(spawn_tiles) - 1} "
+                    f"-> tile ({col}, {row}) -> pixel ({px}, {py})"
+                )
 
         print(f"Found {self.player_count} spawnpoints in {attempts} attempts.")
         return spawn_positions
