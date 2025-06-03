@@ -2,7 +2,7 @@ import pygame
 import sys
 import config
 from map import Map
-from arena import Arena
+from map_renderer import MapRenderer
 from robot import Robot
 from bullet import Bullet
 
@@ -31,15 +31,15 @@ print(f"Monitor: {max_width}x{max_height}")
 print(f"Fenster: {window_width}x{window_height}")
 print(f"TILE_SIZE: {config.TILE_SIZE}")
 
-# Load map and arena
-game_map: Map = Map("test-level.txt")
-arena: Arena = Arena(screen, config.ROWS, config.COLUMNS, config.TEXTURES)
-arena.create_map(game_map.inner_map)
+# Load map data and prepare rendering
+game_map = Map("test-level.txt")
+map_renderer = MapRenderer(screen, config.TEXTURES)
+map_renderer.draw_map_picture(game_map.get_map_data())
 walls = game_map.walls()
 
 # Create robots using spawn positions
 spawn_positions = game_map.generate_spawn_positions()
-player = Robot(screen, *spawn_positions[0], 20, 180, (255, 255, 255), 1, 1)  #
+player = Robot(screen, *spawn_positions[0], 15, 180, (255, 255, 255), 1, 1)
 enemy1 = Robot(screen, *spawn_positions[1], 30, 0, (0, 100, 190), 1, 1)
 enemy2 = Robot(screen, *spawn_positions[2], 60, 50, (255, 50, 120), 1, 1)
 enemy3 = Robot(screen, *spawn_positions[3], 40, 50, (0, 250, 0), 1, 1)
@@ -47,7 +47,7 @@ robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
 # Setup for bullets and movement
 bullets: list[Bullet] = []
-circle_tick: int = 50
+circle_tick: int = 100
 angle: int = 180
 
 
@@ -66,7 +66,7 @@ while running:
                 bullets.append(bullet)
 
     screen.fill((220, 220, 220))  # light gray background
-    arena.draw_map()
+    map_renderer.draw_map()
     ticks = pygame.time.get_ticks()
     player.update_player(robots, game_map, walls)
     if ticks > circle_tick:
@@ -80,7 +80,7 @@ while running:
         if robot == enemy3:
             enemy3.update_enemy(player, robots, game_map, walls)
     for bullet in bullets[:]:
-        bullet.update_bullet(arena)
+        bullet.update_bullet(game_map)
         bullet.collision_with_robots(player, robots)
         if not bullet.alive:
             bullets.remove(bullet)
