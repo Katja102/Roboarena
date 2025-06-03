@@ -81,6 +81,42 @@
             Spracheauswahl
         </li>
     </ul>
+
+    <h3>Coding: Schießfunktion und Leben der Roboter</h3>
+    Eine wichtige Funktion für unser Spiel ist, dass die Roboter schießen können und dass sie ein Leben verlieren, 
+    wenn sie getroffen werden:
+    <ul>
+        <li>
+            Es wurde die Klasse Bullet erstellt, welche eine Kugel repräsentiert. Eine Kugel hat die Attribute Position (x- und y-
+            Koordinate), Flugreichtung, Geschwindigkeit, Radius, Farbe und ob sie noch existiert. Die Kugel fliegt unendlich weit
+             bzw. bis sie eine Wand oder einen Roboter trifft oder den Bildschirm verlässt.
+        </li>
+        <li>
+            Man kann mit der s-Taste schießen. Da man sich mit der a- und d-Taste dreht, kann man so schießen ohne eine Hand bewegen zu müssen.
+            Außerdem kann man sich so während dem Schießen trotzdem weiter bewegen.
+        </li>
+        <li>
+            Um nicht extrem schnell hintereinander schießen zu können, muss nach jedem Schuß kurz Zeit vergehen, bis man erneut schießen kann
+             (1 Sekunde). Dadurch kann man den Gegner nicht mehrmals direkt hintereinander abzuschießen, 
+            ohne dass er Zeit hat zu reagieren. Die genaue Dauer der Pause muss eventuell noch angepasst werden, wenn der komplette Spielmechanismus
+            vorhanden ist, um so eine gute Schwierigkeit zu erzeilen.
+        </li>
+        <li>
+            Damit die Spieler nicht zu oft hintereinander schießen können und um das Spiel somit schwieriger zu machen, hat jeder Roboter eine bestimmte Power.
+            Diese füllt sich gleichmäßig mit der Zeit wieder auf. Jeder Schuss verbraucht eine bestimmt Menge Power, 
+            deshalb kann nur geschossen werden, wenn genug Power vorhanden ist. Die aktuell verfügbare Power wird unter dem Roboter in Form einer Powerbar angezeigt.
+        </li>
+        <li>Wird ein Roboter getroffen, verliert er ein Leben. Jeder Roboter startet mit 3 Leben. Hat er keine Leben mehr übrig, scheidet er aus dem Spiel aus 
+            und wird auch nicht mehr in der Arena angezeigt.
+            Die Leben sind aktuell als Zahl in der Mitte der Roboter dargestellt. Das ist aber eher eine Übergangslösung und kann noch deutlich besser gestaltet werden.
+            Da wir aber sowiso planen unsere Roboter neu zu gestalten, wird das erst in diesem Zusammenhang passend zum neuen Roboter gestaltet.
+        </li>
+    </ul>
+    <video controls>
+        <source src="screenshots/video_shooting_lives.mp4" type="video/mp4">
+        Das Video kann nicht angezeigt werden.
+    </video>
+    (Sarah)
     
     <h3>Sonstiges (Absprachen, Probleme, Fragen etc.)</h3>
     <ul>
