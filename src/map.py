@@ -52,7 +52,9 @@ class Map:
         for line in lines:
             line = line.rstrip("\n")
             if len(line) != self.cols - 2:
-                raise ValueError(f"Each line must have exactly {self.cols - 2} columns.")
+                raise ValueError(
+                    f"Each line must have exactly {self.cols - 2} columns."
+                )
 
             row = []
             for char in line:
@@ -75,7 +77,7 @@ class Map:
 
     def tile_to_pixel(self, x: int, y: int) -> Tuple[int, int]:
         """Convert tile (col, row) to pixel (x, y)
-           (Used in generate_spawn_positions) """
+        (Used in generate_spawn_positions)"""
         px = x * config.TILE_SIZE + config.TILE_SIZE // 2
         py = y * config.TILE_SIZE + config.TILE_SIZE // 2
         return (px, py)
@@ -97,7 +99,12 @@ class Map:
                 continue
 
             too_close = False
-            for c, r in spawn_tiles:  # Skip distance check for Player 0 (no previous spawns yet)
+            for (
+                c,
+                r,
+            ) in (
+                spawn_tiles
+            ):  # Skip distance check for Player 0 (no previous spawns yet)
                 dist = sqrt((col - c) ** 2 + (row - r) ** 2)
                 if dist < min_euclidean_dist:
                     too_close = True
@@ -134,4 +141,3 @@ class Map:
     def get_map_data(self):
         """Return map data"""
         return self.map_data
-
