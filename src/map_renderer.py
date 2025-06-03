@@ -2,7 +2,7 @@ import pygame
 import config
 
 
-class Arena:
+class MapRenderer:
     def __init__(
         self,
         screen: pygame.Surface,
@@ -16,19 +16,6 @@ class Arena:
         self.textures = textures  # possible tile textures
         self.grid = self.initialise_map()  # fill grid with floor and outer walls
         self.map_picture = None  # complete map for the arena, to render it only once
-
-    def initialise_map(self) -> list[list[str]]:
-        # Fill grid with floor and outer wall by default
-        grid = []
-        for r in range(self.rows):
-            current_row = []
-            for c in range(self.columns):
-                if c == 0 or r == 0 or r == self.rows - 1 or c == self.columns - 1:
-                    current_row.append("wall")
-                else:
-                    current_row.append("ground")
-            grid.append(current_row)
-        return grid
 
     def create_map(self, map_data: list[list[str]]) -> None:
         # Paste a map into the arena grid, offset by 1
