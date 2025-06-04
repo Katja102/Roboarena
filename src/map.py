@@ -3,7 +3,7 @@ import pygame
 import config
 from math import sqrt, ceil
 from random import randint
-
+from fallback_map import get_fallback_map
 
 class Map:
     def __init__(self, file_path: str | None = None, player_count: int = 4):
@@ -13,11 +13,17 @@ class Map:
         self.rows = config.ROWS
         self.cols = config.COLUMNS
 
-        # Load map from file
+        # Initialize map with a basic layout (outer walls, ground inside)
         self.map_data = self.initialize_map()
-        if file_path:
+
+        # If a file path is provided: load from file, otherwise use the fallback map
+        try:
             inner_map = self.get_inner_map()
-            self.create_map(inner_map)
+        except FileNotFoundError:
+            print(f"[Warning] File '{self.file_path}' not found. Using fallback map.")
+            inner_map = get_fallback_map()
+
+        self.create_map(inner_map)
 
     def initialize_map(self) -> list[list[str]]:
         """Creates an empty map with walls around and ground inside"""
