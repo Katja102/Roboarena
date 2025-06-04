@@ -5,6 +5,7 @@ from math import sqrt, ceil
 from random import randint
 from fallback_map import get_fallback_map
 
+
 class Map:
     def __init__(self, file_path: str | None = None, player_count: int = 4):
         """Initializes the map with default player-size and optional file input"""

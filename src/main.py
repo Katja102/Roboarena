@@ -39,10 +39,18 @@ walls = game_map.walls()
 
 # Create robots using spawn positions
 spawn_positions = game_map.generate_spawn_positions()
-player = Robot(screen, *spawn_positions[0], config.TILE_SIZE // 2, 180, (255, 255, 255), 1, 2)
-enemy1 = Robot(screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 1, 2)
-enemy2 = Robot(screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 1, 2)
-enemy3 = Robot(screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2)
+player = Robot(
+    screen, *spawn_positions[0], config.TILE_SIZE // 2, 180, (255, 255, 255), 1, 2
+)
+enemy1 = Robot(
+    screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 1, 2
+)
+enemy2 = Robot(
+    screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 1, 2
+)
+enemy3 = Robot(
+    screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2
+)
 robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
 # Setup for bullets and movement
