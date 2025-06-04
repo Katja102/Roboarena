@@ -32,17 +32,17 @@ print(f"Fenster: {window_width}x{window_height}")
 print(f"TILE_SIZE: {config.TILE_SIZE}")
 
 # Load map data and prepare rendering
-game_map = Map("test-level.txt")
+game_map = Map("test-level-spawn.txt")
 map_renderer = MapRenderer(screen, config.TEXTURES)
 map_renderer.draw_map_picture(game_map.get_map_data())
 walls = game_map.walls()
 
 # Create robots using spawn positions
 spawn_positions = game_map.generate_spawn_positions()
-player = Robot(screen, *spawn_positions[0], 15, 180, (255, 255, 255), 1, 1)
-enemy1 = Robot(screen, *spawn_positions[1], 30, 0, (0, 100, 190), 1, 1)
-enemy2 = Robot(screen, *spawn_positions[2], 60, 50, (255, 50, 120), 1, 1)
-enemy3 = Robot(screen, *spawn_positions[3], 40, 50, (0, 250, 0), 1, 1)
+player = Robot(screen, *spawn_positions[0], config.TILE_SIZE // 2, 180, (255, 255, 255), 1, 2)
+enemy1 = Robot(screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 1, 2)
+enemy2 = Robot(screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 1, 2)
+enemy3 = Robot(screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2)
 robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
 # Setup for bullets and movement
