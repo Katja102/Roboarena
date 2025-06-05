@@ -37,53 +37,67 @@ arena: Arena = Arena(screen, config.ROWS, config.COLUMNS, config.TEXTURES)
 arena.create_map(map.get_map("test-level2.txt"))
 walls = arena.walls()
 
-def draw_text(surface, text, x, y , font_size, color=(255, 255, 255), font_name=None, center=False):
+
+def draw_text(
+    surface, text, x, y, font_size, color=(255, 255, 255), font_name=None, center=False
+):
     font = pygame.font.SysFont(font_name, font_size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(center=(screen.get_width() // 2, y))
     if center == True:
         surface.blit(text_surface, text_rect)
     else:
-        surface.blit(text_surface, (x,y))
+        surface.blit(text_surface, (x, y))
+
 
 def main_menu():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 40)
 
-    start_button = Button(rect=(screen.get_width()//2 - 100, 300, 200, 50),
-                          text="Start Game",
-                          font=font,
-                          bg_color=(20, 130, 200),
-                          text_color=(255, 255, 255),
-                          hover_color=(40, 160, 255))
+    start_button = Button(
+        rect=(screen.get_width() // 2 - 100, 300, 200, 50),
+        text="Start Game",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    options_button = Button(rect=(screen.get_width()//2 - 100, 370, 200, 50),
-                          text="Options",
-                          font=font,
-                          bg_color=(20, 130, 200),
-                          text_color=(255, 255, 255),
-                          hover_color=(40, 160, 255))
+    options_button = Button(
+        rect=(screen.get_width() // 2 - 100, 370, 200, 50),
+        text="Options",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    instructions_button = Button(rect=(screen.get_width()//2 - 100, 440, 200, 50),
-                          text="How to play",
-                          font=font,
-                          bg_color=(20, 130, 200),
-                          text_color=(255, 255, 255),
-                          hover_color=(40, 160, 255))
+    instructions_button = Button(
+        rect=(screen.get_width() // 2 - 100, 440, 200, 50),
+        text="How to play",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    level_button = Button(rect=(screen.get_width()//2 - 100, 510, 200, 50),
-                          text="Level selection",
-                          font=font,
-                          bg_color=(20, 130, 200),
-                          text_color=(255, 255, 255),
-                          hover_color=(40, 160, 255))
+    level_button = Button(
+        rect=(screen.get_width() // 2 - 100, 510, 200, 50),
+        text="Level selection",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    quit_button = Button(rect=(screen.get_width()//2 - 100, 580, 200, 50),
-                         text="Exit Game",
-                         font=font,
-                         bg_color=(200, 50, 50),
-                         text_color=(255, 255, 255),
-                         hover_color=(255, 80, 80))
+    quit_button = Button(
+        rect=(screen.get_width() // 2 - 100, 580, 200, 50),
+        text="Exit Game",
+        font=font,
+        bg_color=(200, 50, 50),
+        text_color=(255, 255, 255),
+        hover_color=(255, 80, 80),
+    )
 
     running = True
     while running:
@@ -120,44 +134,55 @@ def main_menu():
         pygame.display.flip()
         clock.tick(60)
 
+
 def pause_menu():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 40)
 
-    continue_button = Button(rect=(screen.get_width()//2 - 100, 230, 200, 50),
-                         text="Continue",
-                         font=font,
-                         bg_color=(20, 130, 200),
-                         text_color=(255, 255, 255),
-                         hover_color=(40, 160, 255))
+    continue_button = Button(
+        rect=(screen.get_width() // 2 - 100, 230, 200, 50),
+        text="Continue",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    menu_button = Button(rect=(screen.get_width()//2 - 100, 300, 200, 50),
-                          text="Main Menu",
-                          font=font,
-                          bg_color=(20, 130, 200),
-                          text_color=(255, 255, 255),
-                          hover_color=(40, 160, 255))
+    menu_button = Button(
+        rect=(screen.get_width() // 2 - 100, 300, 200, 50),
+        text="Main Menu",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    options_button = Button(rect=(screen.get_width()//2 - 100, 370, 200, 50),
-                            text="Options",
-                            font=font,
-                            bg_color=(20, 130, 200),
-                            text_color=(255, 255, 255),
-                            hover_color=(40, 160, 255))
+    options_button = Button(
+        rect=(screen.get_width() // 2 - 100, 370, 200, 50),
+        text="Options",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    instructions_button = Button(rect=(screen.get_width()//2 - 100, 440, 200, 50),
-                        text="How to play",
-                        font=font,
-                        bg_color=(20, 130, 200),
-                        text_color=(255, 255, 255),
-                        hover_color=(40, 160, 255))
+    instructions_button = Button(
+        rect=(screen.get_width() // 2 - 100, 440, 200, 50),
+        text="How to play",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    quit_button = Button(rect=(screen.get_width()//2 - 100, 510, 200, 50),
-                         text="Exit Game",
-                         font=font,
-                         bg_color=(200, 50, 50),
-                         text_color=(255, 255, 255),
-                         hover_color=(255, 80, 80))
+    quit_button = Button(
+        rect=(screen.get_width() // 2 - 100, 510, 200, 50),
+        text="Exit Game",
+        font=font,
+        bg_color=(200, 50, 50),
+        text_color=(255, 255, 255),
+        hover_color=(255, 80, 80),
+    )
 
     paused = True
     while paused:
@@ -194,37 +219,46 @@ def pause_menu():
         pygame.display.flip()
         clock.tick(60)
 
+
 def options():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 40)
 
-    easy_button = Button(rect=(screen.get_width()//2 - 350, 300, 200, 50),
-                          text="Easy",
-                          font=font,
-                          bg_color=(20, 130, 200),
-                          text_color=(255, 255, 255),
-                          hover_color=(40, 160, 255))
+    easy_button = Button(
+        rect=(screen.get_width() // 2 - 350, 300, 200, 50),
+        text="Easy",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    medium_button = Button(rect=(screen.get_width()//2 - 100, 300, 200, 50),
-                            text="Medium",
-                            font=font,
-                            bg_color=(20, 130, 200),
-                            text_color=(255, 255, 255),
-                            hover_color=(40, 160, 255))
+    medium_button = Button(
+        rect=(screen.get_width() // 2 - 100, 300, 200, 50),
+        text="Medium",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    hard_button = Button(rect=(screen.get_width()//2 + 150, 300, 200, 50),
-                                 text="Hard",
-                                 font=font,
-                                 bg_color=(20, 130, 200),
-                                 text_color=(255, 255, 255),
-                                 hover_color=(40, 160, 255))
+    hard_button = Button(
+        rect=(screen.get_width() // 2 + 150, 300, 200, 50),
+        text="Hard",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    back_button = Button(rect=(screen.get_width()//2 - 100, 510, 200, 50),
-                         text="Back",
-                         font=font,
-                         bg_color=(200, 50, 50),
-                         text_color=(255, 255, 255),
-                         hover_color=(255, 80, 80))
+    back_button = Button(
+        rect=(screen.get_width() // 2 - 100, 510, 200, 50),
+        text="Back",
+        font=font,
+        bg_color=(200, 50, 50),
+        text_color=(255, 255, 255),
+        hover_color=(255, 80, 80),
+    )
 
     running = True
     while running:
@@ -256,43 +290,52 @@ def options():
         pygame.display.flip()
         clock.tick(60)
 
+
 def level_selection():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 40)
 
-    start_button = Button(rect=(screen.get_width()//2 - 100, 400, 200, 50),
-                          text="Start Game",
-                          font=font,
-                          bg_color=(20, 130, 200),
-                          text_color=(255, 255, 255),
-                          hover_color=(40, 160, 255))
+    start_button = Button(
+        rect=(screen.get_width() // 2 - 100, 400, 200, 50),
+        text="Start Game",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    level1_button = Button(rect=(screen.get_width()//2 - 250, 300, 200, 50),
-                           text="Level 1",
-                           font=font,
-                           bg_color=(20, 130, 200),
-                           text_color=(255, 255, 255),
-                           hover_color=(40, 160, 255))
+    level1_button = Button(
+        rect=(screen.get_width() // 2 - 250, 300, 200, 50),
+        text="Level 1",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    level2_button = Button(rect=(screen.get_width()//2 + 50, 300, 200, 50),
-                           text="Level 2",
-                           font=font,
-                           bg_color=(20, 130, 200),
-                           text_color=(255, 255, 255),
-                           hover_color=(40, 160, 255))
+    level2_button = Button(
+        rect=(screen.get_width() // 2 + 50, 300, 200, 50),
+        text="Level 2",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
 
-    back_button = Button(rect=(screen.get_width()//2 - 100, 570, 200, 50),
-                         text="Back",
-                         font=font,
-                         bg_color=(200, 50, 50),
-                         text_color=(255, 255, 255),
-                         hover_color=(255, 80, 80))
+    back_button = Button(
+        rect=(screen.get_width() // 2 - 100, 570, 200, 50),
+        text="Back",
+        font=font,
+        bg_color=(200, 50, 50),
+        text_color=(255, 255, 255),
+        hover_color=(255, 80, 80),
+    )
 
     running = True
     while running:
         screen.fill((30, 30, 30))
 
-        draw_text(screen, "Level Selection", 0,  150, 80, center=True)
+        draw_text(screen, "Level Selection", 0, 150, 80, center=True)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -315,19 +358,20 @@ def level_selection():
         pygame.display.flip()
         clock.tick(60)
 
+
 def instructions_menu():
     font = pygame.font.SysFont(None, 40)
 
-    back_button = Button(rect=(screen.get_width()//2 - 100, 500, 200, 50),
-                         text="Back",
-                         font=font,
-                         bg_color=(200, 50, 50),
-                         text_color=(255, 255, 255),
-                         hover_color=(255, 80, 80))
+    back_button = Button(
+        rect=(screen.get_width() // 2 - 100, 500, 200, 50),
+        text="Back",
+        font=font,
+        bg_color=(200, 50, 50),
+        text_color=(255, 255, 255),
+        hover_color=(255, 80, 80),
+    )
 
-    instructions = [
-        "Game instructions here..."
-    ]
+    instructions = ["Game instructions here..."]
 
     running = True
     while running:
@@ -348,6 +392,7 @@ def instructions_menu():
 
         pygame.display.flip()
         clock.tick(60)
+
 
 def game_loop():
     player: Robot = Robot(screen, 500, 500, 20, 180, (255, 255, 255), 1, 1)
@@ -408,15 +453,23 @@ def game_loop():
     pygame.quit()
     sys.exit()
 
+
 def gameover():
 
     running = True
     while running:
         screen.fill((30, 30, 30))
 
-        draw_text(screen, "GAME OVER", 0,  200, 100, center=True)
+        draw_text(screen, "GAME OVER", 0, 200, 100, center=True)
 
-        draw_text(screen, "Press ESC to return to Main Menu or press ENTER to restart", 0, 250, 50, center=True)
+        draw_text(
+            screen,
+            "Press ESC to return to Main Menu or press ENTER to restart",
+            0,
+            250,
+            50,
+            center=True,
+        )
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -430,6 +483,7 @@ def gameover():
 
         pygame.display.flip()
         clock.tick(60)
+
 
 def victory():
 
@@ -437,9 +491,16 @@ def victory():
     while running:
         screen.fill((30, 30, 30))
 
-        draw_text(screen, "VICTORY", 0,  200, 100, center=True)
+        draw_text(screen, "VICTORY", 0, 200, 100, center=True)
 
-        draw_text(screen, "Press ESC to return to Main Menu or press ENTER to restart", 0, 250, 50, center=True)
+        draw_text(
+            screen,
+            "Press ESC to return to Main Menu or press ENTER to restart",
+            0,
+            250,
+            50,
+            center=True,
+        )
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -453,5 +514,6 @@ def victory():
 
         pygame.display.flip()
         clock.tick(60)
+
 
 main_menu()
