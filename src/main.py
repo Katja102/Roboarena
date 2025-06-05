@@ -1,8 +1,8 @@
 import pygame
 import sys
 import config
-import map
-from arena import Arena
+from map import Map
+from map_renderer import MapRenderer
 from robot import Robot
 from bullet import Bullet
 from button import Button
@@ -31,11 +31,6 @@ clock = pygame.time.Clock()
 print(f"Monitor: {max_width}x{max_height}")
 print(f"Fenster: {window_width}x{window_height}")
 print(f"TILE_SIZE: {config.TILE_SIZE}")
-
-# Load map and arena and walls
-arena: Arena = Arena(screen, config.ROWS, config.COLUMNS, config.TEXTURES)
-arena.create_map(map.get_map("test-level2.txt"))
-walls = arena.walls()
 
 
 def draw_text(
@@ -344,9 +339,9 @@ def level_selection():
             if start_button.is_clicked(event):
                 game_loop()
             if level1_button.is_clicked(event):
-                arena.create_map(map.get_map("test-level.txt"))
+                game_loop("test-level.txt")
             if level2_button.is_clicked(event):
-                arena.create_map(map.get_map("test-level2.txt"))
+                game_loop("test-level2.txt")
             if back_button.is_clicked(event):
                 return
 
@@ -394,16 +389,35 @@ def instructions_menu():
         clock.tick(60)
 
 
-def game_loop():
-    player: Robot = Robot(screen, 500, 500, 20, 180, (255, 255, 255), 1, 1)
-    enemy1: Robot = Robot(screen, 800, 300, 30, 0, (0, 100, 190), 1, 1)
-    enemy2: Robot = Robot(screen, 300, 600, 40, 50, (255, 50, 120), 1, 1)
-    enemy3: Robot = Robot(screen, 1300, 600, 40, 50, (0, 250, 0), 1, 1)
+def game_loop(map_file: str | None = None):
+    if map_file is None:
+        map_file = "test-level.txt"
 
+    # Load map data and prepare rendering
+    game_map = Map(map_file)
+    map_renderer = MapRenderer(screen, config.TEXTURES)
+    map_renderer.draw_map_picture(game_map.get_map_data())
+    walls = game_map.walls()
+
+    # Create robots using spawn positions
+    spawn_positions = game_map.generate_spawn_positions()
+    player = Robot(
+        screen, *spawn_positions[0], config.TILE_SIZE // 2, 180, (255, 255, 255), 1, 2
+    )
+    enemy1 = Robot(
+        screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 1, 2
+    )
+    enemy2 = Robot(
+        screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 1, 2
+    )
+    enemy3 = Robot(
+        screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2
+    )
     robots: list[Robot] = [player, enemy1, enemy2, enemy3]
-    bullets: list[Bullet] = []
 
-    circle_tick: int = 50
+    # Setup for bullets and movement
+    bullets: list[Bullet] = []
+    circle_tick: int = 100
     angle: int = 180
 
     running = True
@@ -422,31 +436,31 @@ def game_loop():
                     bullets.append(bullet)
 
         screen.fill((220, 220, 220))  # light gray background
-        arena.draw_map()
+        map_renderer.draw_map()
         ticks = pygame.time.get_ticks()
-        player.update_player(robots, arena, walls)
+        player.update_player(robots, game_map, walls)
         if ticks > circle_tick:
             circle_tick += 50
             angle = (angle + 3) % 360
         for robot in robots:
             if robot == enemy1:
-                enemy1.move_circle((800, 300), 50, angle, robots, arena)
+                enemy1.move_circle(spawn_positions[1], 50, angle, robots, game_map)
             if robot == enemy2:
-                enemy2.update_enemy(player, robots, arena, walls)
+                enemy2.update_enemy(player, robots, game_map, walls)
             if robot == enemy3:
-                enemy3.update_enemy(player, robots, arena, walls)
+                enemy3.update_enemy(player, robots, game_map, walls)
         for bullet in bullets[:]:
-            bullet.update_bullet(arena)
+            bullet.update_bullet(game_map)
             bullet.collision_with_robots(player, robots)
             if not bullet.alive:
                 bullets.remove(bullet)
         for robot in robots:
             if robot.lives == 0:
                 robots.remove(robot)
-        if player.lives == 0:
-            gameover()
-        elif enemy1.lives == 0 and enemy2.lives == 0 and enemy3.lives == 0:
-            victory()
+                if player.lives == 0:
+                    gameover()
+                elif enemy1.lives == 0 and enemy2.lives == 0 and enemy3.lives == 0:
+                    victory()
         pygame.display.flip()
         clock.tick(60)
 
