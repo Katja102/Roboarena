@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>4. Sprint (23.5. - 6.6.):</h1>
-    <h3>minimal viable product</h3>
+    <h3>Minimal viable product</h3>
     <ul>
         <li>
             Die Roboter haben 3 Leben, man kann andere Roboter abschießen und abgeschossen werden und verliert Leben.
@@ -44,7 +44,7 @@
             verschiedene Maps zu Auswahl mit Auswahlseite und Möglichkeit für zufällige Mapauswahl
         </li>
     </ul>
-    <h3>stretch goals</h3>
+    <h3>Stretch goals</h3>
     <ul>
         höhere Priorität:
         <li>
@@ -124,23 +124,36 @@
     <img src="screenshots/Menu.png" alt="Main Menu" width="800">
 
     <h3>Map-Refactoring</h3>
-<ul>
-  <li>
-    Die Map wurde vollständig überarbeitet und als eigene Klasse implementiert, um eine klarere Trennung von Spiellogik und Darstellung zu erreichen.
-    Sie verwaltet intern alle Tiles, kennt die aktuelle Spielfeldstruktur und übernimmt die Verantwortung für Spiellogik wie das Einlesen und Erzeugen der Map.
-  </li>
-  <li>
-    Besonders wichtig ist die Methode generate_spawn_positions, die für jede neue Runde geeignete Startpositionen für alle Spieler berechnet.
-    Dabei wird darauf geachtet, dass kein Spawnpunkt in Lava, Büschen oder Wänden liegt und ein Mindestabstand zwischen den Spielern gewährleistet ist.
-  </li>
-  <li>
-    Die ursprüngliche Arena-Klasse wurde in MapRenderer umbenannt und ist nun ausschließlich für das Zeichnen des Spielfelds zuständig.
-    Dadurch wurde das Programm übersichtlicher und modularer – visuelle Darstellung und Spiellogik sind klar getrennt.
-  </li>
-  <li>
-    Durch dieses Refactoring wurden mehrere alte Fehler beseitigt, der Code wurde deutlich strukturierter und das Single Responsibility Principle wird jetzt besser erfüllt. (Walid)
-  </li>
-</ul>
+    <ul>
+    <li>
+        Die Map wurde vollständig überarbeitet und als eigene Klasse implementiert, um eine klarere Trennung von Spiellogik und Darstellung zu erreichen.
+        Sie verwaltet intern alle Tiles, kennt die aktuelle Spielfeldstruktur und übernimmt die Verantwortung für Spiellogik wie das Einlesen und Erzeugen der Map.
+    </li>
+    <li>
+        Besonders wichtig ist die Methode generate_spawn_positions, die für jede neue Runde geeignete Startpositionen für alle Spieler berechnet.
+        Dabei wird darauf geachtet, dass kein Spawnpunkt in Lava, Büschen oder Wänden liegt und ein Mindestabstand zwischen den Spielern gewährleistet ist.
+    </li>
+    <li>
+        Die ursprüngliche Arena-Klasse wurde in MapRenderer umbenannt und ist nun ausschließlich für das Zeichnen des Spielfelds zuständig.
+        Dadurch wurde das Programm übersichtlicher und modularer – visuelle Darstellung und Spiellogik sind klar getrennt.
+    </li>
+    <li>
+        Durch dieses Refactoring wurden mehrere alte Fehler beseitigt, der Code wurde deutlich strukturierter und das Single Responsibility Principle wird jetzt besser erfüllt. (Walid)
+    </li>
+    </ul>
+
+    <h3>Coding: Map-Effects</h3>
+    <ul>
+        <li>
+            Die vom Roboter berührte "Umgebung" wird erfasst und die jeweiligen Effekte umgestzt.
+            Für Lava musste noch eine Spawn Funktion erstellt werden und für Gebüsch werden die Roboter durch bush-tiles überdeckt.
+            Probleme an Wänden mit Roboterkollisionen und dem Gegnerverhalten, das zu Stillstand führte, wurden behoben.
+            <video width="1000" controls autoplay>
+                <source src="screenshots/map_effects.mov" type="video/mp4">
+            </video>
+            Alle Effekte sind im Video zu sehen.<br>
+            (Katja)
+        </li>
 
     <h3>Sonstiges (Absprachen, Probleme, Fragen etc.)</h3>
     <ul>
