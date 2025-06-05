@@ -1,5 +1,6 @@
 import pygame
 
+
 class Button:
     def __init__(self, rect, text, font, bg_color, text_color, hover_color=None):
         """
@@ -35,7 +36,9 @@ class Button:
         event: pygame.event.Event-Objekt
         Rückgabe: True, wenn geklickt, sonst False
         """
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Linke Maustaste
+        if (
+            event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
+        ):  # Linke Maustaste
             if self.rect.collidepoint(event.pos):
                 return True
         return False
