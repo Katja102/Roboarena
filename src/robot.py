@@ -269,7 +269,9 @@ class Robot:
                 # check and move if only in y direction is no wall
                 xnew = self.x
                 ynew = self.y + y
-                newRect = pygame.Rect(xnew - self.r, ynew - self.r, self.r * 2, self.r * 2)
+                newRect = pygame.Rect(
+                    xnew - self.r, ynew - self.r, self.r * 2, self.r * 2
+                )
                 if newRect.collidelist(walls) == -1:
                     self.x = xnew
                     self.y = ynew
