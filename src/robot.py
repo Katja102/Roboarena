@@ -1,6 +1,7 @@
 import pygame
 import config
 import math
+import random
 from map import Map
 
 # Constants
@@ -237,7 +238,7 @@ class Robot:
             self.v_alpha = self.speed_alpha
         self.draw_robot()
         if "lava" in touched_textures:
-            pass
+            self.get_spawn_position(game_map, robots)
         if "bush" in touched_textures:
             for [i, j] in self.touched_tiles():
                 if game_map.get_tile_type(i, j) == "bush":
@@ -246,6 +247,37 @@ class Robot:
                         texture, (config.TILE_SIZE, config.TILE_SIZE)
                     )
                     self.screen.blit(tile, (i * config.TILE_SIZE, j * config.TILE_SIZE))
+
+    # Get random spawn position
+    def get_spawn_position(
+        self, game_map: Map, robots: list["Robot"]
+    ) -> tuple[int, int]:
+        # Get random position
+        position_x = random.randint(
+            2 * config.TILE_SIZE + self.r, (config.COLUMNS - 2) * config.TILE_SIZE
+        )
+        position_y = random.randint(
+            2 * config.TILE_SIZE + self.r, (config.ROWS - 2) * config.TILE_SIZE
+        )
+        # Check for distance to other robots
+        self.x = position_x
+        self.y = position_y
+        max_dist = math.hypot(
+            config.TILE_SIZE * (config.ROWS - 2),
+            config.TILE_SIZE * (config.COLUMNS - 2),
+        )
+        min_dist = max_dist / (len(robots) + 1)
+        if self.robot_dist(robots)[0] > min_dist:
+            # Check for tiles to avoid walls, lava and bush
+            touched_textures = self.touched_textures(game_map)
+            if (
+                ("lava" not in touched_textures)
+                and ("wall" not in touched_textures)
+                and ("bush" not in touched_textures)
+            ):
+                return (position_x, position_y)
+        # Try again
+        return self.get_spawn_position(game_map, robots)
 
     # moves robot if new position not in wall
     def move_if_no_walls(self, x: float, y: float, walls: list[pygame.Rect]) -> None:
