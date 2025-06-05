@@ -122,7 +122,26 @@
     Die Menü Seiten wurden zum größten Teil wie im Wireframe umgesetzt mit ein paar kleinen Änderungen.
     Das Menü ist bis auf die Optionen voll funktionsfähig und funktioniert so wie man es erwarten würde. (Nico)
     <img src="screenshots/Menu.png" alt="Main Menu" width="800">
-    
+
+    <h3>Map-Refactoring</h3>
+<ul>
+  <li>
+    Die Map wurde vollständig überarbeitet und als eigene Klasse implementiert, um eine klarere Trennung von Spiellogik und Darstellung zu erreichen.
+    Sie verwaltet intern alle Tiles, kennt die aktuelle Spielfeldstruktur und übernimmt die Verantwortung für Spiellogik wie das Einlesen und Erzeugen der Map.
+  </li>
+  <li>
+    Besonders wichtig ist die Methode generate_spawn_positions, die für jede neue Runde geeignete Startpositionen für alle Spieler berechnet.
+    Dabei wird darauf geachtet, dass kein Spawnpunkt in Lava, Büschen oder Wänden liegt und ein Mindestabstand zwischen den Spielern gewährleistet ist.
+  </li>
+  <li>
+    Die ursprüngliche Arena-Klasse wurde in MapRenderer umbenannt und ist nun ausschließlich für das Zeichnen des Spielfelds zuständig.
+    Dadurch wurde das Programm übersichtlicher und modularer – visuelle Darstellung und Spiellogik sind klar getrennt.
+  </li>
+  <li>
+    Durch dieses Refactoring wurden mehrere alte Fehler beseitigt, der Code wurde deutlich strukturierter und das Single Responsibility Principle wird jetzt besser erfüllt. (Walid)
+  </li>
+</ul>
+
     <h3>Sonstiges (Absprachen, Probleme, Fragen etc.)</h3>
     <ul>
         <li>
