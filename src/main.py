@@ -44,7 +44,7 @@ def draw_text(
     font = pygame.font.SysFont(font_name, font_size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(center=(screen.get_width() // 2, y))
-    if center == True:
+    if center:
         surface.blit(text_surface, text_rect)
     else:
         surface.blit(text_surface, (x, y))
