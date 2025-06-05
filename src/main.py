@@ -32,7 +32,7 @@ print(f"Fenster: {window_width}x{window_height}")
 print(f"TILE_SIZE: {config.TILE_SIZE}")
 
 # Load map data and prepare rendering
-game_map = Map("test-level-spawn.txt")
+game_map = Map("test-level.txt")
 map_renderer = MapRenderer(screen, config.TEXTURES)
 map_renderer.draw_map_picture(game_map.get_map_data())
 walls = game_map.walls()
