@@ -1,6 +1,7 @@
 import pygame
 import config
 import math
+import random
 from map import Map
 
 # Constants
@@ -96,7 +97,7 @@ class Robot:
     ) -> None:
         # Check for collisions and effect
         self.map_effects(game_map, robots)
-        self.robot_collision(robots)
+        self.robot_collision(robots, walls)
 
         # Update player position based on key inputs
         keys = pygame.key.get_pressed()
@@ -120,7 +121,7 @@ class Robot:
     ) -> None:
         # Check for collisions and effect
         self.map_effects(game_map, robots)
-        self.robot_collision(robots)
+        self.robot_collision(robots, walls)
 
         # Move towards a goal position
         x_to_goal = goal.x - self.x
@@ -154,24 +155,30 @@ class Robot:
         angle: int,
         robots: list["Robot"],
         game_map: Map,
+        walls: list[pygame.Rect],
     ) -> None:
         # Check for collisions and effect
         self.map_effects(game_map, robots)
-        self.robot_collision(robots)
+        self.robot_collision(robots, walls)
 
         self.x = point[0] + r * math.cos(angle * math.pi / 180)
         self.y = point[1] + r * math.sin(angle * math.pi / 180)
         self.alpha = angle + 90  # rotate to face along the circle
 
     # React to collisions with other robots
-    def robot_collision(self, robots: list["Robot"]) -> None:
+    def robot_collision(
+        self,
+        robots: list["Robot"],
+        walls: list[pygame.Rect],
+    ) -> None:
         dist, robot = self.robot_dist(robots)
         if dist <= 0:
             rad_to_goal = math.atan2(robot.y - self.y, robot.x - self.x)
             angle_to_goal = math.degrees(rad_to_goal) + 180 % 360
             angle_away = angle_to_goal
-            self.x += 10 * math.cos(angle_away * math.pi / 180)
-            self.y += 10 * math.sin(angle_away * math.pi / 180)
+            x = 10 * math.cos(angle_away * math.pi / 180)
+            y = 10 * math.sin(angle_away * math.pi / 180)
+            self.move_if_no_walls(x, y, walls)
 
     # Detect nearest distance to other robots
     def robot_dist(self, robots: list["Robot"]) -> tuple[float, "Robot"]:
@@ -231,7 +238,7 @@ class Robot:
             self.v_alpha = self.speed_alpha
         self.draw_robot()
         if "lava" in touched_textures:
-            pass
+            self.get_spawn_position(game_map, robots)
         if "bush" in touched_textures:
             for [i, j] in self.touched_tiles():
                 if game_map.get_tile_type(i, j) == "bush":
@@ -241,14 +248,65 @@ class Robot:
                     )
                     self.screen.blit(tile, (i * config.TILE_SIZE, j * config.TILE_SIZE))
 
+    # Get random spawn position
+    def get_spawn_position(
+        self, game_map: Map, robots: list["Robot"]
+    ) -> tuple[int, int]:
+        # Get random position
+        position_x = random.randint(
+            2 * config.TILE_SIZE + self.r, (config.COLUMNS - 2) * config.TILE_SIZE
+        )
+        position_y = random.randint(
+            2 * config.TILE_SIZE + self.r, (config.ROWS - 2) * config.TILE_SIZE
+        )
+        # Check for distance to other robots
+        self.x = position_x
+        self.y = position_y
+        max_dist = math.hypot(
+            config.TILE_SIZE * (config.ROWS - 2),
+            config.TILE_SIZE * (config.COLUMNS - 2),
+        )
+        min_dist = max_dist / (len(robots) + 1)
+        if self.robot_dist(robots)[0] > min_dist:
+            # Check for tiles to avoid walls, lava and bush
+            touched_textures = self.touched_textures(game_map)
+            if (
+                ("lava" not in touched_textures)
+                and ("wall" not in touched_textures)
+                and ("bush" not in touched_textures)
+            ):
+                return (position_x, position_y)
+        # Try again
+        return self.get_spawn_position(game_map, robots)
+
     # moves robot if new position not in wall
     def move_if_no_walls(self, x: float, y: float, walls: list[pygame.Rect]) -> None:
         xnew = self.x + x
         ynew = self.y + y
         newRect = pygame.Rect(xnew - self.r, ynew - self.r, self.r * 2, self.r * 2)
+        # moves robot to direct wanted path if no wall
         if newRect.collidelist(walls) == -1:
             self.x = xnew
             self.y = ynew
+        # to avoid not moving at all when goal is behind wall
+        else:
+            # check and move if only in x direction is no wall
+            xnew = self.x + x
+            ynew = self.y
+            newRect = pygame.Rect(xnew - self.r, ynew - self.r, self.r * 2, self.r * 2)
+            if newRect.collidelist(walls) == -1:
+                self.x = xnew
+                self.y = ynew
+            else:
+                # check and move if only in y direction is no wall
+                xnew = self.x
+                ynew = self.y + y
+                newRect = pygame.Rect(
+                    xnew - self.r, ynew - self.r, self.r * 2, self.r * 2
+                )
+                if newRect.collidelist(walls) == -1:
+                    self.x = xnew
+                    self.y = ynew
 
     def shoot(self):  # -> Bullet
         current_time = pygame.time.get_ticks()
