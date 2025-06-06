@@ -239,6 +239,7 @@ class Robot:
         self.draw_robot()
         if "lava" in touched_textures:
             self.get_spawn_position(game_map, robots)
+            self.lives -= 1
         if "bush" in touched_textures:
             for [i, j] in self.touched_tiles():
                 if game_map.get_tile_type(i, j) == "bush":
