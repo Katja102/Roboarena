@@ -492,7 +492,7 @@ def gameover():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     main_menu()
-                elif event.key == pygame.K_ENTER:
+                elif event.key == pygame.K_RETURN:
                     game_loop()
 
         pygame.display.flip()
@@ -523,7 +523,7 @@ def victory():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     main_menu()
-                elif event.key == pygame.K_ENTER:
+                elif event.key == pygame.K_RETURN:
                     game_loop()
 
         pygame.display.flip()
