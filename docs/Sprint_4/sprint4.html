@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>4. Sprint</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <h1>4. Sprint (23.5. - 6.6.):</h1>
+    <h3>Minimal viable product</h3>
+    <ul>
+        <li>
+            Die Roboter haben 3 Leben, man kann andere Roboter abschießen und abgeschossen werden und verliert Leben.
+            Beim Schießen hat man eine Powerbar. Man kann nur schießen solagne man noch Power hat und sie läd sich automatisch wieder auf.
+            Die Leben werden für jeden Roboter angezeigt und wenn ein Roboter keine Leben mehr hat scheidet er aus.
+        </li>
+        <li>
+            Die anderen Roboter werden programmiert, dass sie sich gegenseitig und den Spieler angreifen.
+        </li>
+        <li>
+            Verschiedene Effekte für die verschiedenen Bereiche. Bei Lava wird man wieder an eine zufällige Position gebracht.
+        </li>
+        <li>
+            Roboter sind beim Start zufällig vereteilt, aber mit Mindestabstand und nicht in der Lava.
+        </li>
+        <li>
+            Soundeffekte für Schießen/getroffen werden und für Wand, Bebüsch und Lava (evtl. auch Eis und Sand)
+            und Motorgeräusch beim Fahren bei unserem Roboter und Hintergrundmusik.
+        </li>
+        <li>
+            Menüführung zum Spiel (enthält auch Anleitung) und Möglichkeit vom Spiel zurück zum Menü zu kommen.
+            (Sprache, Auswahl des eigenen Roboters und Schwierigkeitsauswahl kommt erst zu den stretch goals)
+        </li>
+        <li>
+            Einen Roboter gestalten (versch. Farben für Spieler und Gegner).
+        </li>
+        <li>
+            Physik einbauen: Rückstoß wenn man Schießt
+        </li>
+        <li>
+            Gewonnen/Game-Over Screen
+        </li>
+        <li>
+            verschiedene Maps zu Auswahl mit Auswahlseite und Möglichkeit für zufällige Mapauswahl
+        </li>
+    </ul>
+    <h3>Stretch goals</h3>
+    <ul>
+        höhere Priorität:
+        <li>
+            Eigene Texturen erstellen (abgerundete Ecken z.B. bei Lavapfützen) und animierte Lavapfützen.
+        </li>
+        <li>
+            verschiedene Roboter mit Spezialfunktionen und eine Seite zum Auswählen.
+        </li>
+        <li>
+            Power-Ups auf der Map.
+        </li>
+        <li>
+            Physik: Flugbahn der Projektile (statt unendlich weit zu schießen) und Power-Up, dass es von der Wand abprallt
+        </li>
+        <li>
+            Schwierigkeitsauswahl: Anzahl der Gegner, Leben der Gegner, Schwierigkeit, ...
+            (3 versch. Stufen, der Rest wird intern programmiert)
+        </li>
+        niedrigere Priorität:
+        <li>
+            verschiedene Spielmodi: Survival-Mode (alle Gegner greifen nur den Spieler an und man versucht solange zu überleben
+            wie möglich).
+        </li>
+        <li>
+            Kamera zoomt rein, wenn die Roboter nah beieinander sind. Kamera ist dabei auf den Roboter des Spielers gerichtet.
+        </li>
+        <li>
+            Spiel auf Website spielbar machen.
+        </li>
+        <li>
+            Multiplayer-Modus statt von uns programmierte Gegner.
+        </li>
+        <li>
+            Sprachauswahl
+        </li>
+    </ul>
+
+    <h3>Coding: Schießfunktion und Leben der Roboter</h3>
+    Eine wichtige Funktion für unser Spiel ist, dass die Roboter schießen können und dass sie ein Leben verlieren, 
+    wenn sie getroffen werden:
+    <ul>
+        <li>
+            Es wurde die Klasse Bullet erstellt, welche eine Kugel repräsentiert. Eine Kugel hat die Attribute Position (x- und y-
+            Koordinate), Flugreichtung, Geschwindigkeit, Radius, Farbe und ob sie noch existiert. Die Kugel fliegt unendlich weit
+             bzw. bis sie eine Wand oder einen Roboter trifft oder den Bildschirm verlässt.
+        </li>
+        <li>
+            Man kann mit der s-Taste schießen. Da man sich mit der a- und d-Taste dreht, kann man so schießen ohne eine Hand bewegen zu müssen.
+            Außerdem kann man sich so während dem Schießen trotzdem weiter bewegen.
+        </li>
+        <li>
+            Um nicht extrem schnell hintereinander schießen zu können, muss nach jedem Schuss kurz Zeit vergehen, bis man erneut schießen kann
+             (1 Sekunde). Dadurch kann man den Gegner nicht mehrmals direkt hintereinander abzuschießen, 
+            ohne dass er Zeit hat zu reagieren. Die genaue Dauer der Pause muss eventuell noch angepasst werden, wenn der komplette Spielmechanismus
+            vorhanden ist, um so eine gute Schwierigkeit zu erzeilen.
+        </li>
+        <li>
+            Damit die Spieler nicht zu oft hintereinander schießen können und um das Spiel somit schwieriger zu machen, hat jeder Roboter eine bestimmte Power.
+            Diese füllt sich gleichmäßig mit der Zeit wieder auf. Jeder Schuss verbraucht eine bestimmt Menge Power, 
+            deshalb kann nur geschossen werden, wenn genug Power vorhanden ist. Die aktuell verfügbare Power wird unter dem Roboter in Form einer Powerbar angezeigt.
+        </li>
+        <li>Wird ein Roboter getroffen, verliert er ein Leben. Jeder Roboter startet mit 3 Leben. Hat er keine Leben mehr übrig, scheidet er aus dem Spiel aus 
+            und wird auch nicht mehr in der Arena angezeigt.
+            Die Leben sind aktuell als Zahl in der Mitte der Roboter dargestellt. Das ist aber eher eine Übergangslösung und kann noch deutlich besser gestaltet werden.
+            Da wir aber sowiso planen unsere Roboter neu zu gestalten, wird das erst in diesem Zusammenhang passend zum neuen Roboter gestaltet.
+        </li>
+    </ul>
+    <video width="1000" controls>
+        <source src="screenshots/video_shooting_lives.mp4" type="video/mp4">
+        Das Video kann nicht angezeigt werden.
+    </video>
+    (Sarah)
+
+    <h3>Game Management</h3>
+    Die Menü Seiten wurden zum größten Teil wie im Wireframe umgesetzt mit ein paar kleinen Änderungen.
+    Das Menü ist bis auf die Optionen voll funktionsfähig und funktioniert so wie man es erwarten würde. (Nico)
+    <img src="screenshots/Menu.png" alt="Main Menu" width="800">
+
+    <h3>Map-Refactoring</h3>
+    <ul>
+    <li>
+        Die Map wurde vollständig überarbeitet und als eigene Klasse implementiert, um eine klarere Trennung von Spiellogik und Darstellung zu erreichen.
+        Sie verwaltet intern alle Tiles, kennt die aktuelle Spielfeldstruktur und übernimmt die Verantwortung für Spiellogik wie das Einlesen und Erzeugen der Map.
+    </li>
+    <li>
+        Besonders wichtig ist die Methode generate_spawn_positions, die für jede neue Runde geeignete Startpositionen für alle Spieler berechnet.
+        Dabei wird darauf geachtet, dass kein Spawnpunkt in Lava, Büschen oder Wänden liegt und ein Mindestabstand zwischen den Spielern gewährleistet ist.
+    </li>
+    <li>
+        Die ursprüngliche Arena-Klasse wurde in MapRenderer umbenannt und ist nun ausschließlich für das Zeichnen des Spielfelds zuständig.
+        Dadurch wurde das Programm übersichtlicher und modularer – visuelle Darstellung und Spiellogik sind klar getrennt.
+    </li>
+    <li>
+        Durch dieses Refactoring wurden mehrere alte Fehler beseitigt, der Code wurde deutlich strukturierter und das Single Responsibility Principle wird jetzt besser erfüllt. (Walid)
+    </li>
+    </ul>
+
+    <h3>Coding: Map-Effects</h3>
+    <ul>
+        <li>
+            Die vom Roboter berührte "Umgebung" wird erfasst und die jeweiligen Effekte umgestzt.
+            Für Lava musste noch eine Spawn Funktion erstellt werden und für Gebüsch werden die Roboter durch bush-tiles überdeckt.
+            Probleme an Wänden mit Roboterkollisionen und dem Gegnerverhalten, das zu Stillstand führte, wurden behoben.
+            <video width="1000" controls autoplay>
+                <source src="screenshots/map_effects.mov" type="video/mp4">
+            </video>
+            Alle Effekte sind im Video zu sehen.<br>
+            (Katja)
+        </li>
+
+    <h3>In Arbeit...</h3>
+    <ul>
+        <li>Soundeffekte für verschiedene Aktionen im Spiel (z.B. Roboter fährt durch das Gebüsch, im Sand oder schießt)
+            wurden ausgewählt, müssen aber noch in das Spiel eingebaut und gereviwed werden.<br>
+            (Sarah)
+        </li>
+    </ul>
+    
+        <h3>Sonstiges (Absprachen, Probleme, Fragen etc.)</h3>
+    <ul>
+        <li>
+            Wir testen während diesem Sprint Coderabbit und besprechen dann nochmal, ob es für uns ein Vorteil ist
+            und ob wir es weiter nutzen -> nur 14-Tage Probeversion kostenlos, deshalb erstmal noch nicht
+        </li>
+        <li>
+            Wir verwenden für unsere Funktionen Type hints.
+            (Katja)
+        </li>
+    </ul>
+    
+    <a style="display: block; text-align: center;" href="../index.html">zurück zur Startseite</a>
+</body>
+</html>

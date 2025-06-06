@@ -444,7 +444,7 @@ def game_loop(map_file: str | None = None):
             angle = (angle + 3) % 360
         for robot in robots:
             if robot == enemy1:
-                enemy1.move_circle(spawn_positions[1], 50, angle, robots, game_map)
+                enemy1.move_circle(spawn_positions[1], 50, angle, robots, game_map, walls)
             if robot == enemy2:
                 enemy2.update_enemy(player, robots, game_map, walls)
             if robot == enemy3:
