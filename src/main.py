@@ -402,22 +402,23 @@ def game_loop(map_file: str | None = None):
     # Create robots using spawn positions
     spawn_positions = game_map.generate_spawn_positions()
     player = Robot(
-        screen, *spawn_positions[0], config.TILE_SIZE // 2, 180, (255, 255, 255), 1, 2
+        screen, *spawn_positions[0], config.TILE_SIZE // 2, 180, (255, 255, 255), 0.5, 0.5
     )
     enemy1 = Robot(
-        screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 1, 2
+        screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 0.5, 0.5
     )
     enemy2 = Robot(
-        screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 1, 2
+        screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 0.5, 0.5
     )
     enemy3 = Robot(
-        screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2
+        screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 0.5, 0.5
     )
     robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
     # Setup for bullets and movement
     bullets: list[Bullet] = []
     circle_tick: int = 100
+    enemy_behaviour_tick: int = 0
     angle: int = 180
 
     running = True
@@ -429,38 +430,32 @@ def game_loop(map_file: str | None = None):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pause_menu()
-            # check, if user used a key for shooting
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
-                bullet = player.shoot()
-                if bullet:
-                    bullets.append(bullet)
 
         screen.fill((220, 220, 220))  # light gray background
         map_renderer.draw_map()
         ticks = pygame.time.get_ticks()
-        player.update_player(robots, game_map, walls)
         if ticks > circle_tick:
             circle_tick += 50
             angle = (angle + 3) % 360
         for robot in robots:
-            if robot == enemy1:
-                enemy1.move_circle(spawn_positions[1], 50, angle, robots, game_map, walls)
-            if robot == enemy2:
-                enemy2.update_enemy(player, robots, game_map, walls)
-            if robot == enemy3:
-                enemy3.update_enemy(player, robots, game_map, walls)
-        for bullet in bullets[:]:
-            bullet.update_bullet(game_map)
-            bullet.collision_with_robots(player, robots)
-            if not bullet.alive:
-                bullets.remove(bullet)
-        for robot in robots:
-            if robot.lives == 0:
-                robots.remove(robot)
+            # Update robot (Move, shoot)
+            if robot != player:
+                if ticks > circle_tick:
+                    enemy_behaviour_tick += 3000 # 3 sec
+                    goal = robot.get_robot_with_distance_prob(robots)
+                robot.update_enemy(goal, robots, game_map, walls, bullets)
+                if robot.lives == 0:
+                    robots.remove(robot)
+                    if len(robots) <= 1:
+                        victory()
+            else:
+                player.update_player(robots, game_map, walls, bullets)
                 if player.lives == 0:
                     gameover()
-                elif enemy1.lives == 0 and enemy2.lives == 0 and enemy3.lives == 0:
-                    victory()
+        for bullet in bullets:
+            bullet.update_bullet(game_map)
+            if not bullet.alive:
+                bullets.remove(bullet)
         pygame.display.flip()
         clock.tick(60)
 
