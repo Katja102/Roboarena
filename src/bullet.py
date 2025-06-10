@@ -25,7 +25,7 @@ class Bullet:
         self.radius = radius  # radius of bullet
         self.color = color  # color of bullet
         self.alive = True  # if bullet is there
-        self.shooter = shooter # Robot who shot this bullet
+        self.shooter = shooter  # Robot who shot this bullet
 
     def update_bullet(self, map: Map) -> None:
         # update bullet position
