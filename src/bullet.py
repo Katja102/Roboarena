@@ -15,7 +15,7 @@ class Bullet:
         direction: float,
         radius: int,
         color: tuple[int, int, int],
-        shooter #:Robot
+        shooter,  #:Robot
     ):
         self.screen = screen
         self.x = x  # x-coordiante of center

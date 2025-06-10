@@ -94,7 +94,11 @@ class Robot:
 
     # Lets the player move the robot on map
     def update_player(
-        self, robots: list["Robot"], game_map: Map, walls: list[pygame.Rect], bullets: list[Bullet]
+        self,
+        robots: list["Robot"],
+        game_map: Map,
+        walls: list[pygame.Rect],
+        bullets: list[Bullet],
     ) -> None:
         # Check for collisions and effect
         self.map_effects(game_map, robots)
@@ -126,7 +130,7 @@ class Robot:
         robots: list["Robot"],
         game_map: Map,
         walls: list[pygame.Rect],
-        bullets: list[Bullet]
+        bullets: list[Bullet],
     ) -> None:
         # Check for collisions and effect
         self.map_effects(game_map, robots)
@@ -158,11 +162,13 @@ class Robot:
         # recharge power
         if self.power < 100:
             self.power += recharge_rate
-        
+
         # shoot if angle to goal is under 10°
-        angle_diff = abs(abs(angle_to_goal-180) - self.alpha) % 360
+        angle_diff = abs(abs(angle_to_goal - 180) - self.alpha) % 360
         if (angle_diff <= 10) or (angle_diff >= 350):
             self.shoot(bullets)
+
+        self.move_if_in_range(robots, walls)
 
     # Move in a circle around a point
     def move_circle(
@@ -338,12 +344,18 @@ class Robot:
         start_x = self.x + self.r * math.cos(alpha_rad)  # start outsinde of the robot
         start_y = self.y + self.r * math.sin(alpha_rad)
         bullet = Bullet(
-            self.screen, int(start_x), int(start_y), self.alpha, 5, (0, 0, 0), shooter=self
+            self.screen,
+            int(start_x),
+            int(start_y),
+            self.alpha,
+            5,
+            (0, 0, 0),
+            shooter=self,
         )  # create bullet
         self.last_shot_time = current_time  # update time of last shot
         self.power -= 20  # update power
         bullets.append(bullet)
-    
+
     def getting_shot(self, bullets: list[Bullet]) -> None:
         for bullet in bullets:
             if self is bullet.shooter:  # except for robot which shot the bullet
@@ -356,10 +368,12 @@ class Robot:
                 bullet.alive = False
                 self.lives = self.lives - 1
 
-    def dist_to_prob(self, dist_robot: list[tuple[float, "Robot"]]) -> list[tuple[float, "Robot"]]:
+    def dist_to_prob(
+        self, dist_robot: list[tuple[float, "Robot"]]
+    ) -> list[tuple[float, "Robot"]]:
         prob_robot: list[tuple[float, "Robot"]] = []
         total_dist: float = sum(d for d, r in dist_robot)
-        for (dist, robot) in dist_robot:
+        for dist, robot in dist_robot:
             prob: float = dist / total_dist
             prob_robot.append((prob, robot))
         return prob_robot
@@ -367,5 +381,34 @@ class Robot:
     def get_robot_with_distance_prob(self, robots: list["Robot"]) -> "Robot":
         dist_robot: list[tuple[float, "Robot"]] = self.robot_dist(robots)
         prob_robot: list[tuple[float, "Robot"]] = self.dist_to_prob(dist_robot)
-        robot: "Robot" = random.choices([r for p,r in prob_robot], weights=[p for p,r in prob_robot], k=1)[0]
+        robot: "Robot" = random.choices(
+            [r for p, r in prob_robot], weights=[p for p, r in prob_robot], k=1
+        )[0]
         return robot
+
+    # React to collisions with other robots
+    def move_if_in_range(
+        self,
+        robots: list["Robot"],
+        walls: list[pygame.Rect],
+    ) -> None:
+        for robot in robots:
+            if robot == self:
+                continue
+            rad_to_robot = math.atan2(robot.y - self.y, robot.x - self.x)
+            angle_to_robot = math.degrees(rad_to_robot) + 180 % 360
+            angle_diff = abs(abs(angle_to_robot) - robot.alpha) % 360
+            if (angle_diff <= 10) or (angle_diff >= 350):
+                x_to_goal = robot.x - self.x
+                y_to_goal = robot.y - self.y
+                print(x_to_goal, y_to_goal)
+                if abs(y_to_goal) <= 0.5:
+                    x = math.copysign(0, y_to_goal)
+                else:
+                    x = math.copysign(self.v, y_to_goal)
+                if abs(x_to_goal) <= 0.5:
+                    y = math.copysign(self.v, x_to_goal * -1)
+                else:
+                    y = math.copysign(0, x_to_goal * -1)
+                print(x, y)
+                self.move_if_no_walls(x, y, walls)
