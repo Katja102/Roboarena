@@ -408,16 +408,16 @@ def game_loop(map_file: str | None = None):
         180,
         (255, 255, 255),
         1,
-        1,
+        2,
     )
     enemy1 = Robot(
-        screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 0.8, 1
+        screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 1, 2
     )
     enemy2 = Robot(
-        screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 0.8, 1
+        screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 1, 2
     )
     enemy3 = Robot(
-        screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 0.8, 1
+        screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2
     )
     robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
@@ -444,8 +444,11 @@ def game_loop(map_file: str | None = None):
             circle_tick += 50
             angle = (angle + 3) % 360
         for robot in robots:
-            # Update robot (Move, shoot)
-            if robot != player:
+            if robot == player:
+                player.update_player(robots, game_map, walls, bullets)
+                if player.lives == 0:
+                    gameover()
+            else:
                 if ticks > circle_tick:
                     enemy_behaviour_tick += 3000  # 3 sec
                     goal = robot.get_robot_with_distance_prob(robots)
@@ -454,10 +457,6 @@ def game_loop(map_file: str | None = None):
                     robots.remove(robot)
                     if len(robots) <= 1:
                         victory()
-            else:
-                player.update_player(robots, game_map, walls, bullets)
-                if player.lives == 0:
-                    gameover()
         for bullet in bullets:
             bullet.update_bullet(game_map)
             if not bullet.alive:

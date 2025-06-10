@@ -401,7 +401,6 @@ class Robot:
             if (angle_diff <= 10) or (angle_diff >= 350):
                 x_to_goal = robot.x - self.x
                 y_to_goal = robot.y - self.y
-                print(x_to_goal, y_to_goal)
                 if abs(y_to_goal) <= 0.5:
                     x = math.copysign(0, y_to_goal)
                 else:
@@ -410,5 +409,4 @@ class Robot:
                     y = math.copysign(self.v, x_to_goal * -1)
                 else:
                     y = math.copysign(0, x_to_goal * -1)
-                print(x, y)
                 self.move_if_no_walls(x, y, walls)
