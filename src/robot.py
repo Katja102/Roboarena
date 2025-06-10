@@ -38,7 +38,7 @@ class Robot:
         self.lives = 3  # current lives of the robot
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 1000  # min duration of break between shots
-        self.power = 100
+        self.power = 100  # current power for attacks
 
     def draw_robot(self) -> None:
         # draw robot (circle)
@@ -157,6 +157,7 @@ class Robot:
         self.alpha += math.copysign(self.v_alpha, angle_to_goal)
         self.alpha = self.alpha % 360
 
+        # check if self gets shot
         self.getting_shot(bullets)
 
         # recharge power
@@ -168,6 +169,7 @@ class Robot:
         if (angle_diff <= 10) or (angle_diff >= 350):
             self.shoot(bullets)
 
+        # avoid being in range of other robots
         self.move_if_in_range(robots, walls)
 
     # Move in a circle around a point
@@ -203,7 +205,7 @@ class Robot:
             y = 10 * math.sin(angle_away * math.pi / 180)
             self.move_if_no_walls(x, y, walls)
 
-    # Detect nearest distance to other robots
+    # Detect distances to other robots
     def robot_dist(self, robots: list["Robot"]) -> list[tuple[float, "Robot"]]:
         dist_robot: list[tuple[float, Robot]] = []
         for robot in robots:
@@ -356,6 +358,7 @@ class Robot:
         self.power -= 20  # update power
         bullets.append(bullet)
 
+    # checks and react if robot is shot
     def getting_shot(self, bullets: list[Bullet]) -> None:
         for bullet in bullets:
             if self is bullet.shooter:  # except for robot which shot the bullet
@@ -368,6 +371,7 @@ class Robot:
                 bullet.alive = False
                 self.lives = self.lives - 1
 
+    # helper-function to get list of robots with probability corresponding to its distance
     def dist_to_prob(
         self, dist_robot: list[tuple[float, "Robot"]]
     ) -> list[tuple[float, "Robot"]]:
@@ -378,6 +382,7 @@ class Robot:
             prob_robot.append((prob, robot))
         return prob_robot
 
+    # helper-function to get list of robots with corresponding distance
     def get_robot_with_distance_prob(self, robots: list["Robot"]) -> "Robot":
         dist_robot: list[tuple[float, "Robot"]] = self.robot_dist(robots)
         prob_robot: list[tuple[float, "Robot"]] = self.dist_to_prob(dist_robot)
@@ -386,7 +391,7 @@ class Robot:
         )[0]
         return robot
 
-    # React to collisions with other robots
+    # Avoid if in range of other robots
     def move_if_in_range(
         self,
         robots: list["Robot"],
@@ -398,7 +403,7 @@ class Robot:
             rad_to_robot = math.atan2(robot.y - self.y, robot.x - self.x)
             angle_to_robot = math.degrees(rad_to_robot) + 180 % 360
             angle_diff = abs(abs(angle_to_robot) - robot.alpha) % 360
-            if (angle_diff <= 10) or (angle_diff >= 350):
+            if (angle_diff <= 10) or (angle_diff >= 350):  # in range of robot
                 x_to_goal = robot.x - self.x
                 y_to_goal = robot.y - self.y
                 if abs(y_to_goal) <= 0.5:
@@ -409,4 +414,4 @@ class Robot:
                     y = math.copysign(self.v, x_to_goal * -1)
                 else:
                     y = math.copysign(0, x_to_goal * -1)
-                self.move_if_no_walls(x, y, walls)
+                self.move_if_no_walls(x, y, walls)  # move to side

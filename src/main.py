@@ -402,13 +402,7 @@ def game_loop(map_file: str | None = None):
     # Create robots using spawn positions
     spawn_positions = game_map.generate_spawn_positions()
     player = Robot(
-        screen,
-        *spawn_positions[0],
-        config.TILE_SIZE // 2,
-        180,
-        (255, 255, 255),
-        1,
-        2,
+        screen, *spawn_positions[0], config.TILE_SIZE // 2, 180, (255, 255, 255), 1, 2
     )
     enemy1 = Robot(
         screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 1, 2
@@ -429,6 +423,7 @@ def game_loop(map_file: str | None = None):
 
     running = True
 
+    # run game
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -444,11 +439,11 @@ def game_loop(map_file: str | None = None):
             circle_tick += 50
             angle = (angle + 3) % 360
         for robot in robots:
-            if robot == player:
+            if robot is player:  # player
                 player.update_player(robots, game_map, walls, bullets)
                 if player.lives == 0:
                     gameover()
-            else:
+            else:  # enemies
                 if ticks > circle_tick:
                     enemy_behaviour_tick += 3000  # 3 sec
                     goal = robot.get_robot_with_distance_prob(robots)
