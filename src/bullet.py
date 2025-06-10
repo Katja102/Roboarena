@@ -1,7 +1,6 @@
 import pygame
 import math
 import config
-from robot import Robot
 from map import Map
 
 velocity = 5
@@ -16,6 +15,7 @@ class Bullet:
         direction: float,
         radius: int,
         color: tuple[int, int, int],
+        shooter,  # :Robot
     ):
         self.screen = screen
         self.x = x  # x-coordiante of center
@@ -25,6 +25,7 @@ class Bullet:
         self.radius = radius  # radius of bullet
         self.color = color  # color of bullet
         self.alive = True  # if bullet is there
+        self.shooter = shooter  # Robot who shot this bullet
 
     def update_bullet(self, map: Map) -> None:
         # update bullet position
@@ -48,15 +49,3 @@ class Bullet:
 
         # draw bullet
         pygame.draw.circle(self.screen, self.color, (self.x, self.y), self.radius)
-
-    def collision_with_robots(self, shooter: Robot, robots: list[Robot]) -> None:
-        for robot in robots:
-            if robot is shooter:  # except for robot which shot the bullet
-                continue
-            dist_x = abs(robot.x - self.x)
-            dist_y = abs(robot.y - self.y)
-            dist = math.sqrt(dist_x**2 + dist_y**2)
-            max_dist = robot.r + self.radius
-            if dist < max_dist:
-                self.alive = False
-                robot.lives = robot.lives - 1
