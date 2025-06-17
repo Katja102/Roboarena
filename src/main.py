@@ -27,33 +27,6 @@ screen: pygame.Surface = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Roboarena")
 clock = pygame.time.Clock()
 
-border = [
-    pygame.Rect(
-        0,
-        0,
-        config.COLUMNS * config.TILE_SIZE,
-        config.TILE_SIZE,
-    ),
-    pygame.Rect(
-        0,
-        0,
-        config.TILE_SIZE,
-        config.ROWS * config.TILE_SIZE,
-    ),
-    pygame.Rect(
-        0,
-        config.ROWS * config.TILE_SIZE,
-        config.COLUMNS * config.TILE_SIZE,
-        config.TILE_SIZE,
-    ),
-    pygame.Rect(
-        config.COLUMNS * config.TILE_SIZE,
-        0,
-        config.TILE_SIZE,
-        config.ROWS * config.TILE_SIZE,
-    ),
-]
-
 # Debug info
 print(f"Monitor: {max_width}x{max_height}")
 print(f"Fenster: {window_width}x{window_height}")
@@ -425,7 +398,6 @@ def game_loop(map_file: str | None = None):
     map_renderer = MapRenderer(screen, config.TEXTURES)
     map_renderer.draw_map_picture(game_map.get_map_data())
     walls: list[pygame.Rect] = game_map.walls()
-    walls.extend(border)
 
     # Create robots using spawn positions
     spawn_positions = game_map.generate_spawn_positions()
