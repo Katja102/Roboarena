@@ -397,7 +397,7 @@ def game_loop(map_file: str | None = None):
     game_map = Map(map_file)
     map_renderer = MapRenderer(screen, config.TEXTURES)
     map_renderer.draw_map_picture(game_map.get_map_data())
-    walls = game_map.walls()
+    walls: list[pygame.Rect] = game_map.walls()
 
     # Create robots using spawn positions
     spawn_positions = game_map.generate_spawn_positions()
@@ -418,10 +418,12 @@ def game_loop(map_file: str | None = None):
     # Setup for bullets and movement
     bullets: list[Bullet] = []
     circle_tick: int = 100
+    enemy_behaviour_tick: int = 0
     angle: int = 180
 
     running = True
 
+    # run game
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -429,38 +431,37 @@ def game_loop(map_file: str | None = None):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pause_menu()
-            # check, if user used a key for shooting
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
-                bullet = player.shoot()
-                if bullet:
-                    bullets.append(bullet)
 
         screen.fill((220, 220, 220))  # light gray background
         map_renderer.draw_map()
         ticks = pygame.time.get_ticks()
-        player.update_player(robots, game_map, walls)
         if ticks > circle_tick:
             circle_tick += 50
             angle = (angle + 3) % 360
+        if ticks > enemy_behaviour_tick:
+            enemy_behaviour_tick += 3000  # 3 sec
+            goals: list[Robot | None] = []
+            for robot in robots:
+                if robot is player:
+                    continue
+                goals.append(robot.get_robot_with_distance_prob(game_map, robots))
         for robot in robots:
-            if robot == enemy1:
-                enemy1.move_circle(spawn_positions[1], 50, angle, robots, game_map, walls)
-            if robot == enemy2:
-                enemy2.update_enemy(player, robots, game_map, walls)
-            if robot == enemy3:
-                enemy3.update_enemy(player, robots, game_map, walls)
-        for bullet in bullets[:]:
-            bullet.update_bullet(game_map)
-            bullet.collision_with_robots(player, robots)
-            if not bullet.alive:
-                bullets.remove(bullet)
-        for robot in robots:
-            if robot.lives == 0:
-                robots.remove(robot)
+            if robot is player:  # player
+                player.update_player(robots, game_map, walls, bullets)
                 if player.lives == 0:
                     gameover()
-                elif enemy1.lives == 0 and enemy2.lives == 0 and enemy3.lives == 0:
-                    victory()
+            else:  # enemies
+                robot.update_enemy(
+                    goals[robots.index(robot) - 1], robots, game_map, walls, bullets
+                )
+                if robot.lives == 0:
+                    robots.remove(robot)
+                    if len(robots) <= 1:
+                        victory()
+        for bullet in bullets:
+            bullet.update_bullet(game_map)
+            if not bullet.alive:
+                bullets.remove(bullet)
         pygame.display.flip()
         clock.tick(60)
 
