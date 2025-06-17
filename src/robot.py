@@ -126,7 +126,7 @@ class Robot:
     # Lets a robot follow another robot
     def update_enemy(
         self,
-        goal: "Robot",
+        goal: "Robot | None",
         robots: list["Robot"],
         game_map: Map,
         walls: list[pygame.Rect],
@@ -135,6 +135,10 @@ class Robot:
         # Check for effect
         self.map_effects(game_map, robots)
         self.robot_collision(robots, walls)
+
+        # Check for goal
+        if not goal:
+            return None
 
         # Move towards a goal position
         x_to_goal = goal.x - self.x
@@ -428,13 +432,21 @@ class Robot:
         return prob_robot
 
     # helper-function to get list of robots with corresponding distance
-    def get_robot_with_distance_prob(self, robots: list["Robot"]) -> "Robot":
-        dist_robot: list[tuple[float, "Robot"]] = self.robot_dist(robots)
-        prob_robot: list[tuple[float, "Robot"]] = self.dist_to_prob(dist_robot)
-        robot: "Robot" = random.choices(
-            [r for p, r in prob_robot], weights=[p for p, r in prob_robot], k=1
-        )[0]
-        return robot
+    def get_robot_with_distance_prob(
+        self, game_map: Map, robots: list["Robot"]
+    ) -> "None | Robot":
+        potential_goals: list["Robot"] = []
+        for robot in robots:
+            if "bush" not in robot.touched_textures(game_map) and robot is not self:
+                potential_goals.append(robot)
+        if len(potential_goals) > 0:
+            dist_robot: list[tuple[float, "Robot"]] = self.robot_dist(potential_goals)
+            prob_robot: list[tuple[float, "Robot"]] = self.dist_to_prob(dist_robot)
+            robot: "Robot" = random.choices(
+                [r for p, r in prob_robot], weights=[p for p, r in prob_robot], k=1
+            )[0]
+            return robot
+        return None
 
     # Avoid if in range of other robots
     def move_if_in_range(

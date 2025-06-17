@@ -468,11 +468,11 @@ def game_loop(map_file: str | None = None):
             angle = (angle + 3) % 360
         if ticks > enemy_behaviour_tick:
             enemy_behaviour_tick += 3000  # 3 sec
-            goals: list[Robot] = []
+            goals: list[Robot | None] = []
             for robot in robots:
                 if robot is player:
                     continue
-                goals.append(robot.get_robot_with_distance_prob(robots))
+                goals.append(robot.get_robot_with_distance_prob(game_map, robots))
         for robot in robots:
             if robot is player:  # player
                 player.update_player(robots, game_map, walls, bullets)
