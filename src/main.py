@@ -27,6 +27,33 @@ screen: pygame.Surface = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Roboarena")
 clock = pygame.time.Clock()
 
+border = [
+    pygame.Rect(
+        0,
+        0,
+        config.COLUMNS * config.TILE_SIZE,
+        config.TILE_SIZE,
+    ),
+    pygame.Rect(
+        0,
+        0,
+        config.TILE_SIZE,
+        config.ROWS * config.TILE_SIZE,
+    ),
+    pygame.Rect(
+        0,
+        config.ROWS * config.TILE_SIZE,
+        config.COLUMNS * config.TILE_SIZE,
+        config.TILE_SIZE,
+    ),
+    pygame.Rect(
+        config.COLUMNS * config.TILE_SIZE,
+        0,
+        config.TILE_SIZE,
+        config.ROWS * config.TILE_SIZE,
+    ),
+]
+
 # Debug info
 print(f"Monitor: {max_width}x{max_height}")
 print(f"Fenster: {window_width}x{window_height}")
@@ -397,7 +424,8 @@ def game_loop(map_file: str | None = None):
     game_map = Map(map_file)
     map_renderer = MapRenderer(screen, config.TEXTURES)
     map_renderer.draw_map_picture(game_map.get_map_data())
-    walls = game_map.walls()
+    walls: list[pygame.Rect] = game_map.walls()
+    walls.extend(border)
 
     # Create robots using spawn positions
     spawn_positions = game_map.generate_spawn_positions()
@@ -438,16 +466,22 @@ def game_loop(map_file: str | None = None):
         if ticks > circle_tick:
             circle_tick += 50
             angle = (angle + 3) % 360
+        if ticks > enemy_behaviour_tick:
+            enemy_behaviour_tick += 3000  # 3 sec
+            goals: list[Robot] = []
+            for robot in robots:
+                if robot is player:
+                    continue
+                goals.append(robot.get_robot_with_distance_prob(robots))
         for robot in robots:
             if robot is player:  # player
                 player.update_player(robots, game_map, walls, bullets)
                 if player.lives == 0:
                     gameover()
             else:  # enemies
-                if ticks > circle_tick:
-                    enemy_behaviour_tick += 3000  # 3 sec
-                    goal = robot.get_robot_with_distance_prob(robots)
-                robot.update_enemy(goal, robots, game_map, walls, bullets)
+                robot.update_enemy(
+                    goals[robots.index(robot) - 1], robots, game_map, walls, bullets
+                )
                 if robot.lives == 0:
                     robots.remove(robot)
                     if len(robots) <= 1:
