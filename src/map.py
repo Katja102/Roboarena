@@ -18,10 +18,13 @@ class Map:
         self.map_data = self.initialize_map()
 
         # If a file path is provided: load from file, otherwise use the fallback map
-        try:
-            inner_map = self.get_inner_map()
-        except FileNotFoundError:
-            print(f"[Warning] File '{self.file_path}' not found. Using fallback map.")
+        if self.file_path is not None:
+            try:
+                inner_map = self.get_inner_map()
+            except FileNotFoundError:
+                print(f"Warning: file {self.file_path} not found. Using fallback map.")
+                inner_map = get_fallback_map()
+        else:
             inner_map = get_fallback_map()
 
         self.create_map(inner_map)
