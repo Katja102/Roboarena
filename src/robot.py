@@ -45,9 +45,11 @@ class Robot:
         self.is_player = is_player  # if robot is player (not enemy)
         self.last_wall_hit_time = 0  # time of last wall hit sound
         self.times_without_sand = 0
-        # how often there was no sand in touched_textures in a row while the robot was on sand
+        # how often there was no sand in touched_textures in a row
+        # while the robot was on sand
         self.times_without_bush = 0
-        # how often there was no bus in touched_textures in a row while the robot was in a bush
+        # how often there was no bus in touched_textures in a row
+        # while the robot was in a bush
         self.sounds = Sounds()  # loading the sounds
 
     def draw_robot(self) -> None:
