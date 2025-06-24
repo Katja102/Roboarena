@@ -25,7 +25,7 @@ class Robot:
         color: tuple[int, int, int],
         speed: float,
         speed_alpha: float,
-        is_player: bool
+        is_player: bool,
     ):
         self.screen = screen
         self.x = x  # x-coordiante of center
@@ -41,13 +41,12 @@ class Robot:
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 2000  # min duration of break between shots
         self.power = 100  # current power for attacks
-        self.moving = False # if robot is currently moving
-        self.is_player = is_player # if robot is player (not enemy)
-        self.last_wall_hit_time = 0 # time of last wall hit sound
-        self.times_without_sand=0 # how often there was no sand in touched_textures in a row while the robot was on sand
-        self.times_without_bush=0 # how often there was no bus in touched_textures in a row while the robot was in a bush
-        self.sounds = Sounds() # loading the sounds
-
+        self.moving = False  # if robot is currently moving
+        self.is_player = is_player  # if robot is player (not enemy)
+        self.last_wall_hit_time = 0  # time of last wall hit sound
+        self.times_without_sand = 0  # how often there was no sand in touched_textures in a row while the robot was on sand
+        self.times_without_bush = 0  # how often there was no bus in touched_textures in a row while the robot was in a bush
+        self.sounds = Sounds()  # loading the sounds
 
     def draw_robot(self) -> None:
         # draw robot (circle)
@@ -125,7 +124,12 @@ class Robot:
         self.getting_shot(bullets)
 
         # sound for moving
-        currently_moving = keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_DOWN] or keys[pygame.K_UP]
+        currently_moving = (
+            keys[pygame.K_RIGHT]
+            or keys[pygame.K_LEFT]
+            or keys[pygame.K_DOWN]
+            or keys[pygame.K_UP]
+        )
         if currently_moving and not self.moving:
             self.sounds.play_sound("drive_sound")
             self.moving = True
@@ -255,13 +259,13 @@ class Robot:
         touched_textures = self.touched_textures(game_map)
         # stop sand and bush sounds, when robot is no longer on sand/bush
         if "sand" not in touched_textures:
-            self.times_without_sand +=1
-            if self.times_without_sand >50: # avoid stopping the sound unintentionally
+            self.times_without_sand += 1
+            if self.times_without_sand > 50:  # avoid stopping the sound unintentionally
                 self.sounds.stop_loop("sand_sound")
                 self.times_without_sand = 0
         if "bush" not in touched_textures:
-            self.times_without_bush +=1
-            if self.times_without_bush >50: # avoid stopping the sound unintentionally
+            self.times_without_bush += 1
+            if self.times_without_bush > 50:  # avoid stopping the sound unintentionally
                 self.sounds.stop_loop("bush_sound")
                 self.times_without_bush = 0
         if "ice" in touched_textures:
