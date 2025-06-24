@@ -6,6 +6,7 @@ from map_renderer import MapRenderer
 from robot import Robot
 from bullet import Bullet
 from button import Button
+from sounds import Sounds
 
 # Initialisation
 pygame.init()
@@ -181,6 +182,9 @@ def pause_menu():
 
     paused = True
     while paused:
+
+        sounds = Sounds()
+        sounds.stop_all_sounds()
         screen.fill((30, 30, 30))
 
         title_font = pygame.font.SysFont(None, 80)  # große Schrift
@@ -402,16 +406,37 @@ def game_loop(map_file: str | None = None):
     # Create robots using spawn positions
     spawn_positions = game_map.generate_spawn_positions()
     player = Robot(
-        screen, *spawn_positions[0], config.TILE_SIZE // 2, 180, (255, 255, 255), 1, 2
+        screen,
+        *spawn_positions[0],
+        config.TILE_SIZE // 2,
+        180,
+        (255, 255, 255),
+        1,
+        2,
+        True,
     )
     enemy1 = Robot(
-        screen, *spawn_positions[1], config.TILE_SIZE // 2, 0, (0, 100, 190), 1, 2
+        screen,
+        *spawn_positions[1],
+        config.TILE_SIZE // 2,
+        0,
+        (0, 100, 190),
+        1,
+        2,
+        False,
     )
     enemy2 = Robot(
-        screen, *spawn_positions[2], config.TILE_SIZE // 2, 50, (255, 50, 120), 1, 2
+        screen,
+        *spawn_positions[2],
+        config.TILE_SIZE // 2,
+        50,
+        (255, 50, 120),
+        1,
+        2,
+        False,
     )
     enemy3 = Robot(
-        screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2
+        screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2, False
     )
     robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
@@ -428,6 +453,8 @@ def game_loop(map_file: str | None = None):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                sounds = Sounds()
+                sounds.stop_all_sounds()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pause_menu()
@@ -471,6 +498,8 @@ def game_loop(map_file: str | None = None):
 
 def gameover():
 
+    sounds = Sounds()
+    sounds.stop_all_sounds()
     running = True
     while running:
         screen.fill((30, 30, 30))
@@ -502,6 +531,8 @@ def gameover():
 
 def victory():
 
+    sounds = Sounds()
+    sounds.stop_all_sounds()
     running = True
     while running:
         screen.fill((30, 30, 30))
