@@ -2,14 +2,15 @@ import pygame
 import math
 import config
 from map import Map
+from camera import Camera
 
-velocity = 5
+
+velocity = 5 * config.ZOOM
 
 
 class Bullet:
     def __init__(
         self,
-        screen: pygame.Surface,
         x: int,
         y: int,
         direction: float,
@@ -17,17 +18,16 @@ class Bullet:
         color: tuple[int, int, int],
         shooter,  # :Robot
     ):
-        self.screen = screen
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordiante of center
         self.direction = direction  # direction of bullet
         self.velocity = velocity  # velocity of bullet
-        self.radius = radius  # radius of bullet
+        self.radius = radius * config.ZOOM  # radius of bullet
         self.color = color  # color of bullet
         self.alive = True  # if bullet is there
         self.shooter = shooter  # Robot who shot this bullet
 
-    def update_bullet(self, map: Map) -> None:
+    def update_bullet(self, map: Map, camera: Camera) -> None:
         # update bullet position
         direction_rad = math.radians(self.direction)
         self.x += self.velocity * math.cos(direction_rad)
@@ -48,4 +48,5 @@ class Bullet:
             self.alive = False
 
         # draw bullet
-        pygame.draw.circle(self.screen, self.color, (self.x, self.y), self.radius)
+        draw_x, draw_y = camera.apply(self.x, self.y)
+        pygame.draw.circle(camera.surface, self.color, (draw_x, draw_y), self.radius)
