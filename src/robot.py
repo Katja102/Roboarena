@@ -45,6 +45,9 @@ class Robot:
         self.sounds = Sounds("../resources/sounds")
         self.is_player = is_player
         self.last_wall_hit_time = 0
+        self.times_without_sand=0
+        self.times_without_bush=0
+
 
     def draw_robot(self) -> None:
         # draw robot (circle)
@@ -250,9 +253,19 @@ class Robot:
     # Effect for robot from map
     def map_effects(self, game_map: Map, robots: list["Robot"]) -> None:
         touched_textures = self.touched_textures(game_map)
-        if ("sand" or "bush") not in touched_textures:
-            self.sounds.stop_loop("sand_sound")
-            print("stop bush or sand sound")
+        print(touched_textures)
+        if "sand" not in touched_textures:
+            self.times_without_sand +=1
+            if self.times_without_sand >50:
+                self.sounds.stop_loop("sand_sound")
+                print("stop sand sound")
+                self.times_without_sand = 0
+        if "bush" not in touched_textures:
+            self.times_without_bush +=1
+            if self.times_without_bush >50:
+                self.sounds.stop_loop("bush_sound")
+                print("stop bush sound")
+                self.times_without_bush = 0
         if "ice" in touched_textures:
             self.v = self.speed * ice_acceleration
             self.v_alpha = self.speed_alpha * ice_acceleration
@@ -263,7 +276,6 @@ class Robot:
             self.v_alpha = self.speed_alpha * sand_acceleration
             if self.is_player:
                 self.sounds.play_sound("sand_sound")
-                print("play sand")
         elif "wall" in touched_textures:
             pass
         else:
@@ -286,6 +298,7 @@ class Robot:
             if self.is_player:
                 self.sounds.play_sound("bush_sound")
                 print("play bush")
+                self.times_without_bush= 0
 
     # Get random spawn position
     def get_spawn_position(

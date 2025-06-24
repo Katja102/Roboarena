@@ -29,11 +29,12 @@ class Sounds:
                 self.stop_loop(action)
                 if self.drive_playing:
                     self.sounds["drive_sound"].set_volume(0.5)
-                if not self.is_playing_anywhere(action):
+                if not self.channel_loop.get_busy():
                     self.channel_loop.play(self.sounds[action], loops=-1)
+                    print("play loop")
                 self.current_loop = action
         else:
-            if not self.is_playing_anywhere(action):
+            if not self.channel_single.get_busy() and not self.channel_single.get_sound == self.sounds[action]:
                 self.channel_single.play(self.sounds[action], loops=0)
 
     def stop_loop(self, action: str):
@@ -43,7 +44,7 @@ class Sounds:
                 self.channel_drive.stop()
         if action in self.loops:
             if self.channel_loop.get_busy():
-                self.channel_loop.stop()
+                self.sounds[action].stop()
             self.current_loop = None
             if self.drive_playing:
                 self.sounds["drive_sound"].set_volume(1.0)
@@ -61,10 +62,4 @@ class Sounds:
             self.current_loop = None
             self.drive_playing = False
     
-    def is_playing_anywhere(self, sound: str):
-        for i in range(pygame.mixer.get_num_channels()):
-            channel = pygame.mixer.Channel(i)
-            if channel.get_sound() == self.sounds[sound] and channel.get_busy():
-                return True
-        return False
 
