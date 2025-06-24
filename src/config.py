@@ -16,3 +16,4 @@ TEXTURES: dict[str, pygame.Surface] = {
 TILE_SIZE: int = 0  # will be assigned during runtime in main.py
 COLUMNS: int = 48  # number of tile columns (horizontal)
 ROWS: int = 27  # number of tile rows (vertical)
+ZOOM: float = 2  # # scaling factor applied to all tiles and objects
