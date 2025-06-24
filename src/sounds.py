@@ -1,17 +1,17 @@
 import pygame
 
 class Sounds:
-    def __init__(self, file_path: str):
+    def __init__(self):
         pygame.mixer.init()
         self.sounds = {
-            "wall_hit_sound": pygame.mixer.Sound(f"{file_path}/wall_hit.ogg"),
-            "lava_sound": pygame.mixer.Sound(f"{file_path}/lava.wav"),
-            "ice_sound": pygame.mixer.Sound(f"{file_path}/cartoon-slide-whistle-down-1-176647.mp3"),
-            "sand_sound": pygame.mixer.Sound(f"{file_path}/sand.wav"),
-            "bush_sound": pygame.mixer.Sound(f"{file_path}/bush.ogg"),
-            "shot_sound": pygame.mixer.Sound(f"{file_path}/shoot.ogg"),
-            "drive_sound": pygame.mixer.Sound(f"{file_path}/drive.mp3"),
-            "player_hit_sound": pygame.mixer.Sound(f"{file_path}/player_hit.ogg") 
+            "wall_hit_sound": pygame.mixer.Sound("../resources/sounds/wall_hit.ogg"),
+            "lava_sound": pygame.mixer.Sound("../resources/sounds/lava.wav"),
+            "ice_sound": pygame.mixer.Sound("../resources/sounds/cartoon-slide-whistle-down-1-176647.mp3"),
+            "sand_sound": pygame.mixer.Sound("../resources/sounds/sand.wav"),
+            "bush_sound": pygame.mixer.Sound("../resources/sounds/bush.ogg"),
+            "shot_sound": pygame.mixer.Sound("../resources/sounds/shoot.ogg"),
+            "drive_sound": pygame.mixer.Sound("../resources/sounds/drive.mp3"),
+            "player_hit_sound": pygame.mixer.Sound("../resources/sounds/player_hit.ogg") 
         }
         self.channel_drive = pygame.mixer.Channel(1)
         self.channel_loop = pygame.mixer.Channel(2)

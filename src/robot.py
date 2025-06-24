@@ -42,11 +42,11 @@ class Robot:
         self.shot_break_duration = 2000  # min duration of break between shots
         self.power = 100  # current power for attacks
         self.moving = False # if robot is currently moving
-        self.sounds = Sounds("../resources/sounds")
         self.is_player = is_player
         self.last_wall_hit_time = 0
         self.times_without_sand=0
         self.times_without_bush=0
+        self.sounds = Sounds()
 
 
     def draw_robot(self) -> None:
