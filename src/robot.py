@@ -24,6 +24,7 @@ class Robot:
         color: tuple[int, int, int],
         speed: float,
         speed_alpha: float,
+        robot_type: str = "",
     ):
         self.screen = screen
         self.x = x  # x-coordiante of center
@@ -31,66 +32,20 @@ class Robot:
         self.r = radius  # radius of circle
         self.alpha = direction % 360  # direction of the robot in degree
         self.color = color  # color of the robot
-        self.v = speed  # current acceleration for moving
-        self.v_alpha = speed_alpha  # current acceleration for turning
-        self.speed = speed  # speed for moving
-        self.speed_alpha = speed_alpha  # speed for turning
+        self.v = speed * config.ZOOM  # current acceleration for moving
+        self.v_alpha = speed_alpha * config.ZOOM  # current acceleration for turning
+        self.speed = speed * config.ZOOM  # speed for moving
+        self.speed_alpha = speed_alpha * config.ZOOM  # speed for turning
         self.lives = 3  # current lives of the robot
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 2000  # min duration of break between shots
         self.power = 100  # current power for attacks
-
-    def draw_robot(self) -> None:
-        # draw robot (circle)
-        pygame.draw.circle(self.screen, self.color, (self.x, self.y), self.r)
-
-        # calculate values for eyes
-        eye_radius = self.r * 0.1  # radius of the eyes
-        eye_offset_deg = 30  # deviation of angle of the eyes from direction
-        eye_offset_rad = math.radians(eye_offset_deg)  # convert to radian
-        eye_distance = self.r * 0.6  # distance from center of the robot
-
-        alpha_rad = math.radians(self.alpha)
-
-        # Eye positions (left and right)
-        left_eye_x = self.x + (eye_distance * math.cos(alpha_rad - eye_offset_rad))
-        left_eye_y = self.y + (eye_distance * math.sin(alpha_rad - eye_offset_rad))
-        right_eye_x = self.x + (eye_distance * math.cos(alpha_rad + eye_offset_rad))
-        right_eye_y = self.y + (eye_distance * math.sin(alpha_rad + eye_offset_rad))
-
-        # draw eyes
-        pygame.draw.circle(self.screen, (0, 0, 0), (left_eye_x, left_eye_y), eye_radius)
-        pygame.draw.circle(
-            self.screen, (0, 0, 0), (right_eye_x, right_eye_y), eye_radius
-        )
-
-        # draw lives
-        font = pygame.font.SysFont("Arial", self.r, False, False)
-        number_writing = font.render(str(self.lives), True, (0, 0, 0))
-        number_rect = number_writing.get_rect()  # rectangle with size of number
-        lives_x = (
-            self.x - number_rect.centerx
-        )  # place number in the center of robot circle
-        lives_y = self.y - number_rect.centery
-        self.screen.blit(number_writing, [lives_x, lives_y])
-
-        # draw power-bar
-        power_height = self.r / 2
-        power_width = self.r * 2
-        power_x = self.x - self.r
-        power_y = self.y + (1.5 * self.r)
-        pygame.draw.rect(
-            self.screen,
-            (255, 255, 255),
-            pygame.Rect(power_x, power_y, power_width, power_height),
-            2,
-        )  # empty bar
-        power_amount_width = power_width * (self.power / 100)
-        pygame.draw.rect(
-            self.screen,
-            (0, 200, 0),
-            pygame.Rect(power_x, power_y, power_amount_width, power_height),
-        )  # current power
+        self.in_bush = False  # Whether the robot is currently standing in a bush tile
+        self.bush_tiles = (
+            []
+        )  # List of bush tile positions robot is currently overlapping
+        self.robot_type = robot_type
+        self.is_moving = False
 
     # Lets the player move the robot on map
     def update_player(
@@ -122,6 +77,19 @@ class Robot:
         # check, if user used a key for shooting
         if keys[pygame.K_s]:
             self.shoot(bullets)
+
+        # check, if robot is moving
+        keys = pygame.key.get_pressed()
+        self.is_moving = any(
+            [
+                keys[pygame.K_UP],
+                keys[pygame.K_DOWN],
+                keys[pygame.K_LEFT],
+                keys[pygame.K_RIGHT],
+                keys[pygame.K_a],
+                keys[pygame.K_d],
+            ]
+        )
 
     # Lets a robot follow another robot
     def update_enemy(
@@ -177,6 +145,13 @@ class Robot:
         # avoid being in range of other robots
         self.move_if_in_range(robots, walls, game_map)
         self.robot_collision(robots, walls, game_map)
+
+        # # check, if robot NPC is moving
+        self.is_moving = (
+            abs(goal.x - self.x) > 0.5
+            or abs(goal.y - self.y) > 0.5
+            or abs(angle_to_goal - self.alpha) > 1
+        )
 
     # React to collisions with other robots
     def robot_collision(
@@ -246,18 +221,19 @@ class Robot:
         else:
             self.v = self.speed
             self.v_alpha = self.speed_alpha
-        self.draw_robot()
         if "lava" in touched_textures:
             self.get_spawn_position(game_map, robots)
             self.lives -= 1
+
         if "bush" in touched_textures:
+            self.in_bush = True
+            self.bush_tiles = []
             for [i, j] in self.touched_tiles():
                 if game_map.get_tile_type(i, j) == "bush":
-                    texture = config.TEXTURES["bush"].convert()
-                    tile = pygame.transform.scale(
-                        texture, (config.TILE_SIZE, config.TILE_SIZE)
-                    )
-                    self.screen.blit(tile, (i * config.TILE_SIZE, j * config.TILE_SIZE))
+                    self.bush_tiles.append((i, j))
+        else:
+            self.in_bush = False
+            self.bush_tiles = []
 
     # Get random spawn position
     def get_spawn_position(
@@ -346,7 +322,6 @@ class Robot:
         start_x = self.x + self.r * math.cos(alpha_rad)  # start outsinde of the robot
         start_y = self.y + self.r * math.sin(alpha_rad)
         bullet = Bullet(
-            self.screen,
             int(start_x),
             int(start_y),
             self.alpha,
