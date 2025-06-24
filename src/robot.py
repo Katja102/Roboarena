@@ -42,11 +42,11 @@ class Robot:
         self.shot_break_duration = 2000  # min duration of break between shots
         self.power = 100  # current power for attacks
         self.moving = False # if robot is currently moving
-        self.is_player = is_player
-        self.last_wall_hit_time = 0
-        self.times_without_sand=0
-        self.times_without_bush=0
-        self.sounds = Sounds()
+        self.is_player = is_player # if robot is player (not enemy)
+        self.last_wall_hit_time = 0 # time of last wall hit sound
+        self.times_without_sand=0 # how often there was no sand in touched_textures in a row while the robot was on sand
+        self.times_without_bush=0 # how often there was no bus in touched_textures in a row while the robot was in a bush
+        self.sounds = Sounds() # loading the sounds
 
 
     def draw_robot(self) -> None:
@@ -253,14 +253,15 @@ class Robot:
     # Effect for robot from map
     def map_effects(self, game_map: Map, robots: list["Robot"]) -> None:
         touched_textures = self.touched_textures(game_map)
+        # stop sand and bush sounds, when robot is no longer on sand/bush
         if "sand" not in touched_textures:
             self.times_without_sand +=1
-            if self.times_without_sand >50:
+            if self.times_without_sand >50: # avoid stopping the sound unintentionally
                 self.sounds.stop_loop("sand_sound")
                 self.times_without_sand = 0
         if "bush" not in touched_textures:
             self.times_without_bush +=1
-            if self.times_without_bush >50:
+            if self.times_without_bush >50: # avoid stopping the sound unintentionally
                 self.sounds.stop_loop("bush_sound")
                 self.times_without_bush = 0
         if "ice" in touched_textures:
@@ -294,7 +295,6 @@ class Robot:
                     self.screen.blit(tile, (i * config.TILE_SIZE, j * config.TILE_SIZE))
             if self.is_player:
                 self.sounds.play_sound("bush_sound")
-                self.times_without_bush= 0
 
     # Get random spawn position
     def get_spawn_position(
@@ -352,6 +352,7 @@ class Robot:
         # to avoid not moving at all when goal is behind wall
         else:
             current_time = pygame.time.get_ticks()
+            # avoid playing the wall_hit sound too often when going along a wall
             if self.is_player and (current_time - self.last_wall_hit_time > 3000):
                 self.sounds.play_sound("wall_hit_sound")
                 self.last_wall_hit_time = current_time

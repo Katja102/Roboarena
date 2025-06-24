@@ -3,6 +3,7 @@ import pygame
 class Sounds:
     def __init__(self):
         pygame.mixer.init()
+        #load sounds
         self.sounds = {
             "wall_hit_sound": pygame.mixer.Sound("../resources/sounds/wall_hit.ogg"),
             "lava_sound": pygame.mixer.Sound("../resources/sounds/lava.wav"),
@@ -32,7 +33,7 @@ class Sounds:
             if action != self.current_loop:
                 self.stop_loop(action)
                 if self.drive_playing:
-                    self.sounds["drive_sound"].set_volume(0.4)
+                    self.sounds["drive_sound"].set_volume(0.4) # make drive sound quieter while other loop sound is playing
                 if not self.channel_loop.get_busy():
                     self.channel_loop.play(self.sounds[action], loops=-1)
                 self.current_loop = action
