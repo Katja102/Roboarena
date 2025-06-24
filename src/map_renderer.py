@@ -1,11 +1,14 @@
 import pygame
 import config
+from camera import Camera
 
 
 class MapRenderer:
-    def __init__(self, screen: pygame.Surface, textures: dict[str, pygame.Surface]):
+    def __init__(
+        self, camera_surface: pygame.Surface, textures: dict[str, pygame.Surface]
+    ):
         """Draws the map on the screen."""
-        self.screen = screen  # current game screen
+        self.camera_surface = camera_surface  # current visible screen
         self.textures = textures  # tile type to texture mapping
         self.map_picture = None  # rendered map surface
 
@@ -28,7 +31,8 @@ class MapRenderer:
                     texture, (x * config.TILE_SIZE, y * config.TILE_SIZE)
                 )
 
-    def draw_map(self) -> None:
-        """Shows the map image on the screen."""
+    def draw_map(self, camera: Camera) -> None:
+        """Shows the visible part of the map through the camera."""
         if self.map_picture:
-            self.screen.blit(self.map_picture, (0, 0))
+            offset = camera.apply(0, 0)
+            self.camera_surface.blit(self.map_picture, offset)
