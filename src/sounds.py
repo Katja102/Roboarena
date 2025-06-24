@@ -13,12 +13,16 @@ class Sounds:
             "drive_sound": pygame.mixer.Sound("../resources/sounds/drive.mp3"),
             "player_hit_sound": pygame.mixer.Sound("../resources/sounds/player_hit.ogg") 
         }
+
         self.channel_drive = pygame.mixer.Channel(1)
         self.channel_loop = pygame.mixer.Channel(2)
         self.channel_single = pygame.mixer.Channel(3)
         self.loops = {"bush_sound", "sand_sound", "drive_sound"}
         self.current_loop = None
         self.drive_playing = False
+
+        self.sounds["drive_sound"].set_volume(0.6)
+
     
     def play_sound(self, action: str):
         if action == "drive_sound" and not self.drive_playing:
@@ -28,13 +32,16 @@ class Sounds:
             if action != self.current_loop:
                 self.stop_loop(action)
                 if self.drive_playing:
-                    self.sounds["drive_sound"].set_volume(0.5)
+                    self.sounds["drive_sound"].set_volume(0.4)
                 if not self.channel_loop.get_busy():
                     self.channel_loop.play(self.sounds[action], loops=-1)
-                    print("play loop")
                 self.current_loop = action
         else:
             if not self.channel_single.get_busy() and not self.channel_single.get_sound == self.sounds[action]:
+                if action == "player_hit":
+                    self.channel_single.set_volume(0.3)
+                else:
+                    self.channel_single.set_volume(0.3)
                 self.channel_single.play(self.sounds[action], loops=0)
 
     def stop_loop(self, action: str):
@@ -47,7 +54,7 @@ class Sounds:
                 self.sounds[action].stop()
             self.current_loop = None
             if self.drive_playing:
-                self.sounds["drive_sound"].set_volume(1.0)
+                self.sounds["drive_sound"].set_volume(0.6)
 
 
     def stop_all_sounds(self):
