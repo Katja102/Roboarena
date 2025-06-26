@@ -5,7 +5,7 @@ from map import Map
 from camera import Camera
 
 
-velocity = 5 * config.ZOOM
+velocity = 7
 
 
 class Bullet:

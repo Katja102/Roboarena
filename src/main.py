@@ -421,7 +421,7 @@ def game_loop(map_file: str | None = None):
         (255, 255, 255),
         1,
         2,
-        "Tank",
+        "Spider",
     )
     enemy1 = Robot(
         camera.surface,
@@ -497,13 +497,13 @@ def game_loop(map_file: str | None = None):
         for robot in robots:
             if robot is player:  # player
                 player.update_player(robots, game_map, walls, bullets)
-                if player.lives == 0:
+                if player.hp <= 0:
                     gameover()
             else:  # enemies
                 robot.update_enemy(
                     goals[robots.index(robot) - 1], robots, game_map, walls, bullets
                 )
-                if robot.lives == 0:
+                if robot.hp <= 0:
                     robots.remove(robot)
                     if len(robots) <= 1:
                         victory()

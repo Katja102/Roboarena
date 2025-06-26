@@ -36,7 +36,7 @@ class Robot:
         self.v_alpha = speed_alpha * config.ZOOM  # current acceleration for turning
         self.speed = speed * config.ZOOM  # speed for moving
         self.speed_alpha = speed_alpha * config.ZOOM  # speed for turning
-        self.lives = 3  # current lives of the robot
+        self.hp = 100  # current livepoints of the robot
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 2000  # min duration of break between shots
         self.power = 100  # current power for attacks
@@ -223,7 +223,7 @@ class Robot:
             self.v_alpha = self.speed_alpha
         if "lava" in touched_textures:
             self.get_spawn_position(game_map, robots)
-            self.lives -= 1
+            self.hp -= 40
 
         if "bush" in touched_textures:
             self.in_bush = True
@@ -325,7 +325,7 @@ class Robot:
             int(start_x),
             int(start_y),
             self.alpha,
-            5,
+            3,
             (0, 0, 0),
             shooter=self,
         )  # create bullet
@@ -344,7 +344,7 @@ class Robot:
             max_dist = bullet.radius + self.r
             if dist < max_dist:
                 bullet.alive = False
-                self.lives = self.lives - 1
+                self.hp = self.hp - 15
 
     # helper-function to get list of robots with probability corresponding to its distance
     def dist_to_prob(
