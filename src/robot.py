@@ -19,7 +19,7 @@ class Robot:
         screen: pygame.Surface,
         x: int,
         y: int,
-        radius: int,
+        hitbox_radius: int,
         direction: int,
         color: tuple[int, int, int],
         speed: float,
@@ -29,7 +29,7 @@ class Robot:
         self.screen = screen
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordinate of center
-        self.r = radius  # radius of circle
+        self.hitbox_radius = hitbox_radius  # radius of the hitbox
         self.alpha = direction % 360  # direction of the robot in degree
         self.color = color  # color of the robot
         self.v = speed * config.ZOOM  # current acceleration for moving
@@ -175,25 +175,42 @@ class Robot:
                 x_to_robot = robot.x - self.x
                 y_to_robot = robot.y - self.y
                 dist = (
-                    math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2) - self.r - robot.r
+                    math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2) - self.hitbox_radius * 0.3 - robot.hitbox_radius * 0.3
                 )
                 dist_robot.append((dist, robot))
         dist_robot = sorted(dist_robot, key=lambda x: x[0])
         return dist_robot
 
+    def get_hitbox(self, x: float = None, y: float = None) -> pygame.Rect:
+        """
+           Returns the robot's hitbox
+           If no arguments then return the hitbox at the current position
+           If x and y are given return the hitbox at the given position
+        """
+        if x is None:
+            x = self.x
+        if y is None:
+            y = self.y
+
+        return pygame.Rect(
+            x - self.hitbox_radius * 0.4,
+            y - self.hitbox_radius * 0.35,
+            self.hitbox_radius * 0.75,
+            self.hitbox_radius* 0.75
+        )
+
     # Get the list of tiles touched by the robot
     def touched_tiles(self) -> list[tuple[int, int]]:
-        x_on_tiles = self.x / config.TILE_SIZE
-        y_on_tiles = self.y / config.TILE_SIZE
-        radius_on_tiles = self.r / config.TILE_SIZE
+
         x_bounds = [
-            math.floor(x_on_tiles - radius_on_tiles),
-            math.floor(x_on_tiles + radius_on_tiles),
+            self.get_hitbox().left // config.TILE_SIZE,
+            (self.get_hitbox().right - 1) // config.TILE_SIZE
         ]
         y_bounds = [
-            math.floor(y_on_tiles - radius_on_tiles),
-            math.floor(y_on_tiles + radius_on_tiles),
+            self.get_hitbox().top // config.TILE_SIZE,
+            (self.get_hitbox().bottom - 1) // config.TILE_SIZE
         ]
+
         touching_tiles = []
         for i in range(x_bounds[0], x_bounds[1] + 1):
             for j in range(y_bounds[0], y_bounds[1] + 1):
@@ -241,10 +258,10 @@ class Robot:
     ) -> tuple[int, int]:
         # Get random position
         position_x = random.randint(
-            2 * config.TILE_SIZE + self.r, (config.COLUMNS - 2) * config.TILE_SIZE
+            2 * config.TILE_SIZE + self.hitbox_radius, (config.COLUMNS - 2) * config.TILE_SIZE
         )
         position_y = random.randint(
-            2 * config.TILE_SIZE + self.r, (config.ROWS - 2) * config.TILE_SIZE
+            2 * config.TILE_SIZE + self.hitbox_radius, (config.ROWS - 2) * config.TILE_SIZE
         )
         # Check for distance to other robots
         self.x = position_x
@@ -277,9 +294,9 @@ class Robot:
     ) -> None:
         xnew = self.x + x
         ynew = self.y + y
-        newRect = pygame.Rect(xnew - self.r, ynew - self.r, self.r * 2, self.r * 2)
         # moves robot to direct wanted path if no wall
-        if newRect.collidelist(walls) == -1:
+        hitbox = self.get_hitbox(xnew, ynew)
+        if hitbox.collidelist(walls) == -1:
             self.x = xnew
             self.y = ynew
             if check_for_lava:
@@ -288,23 +305,20 @@ class Robot:
                     self.x -= x
                     self.y -= y
                 check_for_lava = False
-        # to avoid not moving at all when goal is behind wall
         else:
             # check and move if only in x direction is no wall
             xnew = self.x + x
             ynew = self.y
-            newRect = pygame.Rect(xnew - self.r, ynew - self.r, self.r * 2, self.r * 2)
-            if newRect.collidelist(walls) == -1:
+            hitbox = self.get_hitbox(xnew, ynew)
+            if hitbox.collidelist(walls) == -1:
                 self.x = xnew
                 self.y = ynew
             else:
                 # check and move if only in y direction is no wall
                 xnew = self.x
                 ynew = self.y + y
-                newRect = pygame.Rect(
-                    xnew - self.r, ynew - self.r, self.r * 2, self.r * 2
-                )
-                if newRect.collidelist(walls) == -1:
+                hitbox = self.get_hitbox(xnew, ynew)
+                if hitbox.collidelist(walls) == -1:
                     self.x = xnew
                     self.y = ynew
 
@@ -319,13 +333,14 @@ class Robot:
         # shoot, if there is enough time and power
 
         alpha_rad = math.radians(self.alpha)
-        start_x = self.x + self.r * math.cos(alpha_rad)  # start outsinde of the robot
-        start_y = self.y + self.r * math.sin(alpha_rad)
+        offset = self.hitbox_radius * 0.2 # start the bullet closer to center
+        start_x = self.x + offset * math.cos(alpha_rad)  # start outsinde of the robot
+        start_y = self.y + offset * math.sin(alpha_rad)
         bullet = Bullet(
             int(start_x),
             int(start_y),
             self.alpha,
-            3,
+            7,
             (0, 0, 0),
             shooter=self,
         )  # create bullet
@@ -341,7 +356,7 @@ class Robot:
             dist_x = abs(bullet.x - self.x)
             dist_y = abs(bullet.y - self.y)
             dist = math.sqrt(dist_x**2 + dist_y**2)
-            max_dist = bullet.radius + self.r
+            max_dist = bullet.radius + self.hitbox_radius * 0.35
             if dist < max_dist:
                 bullet.alive = False
                 self.hp = self.hp - 15
@@ -353,7 +368,12 @@ class Robot:
         prob_robot: list[tuple[float, "Robot"]] = []
         total_dist: float = sum(d for d, r in dist_robot)
         for dist, robot in dist_robot:
-            prob: float = total_dist / dist
+            # preventing divison with 0
+            if dist == 0:
+                prob: float = 10**9
+            else:
+                prob: float = total_dist / dist
+
             prob_robot.append((prob, robot))
         return prob_robot
 
@@ -368,6 +388,11 @@ class Robot:
         if len(potential_goals) > 0:
             dist_robot: list[tuple[float, "Robot"]] = self.robot_dist(potential_goals)
             prob_robot: list[tuple[float, "Robot"]] = self.dist_to_prob(dist_robot)
+
+            # avoiding: 'ValueError: Total of weights must be greater than zero'"
+            # by removing robots with zero selection probability before calling random.choices
+            prob_robot = [(p, r) for p, r in prob_robot if p > 0]
+
             robot: "Robot" = random.choices(
                 [r for p, r in prob_robot], weights=[p for p, r in prob_robot], k=1
             )[0]

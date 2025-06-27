@@ -412,45 +412,45 @@ def game_loop(map_file: str | None = None):
     # Robot setup
     robot_renderer = RobotRenderer(camera.surface)
     spawn_positions = game_map.generate_spawn_positions()
-
+    robot_size = int(config.TILE_SIZE * 1.3)
     player = Robot(
         camera.surface,
         *spawn_positions[0],
-        config.TILE_SIZE // 2,
+        robot_size,
         0,
         (255, 255, 255),
-        1,
         2,
+        3,
         "Spider",
     )
     enemy1 = Robot(
         camera.surface,
         *spawn_positions[1],
-        config.TILE_SIZE // 2,
+        robot_size,
         0,
         (0, 100, 190),
-        1,
         2,
+        3,
         "Spider",
     )
     enemy2 = Robot(
         camera.surface,
         *spawn_positions[2],
-        config.TILE_SIZE // 2,
+        robot_size,
         50,
         (255, 50, 120),
-        1,
         2,
+        3,
         "Spider",
     )
     enemy3 = Robot(
         camera.surface,
         *spawn_positions[3],
-        config.TILE_SIZE // 2,
+        robot_size,
         50,
         (0, 250, 0),
-        1,
         2,
+        3,
         "Tank",
     )
     robots: list[Robot] = [player, enemy1, enemy2, enemy3]

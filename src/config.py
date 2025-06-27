@@ -23,7 +23,8 @@ ICONS: dict[str, pygame.Surface] = {
 TILE_SIZE: int = 0  # will be assigned during runtime in main.py
 COLUMNS: int = 48  # number of tile columns (horizontal)
 ROWS: int = 27  # number of tile rows (vertical)
-ZOOM: float = 3  # scaling factor applied to all tiles and objects
+ZOOM: float = 1.2  # scaling factor applied to all tiles and objects
 ROBOT_RENDER_SIZE = 64 # always 64x64 px
 SHOW_STATS: bool = True # Toggle to show or hide HP and Power numbers
+
 

@@ -3,8 +3,8 @@ import math
 import os
 import config
 
-# Constante definitions
-POWER_BAR_COLOR : tuple[int, int, int] = (0, 180, 220)
+# Bar colors for different UI elements
+POWER_BAR_COLOR : tuple[int, int, int] = (0, 170, 210)
 LIFE_BAR_COLORS: dict[str, tuple[int, int, int]] = {
     "green": (0, 220, 0),
     "yellow": (220, 210, 0),
@@ -61,10 +61,6 @@ class RobotRenderer:
             self.timers[robot] = 0.0
             return
 
-        # Only animate if conditions match (-> if Spider moves for example)
-        if not robot.is_moving:
-            return
-
         if robot not in self.frame_indices:
             self.frame_indices[robot] = 0
             self.timers[robot] = 0.0
@@ -102,17 +98,16 @@ class RobotRenderer:
             # Get current animation frame
             frame = self.animations[robot.robot_type][self.frame_indices.get(robot, 0)]
 
-            # Step 1: Scale the image first to TILE_SIZE
-            target_size = config.TILE_SIZE
-            scaled_image = pygame.transform.smoothscale(frame, (target_size, target_size))
+            # Scale the image to the robot's hitbox size
+            scaled_image = pygame.transform.smoothscale(frame, (robot.hitbox_radius, robot.hitbox_radius))
 
-            # Step 2: Rotate after scaling
+            # Rotate after scaling
             rotated_image = pygame.transform.rotate(scaled_image, -robot.alpha)
 
-            # Step 3: Center the rotated image at the robot's position
+            # Center rotated image at the robot's position
             rect = rotated_image.get_rect(center=camera.apply(robot.x, robot.y))
 
-            # Step 4: Draw on the camera surface
+            # Draw on camera surface
             self.camera_surface.blit(rotated_image, rect)
 
 
@@ -147,15 +142,15 @@ class RobotRenderer:
             )
 
         # Power bar
-        power_height = config.TILE_SIZE * 0.15
-        power_width = config.TILE_SIZE
-        power_x, power_y = camera.apply(robot.x - robot.r, robot.y + (1.7 * robot.r))
+        power_height = robot.hitbox_radius * 0.15
+        power_width = robot.hitbox_radius
+        power_x, power_y = camera.apply(robot.x - (0.48 * robot.hitbox_radius), robot.y + (0.8 * robot.hitbox_radius))
         fill_width = power_width * (robot.power / 100)
 
         # background color (with minimum dim)
         power_ratio = robot.power / 100
         raw_dim = int((1 - power_ratio) * BAR_BACKGROUND_DIM / 2)
-        dim = max(raw_dim, 35)
+        dim = max(raw_dim, 30)
         r, g, b = POWER_BAR_COLOR
         bg_color_power = (max(r - dim, 0), max(g - dim, 0), max(b - dim, 0))
         bg_power_rect = pygame.Rect(power_x, power_y, power_width, power_height)
@@ -165,11 +160,11 @@ class RobotRenderer:
 
         # Draw outline for background bar
         bg_outline_color = (
-            min(bg_color_power[0] + 20, 255),
-            min(bg_color_power[1] + 20, 255),
-            min(bg_color_power[2] + 20, 255)
+            min(bg_color_power[0] + 30, 255),
+            min(bg_color_power[1] + 30, 255),
+            min(bg_color_power[2] + 30, 255)
         )
-        pygame.draw.rect(self.camera_surface, bg_outline_color, bg_power_rect, 4)
+        pygame.draw.rect(self.camera_surface, bg_outline_color, bg_power_rect, robot.hitbox_radius // 25)
 
         # Draw fill bar
         pygame.draw.rect(
@@ -181,15 +176,15 @@ class RobotRenderer:
         # Draw outline for fill bar
         r, g, b = POWER_BAR_COLOR
         highlight_color = (
-            min(r + 20, 255),
-            min(g + 20, 255),
-            min(b + 20, 255)
+            min(r + 40, 255),
+            min(g + 40, 255),
+            min(b + 40, 255)
         )
         pygame.draw.rect(
             self.camera_surface,
             highlight_color,
             pygame.Rect(power_x, power_y, fill_width, power_height),
-            4
+            robot.hitbox_radius // 25
         )
 
         # Draw power value text
@@ -215,7 +210,7 @@ class RobotRenderer:
         max_life_widht = power_width  # same width as power bar
         fill_life_width = max_life_widht * (robot.hp / 100)
         life_x = power_x
-        bar_spacing = config.TILE_SIZE * 0.2  # vertical offset
+        bar_spacing = robot.hitbox_radius * 0.2  # vertical offset
         life_y = power_y - bar_spacing
 
         # Choose fill color based on HP
@@ -226,10 +221,10 @@ class RobotRenderer:
         else:
             bar_color = LIFE_BAR_COLORS["red"]
 
-        # Background color (darker based on HP, with minimum dimming)
+        # Background color (darker based on hp)
         hp_ratio = robot.hp / 100
         raw_dim_factor = int((1 - hp_ratio) * BAR_BACKGROUND_DIM)
-        dim_factor = max(raw_dim_factor, 10)
+        dim_factor = max(raw_dim_factor, 6)
         r, g, b = bar_color
         bg_color_rgb = (max(r - dim_factor, 0), max(g - dim_factor, 0), max(b - dim_factor, 0))
         bg_rect = pygame.Rect(life_x, life_y, max_life_widht, max_life_height)
@@ -239,11 +234,11 @@ class RobotRenderer:
 
         # Draw outline for background bar
         bg_outline_color = (
-            min(bg_color_rgb[0] + 20, 255),
-            min(bg_color_rgb[1] + 20, 255),
-            min(bg_color_rgb[2] + 20, 255)
+            min(bg_color_rgb[0] + 10, 255),
+            min(bg_color_rgb[1] + 10, 255),
+            min(bg_color_rgb[2] + 10, 255)
         )
-        pygame.draw.rect(self.camera_surface, bg_outline_color, bg_rect, 4)  # thickness = 4
+        pygame.draw.rect(self.camera_surface, bg_outline_color, bg_rect, robot.hitbox_radius // 20)
 
         # Draw fill bar
         pygame.draw.rect(
@@ -264,7 +259,7 @@ class RobotRenderer:
             self.camera_surface,
             highlight_color,
             pygame.Rect(life_x, life_y, fill_life_width, max_life_height),
-            4
+            robot.hitbox_radius // 25
         )
 
         # Draw text (HP number)

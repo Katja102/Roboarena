@@ -5,7 +5,7 @@ from map import Map
 from camera import Camera
 
 
-velocity = 7
+velocity = 10
 
 
 class Bullet:
@@ -22,7 +22,7 @@ class Bullet:
         self.y = y  # y-coordiante of center
         self.direction = direction  # direction of bullet
         self.velocity = velocity  # velocity of bullet
-        self.radius = radius * config.ZOOM  # radius of bullet
+        self.radius = radius # radius of bullet
         self.color = color  # color of bullet
         self.alive = True  # if bullet is there
         self.shooter = shooter  # Robot who shot this bullet
