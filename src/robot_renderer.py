@@ -6,7 +6,7 @@ import config
 # Bar colors for different UI elements
 POWER_BAR_COLOR : tuple[int, int, int] = (0, 170, 210)
 LIFE_BAR_COLORS: dict[str, tuple[int, int, int]] = {
-    "green": (0, 220, 0),
+    "green": (0, 180, 0),
     "yellow": (200, 160, 0),
     "red": (210, 0, 0),
 }
@@ -235,7 +235,7 @@ class RobotRenderer:
         # Draw outline for background bar
         bg_outline_color = (
             min(bg_color_rgb[0] + 30, 255),
-            min(bg_color_rgb[1] + 30, 255),
+            min(bg_color_rgb[1] + 50, 255),
             min(bg_color_rgb[2] + 30, 255)
         )
         pygame.draw.rect(self.camera_surface, bg_outline_color, bg_rect, robot.hitbox_radius // 20)
@@ -250,8 +250,8 @@ class RobotRenderer:
         # Draw outline for fill bar
         r, g, b = bar_color
         highlight_color = (
-            min(r + 40, 255),
-            min(g + 40, 255),
+            min(r + 30, 255),
+            min(g + 30, 255),
             min(b + 40, 255)
         )
 
