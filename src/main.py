@@ -7,6 +7,8 @@ from robot import Robot
 from bullet import Bullet
 from button import Button
 from sounds import Sounds
+from camera import Camera
+from robot_renderer import RobotRenderer
 
 # Initialisation
 pygame.init()
@@ -16,17 +18,20 @@ info = pygame.display.Info()
 max_width: int = info.current_w
 max_height: int = info.current_h
 
-# Calculate TILE_SIZE to fit the fixed grid into the screen
-config.TILE_SIZE = min(max_width // config.COLUMNS, max_height // config.ROWS)
+# Calculate TILE_SIZE based on screen resolution and zoom
+base_tile_size = min(max_width // config.COLUMNS, max_height // config.ROWS)
 
-# set window size
-window_width: int = config.TILE_SIZE * config.COLUMNS
-window_height: int = config.TILE_SIZE * config.ROWS
+# Apply zoom
+config.TILE_SIZE = int(base_tile_size * config.ZOOM)
 
 # Create window (not fullscreen)
+window_width: int = base_tile_size * config.COLUMNS
+window_height: int = base_tile_size * config.ROWS
+
 screen: pygame.Surface = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Roboarena")
 clock = pygame.time.Clock()
+
 
 # Debug info
 print(f"Monitor: {max_width}x{max_height}")
@@ -397,50 +402,68 @@ def game_loop(map_file: str | None = None):
     if map_file is None:
         map_file = "test-level.txt"
 
-    # Load map data and prepare rendering
+    # Camera setup
+    camera_width = window_width
+    camera_height = window_height
+    camera = Camera(camera_width, camera_height)
+
+    # Map setup
     game_map = Map(map_file)
-    map_renderer = MapRenderer(screen, config.TEXTURES)
+    map_renderer = MapRenderer(camera.surface, config.TEXTURES)
     map_renderer.draw_map_picture(game_map.get_map_data())
     walls: list[pygame.Rect] = game_map.walls()
 
-    # Create robots using spawn positions
+    # Robot setup
+    robot_renderer = RobotRenderer(camera.surface)
     spawn_positions = game_map.generate_spawn_positions()
+    robot_size = int(config.TILE_SIZE * 1.3)
     player = Robot(
-        screen,
+        camera.surface,
         *spawn_positions[0],
-        config.TILE_SIZE // 2,
-        180,
+        robot_size,
+        0,
         (255, 255, 255),
-        1,
         2,
+        3,
         True,
+        "Tank",
     )
     enemy1 = Robot(
-        screen,
+        camera.surface,
         *spawn_positions[1],
-        config.TILE_SIZE // 2,
+        robot_size,
         0,
         (0, 100, 190),
-        1,
         2,
+        3,
         False,
+        "Spider",
     )
     enemy2 = Robot(
-        screen,
+        camera.surface,
         *spawn_positions[2],
-        config.TILE_SIZE // 2,
+        robot_size,
         50,
         (255, 50, 120),
-        1,
         2,
+        3,
         False,
+        "Spider",
     )
     enemy3 = Robot(
-        screen, *spawn_positions[3], config.TILE_SIZE // 2, 50, (0, 250, 0), 1, 2, False
+        camera.surface,
+        *spawn_positions[3],
+        robot_size,
+        50,
+        (0, 250, 0),
+        2,
+        3,
+        False,
+        "Tank",
     )
     robots: list[Robot] = [player, enemy1, enemy2, enemy3]
 
-    # Setup for bullets and movement
+    # Bullet and movement setup
     bullets: list[Bullet] = []
     circle_tick: int = 100
     enemy_behaviour_tick: int = 0
@@ -450,6 +473,10 @@ def game_loop(map_file: str | None = None):
 
     # run game
     while running:
+        dt = clock.tick(60) / 300  # animation speed
+        camera.follow(player.x, player.y)
+
+        # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -459,12 +486,17 @@ def game_loop(map_file: str | None = None):
                 if event.key == pygame.K_ESCAPE:
                     pause_menu()
 
-        screen.fill((220, 220, 220))  # light gray background
-        map_renderer.draw_map()
+        # Drawing background
+        camera.surface.fill((0, 0, 0))
+        map_renderer.draw_map(camera)
+
+        # Timing logic
         ticks = pygame.time.get_ticks()
         if ticks > circle_tick:
             circle_tick += 50
             angle = (angle + 3) % 360
+
+        # Enemy behavior update every 3 seconds
         if ticks > enemy_behaviour_tick:
             enemy_behaviour_tick += 3000  # 3 sec
             goals: list[Robot | None] = []
@@ -475,22 +507,39 @@ def game_loop(map_file: str | None = None):
         for robot in robots:
             if robot is player:  # player
                 player.update_player(robots, game_map, walls, bullets)
-                if player.lives == 0:
+                if player.hp <= 0:
                     gameover()
             else:  # enemies
                 robot.update_enemy(
                     goals[robots.index(robot) - 1], robots, game_map, walls, bullets
                 )
-                if robot.lives == 0:
+                if robot.hp <= 0:
                     robots.remove(robot)
                     if len(robots) <= 1:
                         victory()
+
+            # draw robot
+            robot_renderer.draw(robot, camera, dt)
+
+            # draw bush overlay effect (if robot is next to a bush)
+            if robot.in_bush:
+                for i, j in robot.bush_tiles:
+                    texture = config.TEXTURES["bush"]
+                    tile = pygame.transform.scale(
+                        texture, (config.TILE_SIZE, config.TILE_SIZE)
+                    )
+                    camera.surface.blit(
+                        tile, camera.apply(i * config.TILE_SIZE, j * config.TILE_SIZE)
+                    )
+
+        # Bullet updates
         for bullet in bullets:
-            bullet.update_bullet(game_map)
+            bullet.update_bullet(game_map, camera)
             if not bullet.alive:
                 bullets.remove(bullet)
+
+        screen.blit(camera.surface, (0, 0))
         pygame.display.flip()
-        clock.tick(60)
 
     pygame.quit()
     sys.exit()
