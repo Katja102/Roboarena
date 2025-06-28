@@ -20,24 +20,25 @@ class Robot:
         screen: pygame.Surface,
         x: int,
         y: int,
-        radius: int,
+        hitbox_radius: int,
         direction: int,
         color: tuple[int, int, int],
         speed: float,
         speed_alpha: float,
         is_player: bool,
+        robot_type: str = "",
     ):
         self.screen = screen
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordinate of center
-        self.r = radius  # radius of circle
+        self.hitbox_radius = hitbox_radius  # radius of the hitbox
         self.alpha = direction % 360  # direction of the robot in degree
         self.color = color  # color of the robot
-        self.v = speed  # current acceleration for moving
-        self.v_alpha = speed_alpha  # current acceleration for turning
-        self.speed = speed  # speed for moving
-        self.speed_alpha = speed_alpha  # speed for turning
-        self.lives = 3  # current lives of the robot
+        self.v = speed * config.ZOOM  # current acceleration for moving
+        self.v_alpha = speed_alpha * config.ZOOM  # current acceleration for turning
+        self.speed = speed * config.ZOOM  # speed for moving
+        self.speed_alpha = speed_alpha * config.ZOOM  # speed for turning
+        self.hp = 100  # current livepoints of the robot
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 2000  # min duration of break between shots
         self.power = 100  # current power for attacks
@@ -52,57 +53,13 @@ class Robot:
         # while the robot was in a bush
         self.sounds = Sounds()  # loading the sounds
 
-    def draw_robot(self) -> None:
-        # draw robot (circle)
-        pygame.draw.circle(self.screen, self.color, (self.x, self.y), self.r)
+        self.in_bush = False  # Whether the robot is currently standing in a bush tile
+        self.bush_tiles = (
+            []
+        )  # List of bush tile positions robot is currently overlapping
+        self.robot_type = robot_type
 
-        # calculate values for eyes
-        eye_radius = self.r * 0.1  # radius of the eyes
-        eye_offset_deg = 30  # deviation of angle of the eyes from direction
-        eye_offset_rad = math.radians(eye_offset_deg)  # convert to radian
-        eye_distance = self.r * 0.6  # distance from center of the robot
 
-        alpha_rad = math.radians(self.alpha)
-
-        # Eye positions (left and right)
-        left_eye_x = self.x + (eye_distance * math.cos(alpha_rad - eye_offset_rad))
-        left_eye_y = self.y + (eye_distance * math.sin(alpha_rad - eye_offset_rad))
-        right_eye_x = self.x + (eye_distance * math.cos(alpha_rad + eye_offset_rad))
-        right_eye_y = self.y + (eye_distance * math.sin(alpha_rad + eye_offset_rad))
-
-        # draw eyes
-        pygame.draw.circle(self.screen, (0, 0, 0), (left_eye_x, left_eye_y), eye_radius)
-        pygame.draw.circle(
-            self.screen, (0, 0, 0), (right_eye_x, right_eye_y), eye_radius
-        )
-
-        # draw lives
-        font = pygame.font.SysFont("Arial", self.r, False, False)
-        number_writing = font.render(str(self.lives), True, (0, 0, 0))
-        number_rect = number_writing.get_rect()  # rectangle with size of number
-        lives_x = (
-            self.x - number_rect.centerx
-        )  # place number in the center of robot circle
-        lives_y = self.y - number_rect.centery
-        self.screen.blit(number_writing, [lives_x, lives_y])
-
-        # draw power-bar
-        power_height = self.r / 2
-        power_width = self.r * 2
-        power_x = self.x - self.r
-        power_y = self.y + (1.5 * self.r)
-        pygame.draw.rect(
-            self.screen,
-            (255, 255, 255),
-            pygame.Rect(power_x, power_y, power_width, power_height),
-            2,
-        )  # empty bar
-        power_amount_width = power_width * (self.power / 100)
-        pygame.draw.rect(
-            self.screen,
-            (0, 200, 0),
-            pygame.Rect(power_x, power_y, power_amount_width, power_height),
-        )  # current power
 
     # Lets the player move the robot on map
     def update_player(
@@ -133,6 +90,8 @@ class Robot:
             or keys[pygame.K_LEFT]
             or keys[pygame.K_DOWN]
             or keys[pygame.K_UP]
+            or keys[pygame.K_a]
+            or keys[pygame.K_d]
         )
         if currently_moving and not self.moving:
             self.sounds.play_sound("drive_sound")
@@ -204,6 +163,13 @@ class Robot:
         self.move_if_in_range(robots, walls, game_map)
         self.robot_collision(robots, walls, game_map)
 
+        # # check, if robot NPC is moving
+        self.moving = (
+            abs(goal.x - self.x) > 0.5
+            or abs(goal.y - self.y) > 0.5
+            or abs(angle_to_goal - self.alpha) > 1
+        )
+
     # React to collisions with other robots
     def robot_collision(
         self, robots: list["Robot"], walls: list[pygame.Rect], game_map: Map
@@ -226,24 +192,40 @@ class Robot:
                 x_to_robot = robot.x - self.x
                 y_to_robot = robot.y - self.y
                 dist = (
-                    math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2) - self.r - robot.r
+                    math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2) - self.hitbox_radius * 0.3 - robot.hitbox_radius * 0.3
                 )
                 dist_robot.append((dist, robot))
         dist_robot = sorted(dist_robot, key=lambda x: x[0])
         return dist_robot
 
+    def get_hitbox(self, x: float = None, y: float = None) -> pygame.Rect:
+        """
+           Returns the robot's hitbox
+           If no arguments then return the hitbox at the current position
+           If x and y are given return the hitbox at the given position
+        """
+        if x is None:
+            x = self.x
+        if y is None:
+            y = self.y
+
+        return pygame.Rect(
+            x - self.hitbox_radius * 0.4,
+            y - self.hitbox_radius * 0.35,
+            self.hitbox_radius * 0.75,
+            self.hitbox_radius* 0.75
+        )
+
     # Get the list of tiles touched by the robot
     def touched_tiles(self) -> list[tuple[int, int]]:
-        x_on_tiles = self.x / config.TILE_SIZE
-        y_on_tiles = self.y / config.TILE_SIZE
-        radius_on_tiles = self.r / config.TILE_SIZE
+
         x_bounds = [
-            math.floor(x_on_tiles - radius_on_tiles),
-            math.floor(x_on_tiles + radius_on_tiles),
+            self.get_hitbox().left // config.TILE_SIZE,
+            (self.get_hitbox().right - 1) // config.TILE_SIZE
         ]
         y_bounds = [
-            math.floor(y_on_tiles - radius_on_tiles),
-            math.floor(y_on_tiles + radius_on_tiles),
+            self.get_hitbox().top // config.TILE_SIZE,
+            (self.get_hitbox().bottom - 1) // config.TILE_SIZE
         ]
         touching_tiles = []
         for i in range(x_bounds[0], x_bounds[1] + 1):
@@ -287,22 +269,23 @@ class Robot:
         else:
             self.v = self.speed
             self.v_alpha = self.speed_alpha
-        self.draw_robot()
         if "lava" in touched_textures:
             self.get_spawn_position(game_map, robots)
-            self.lives -= 1
+            self.hp -= 40
             if self.is_player:
                 self.sounds.play_sound("lava_sound")
         if "bush" in touched_textures:
+            self.in_bush = True
+            self.bush_tiles = []
             for [i, j] in self.touched_tiles():
                 if game_map.get_tile_type(i, j) == "bush":
-                    texture = config.TEXTURES["bush"].convert()
-                    tile = pygame.transform.scale(
-                        texture, (config.TILE_SIZE, config.TILE_SIZE)
-                    )
-                    self.screen.blit(tile, (i * config.TILE_SIZE, j * config.TILE_SIZE))
+                    self.bush_tiles.append((i, j))
             if self.is_player:
                 self.sounds.play_sound("bush_sound")
+
+        else:
+            self.in_bush = False
+            self.bush_tiles = []
 
     # Get random spawn position
     def get_spawn_position(
@@ -310,10 +293,10 @@ class Robot:
     ) -> tuple[int, int]:
         # Get random position
         position_x = random.randint(
-            2 * config.TILE_SIZE + self.r, (config.COLUMNS - 2) * config.TILE_SIZE
+            2 * config.TILE_SIZE + self.hitbox_radius, (config.COLUMNS - 2) * config.TILE_SIZE
         )
         position_y = random.randint(
-            2 * config.TILE_SIZE + self.r, (config.ROWS - 2) * config.TILE_SIZE
+            2 * config.TILE_SIZE + self.hitbox_radius, (config.ROWS - 2) * config.TILE_SIZE
         )
         # Check for distance to other robots
         self.x = position_x
@@ -346,9 +329,9 @@ class Robot:
     ) -> None:
         xnew = self.x + x
         ynew = self.y + y
-        newRect = pygame.Rect(xnew - self.r, ynew - self.r, self.r * 2, self.r * 2)
         # moves robot to direct wanted path if no wall
-        if newRect.collidelist(walls) == -1:
+        hitbox = self.get_hitbox(xnew, ynew)
+        if hitbox.collidelist(walls) == -1:
             self.x = xnew
             self.y = ynew
             if check_for_lava:
@@ -367,18 +350,16 @@ class Robot:
             # check and move if only in x direction is no wall
             xnew = self.x + x
             ynew = self.y
-            newRect = pygame.Rect(xnew - self.r, ynew - self.r, self.r * 2, self.r * 2)
-            if newRect.collidelist(walls) == -1:
+            hitbox = self.get_hitbox(xnew, ynew)
+            if hitbox.collidelist(walls) == -1:
                 self.x = xnew
                 self.y = ynew
             else:
                 # check and move if only in y direction is no wall
                 xnew = self.x
                 ynew = self.y + y
-                newRect = pygame.Rect(
-                    xnew - self.r, ynew - self.r, self.r * 2, self.r * 2
-                )
-                if newRect.collidelist(walls) == -1:
+                hitbox = self.get_hitbox(xnew, ynew)
+                if hitbox.collidelist(walls) == -1:
                     self.x = xnew
                     self.y = ynew
 
@@ -393,14 +374,14 @@ class Robot:
         # shoot, if there is enough time and power
 
         alpha_rad = math.radians(self.alpha)
-        start_x = self.x + self.r * math.cos(alpha_rad)  # start outsinde of the robot
-        start_y = self.y + self.r * math.sin(alpha_rad)
+        offset = self.hitbox_radius * 0.2 # start the bullet closer to center
+        start_x = self.x + offset * math.cos(alpha_rad)  # start outsinde of the robot
+        start_y = self.y + offset * math.sin(alpha_rad)
         bullet = Bullet(
-            self.screen,
             int(start_x),
             int(start_y),
             self.alpha,
-            5,
+            7,
             (0, 0, 0),
             shooter=self,
         )  # create bullet
@@ -418,10 +399,10 @@ class Robot:
             dist_x = abs(bullet.x - self.x)
             dist_y = abs(bullet.y - self.y)
             dist = math.sqrt(dist_x**2 + dist_y**2)
-            max_dist = bullet.radius + self.r
+            max_dist = bullet.radius + self.hitbox_radius * 0.35
             if dist < max_dist:
                 bullet.alive = False
-                self.lives = self.lives - 1
+                self.hp = self.hp - 15
                 if self.is_player:
                     self.sounds.play_sound("player_hit_sound")
 
@@ -432,7 +413,12 @@ class Robot:
         prob_robot: list[tuple[float, "Robot"]] = []
         total_dist: float = sum(d for d, r in dist_robot)
         for dist, robot in dist_robot:
-            prob: float = total_dist / dist
+            # preventing divison with 0
+            if dist == 0:
+                prob: float = 10**9
+            else:
+                prob: float = total_dist / dist
+
             prob_robot.append((prob, robot))
         return prob_robot
 
@@ -447,6 +433,11 @@ class Robot:
         if len(potential_goals) > 0:
             dist_robot: list[tuple[float, "Robot"]] = self.robot_dist(potential_goals)
             prob_robot: list[tuple[float, "Robot"]] = self.dist_to_prob(dist_robot)
+
+            # avoiding: 'ValueError: Total of weights must be greater than zero'"
+            # by removing robots with zero selection probability before calling random.choices
+            prob_robot = [(p, r) for p, r in prob_robot if p > 0]
+
             robot: "Robot" = random.choices(
                 [r for p, r in prob_robot], weights=[p for p, r in prob_robot], k=1
             )[0]
