@@ -59,8 +59,6 @@ class Robot:
         )  # List of bush tile positions robot is currently overlapping
         self.robot_type = robot_type
 
-
-
     # Lets the player move the robot on map
     def update_player(
         self,
@@ -192,7 +190,9 @@ class Robot:
                 x_to_robot = robot.x - self.x
                 y_to_robot = robot.y - self.y
                 dist = (
-                    math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2) - self.hitbox_radius * 0.3 - robot.hitbox_radius * 0.3
+                    math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2)
+                    - self.hitbox_radius * 0.3
+                    - robot.hitbox_radius * 0.3
                 )
                 dist_robot.append((dist, robot))
         dist_robot = sorted(dist_robot, key=lambda x: x[0])
@@ -200,9 +200,9 @@ class Robot:
 
     def get_hitbox(self, x: float = None, y: float = None) -> pygame.Rect:
         """
-           Returns the robot's hitbox
-           If no arguments then return the hitbox at the current position
-           If x and y are given return the hitbox at the given position
+        Returns the robot's hitbox
+        If no arguments then return the hitbox at the current position
+        If x and y are given return the hitbox at the given position
         """
         if x is None:
             x = self.x
@@ -213,7 +213,7 @@ class Robot:
             x - self.hitbox_radius * 0.4,
             y - self.hitbox_radius * 0.35,
             self.hitbox_radius * 0.75,
-            self.hitbox_radius* 0.75
+            self.hitbox_radius * 0.75,
         )
 
     # Get the list of tiles touched by the robot
@@ -221,11 +221,11 @@ class Robot:
 
         x_bounds = [
             self.get_hitbox().left // config.TILE_SIZE,
-            (self.get_hitbox().right - 1) // config.TILE_SIZE
+            (self.get_hitbox().right - 1) // config.TILE_SIZE,
         ]
         y_bounds = [
             self.get_hitbox().top // config.TILE_SIZE,
-            (self.get_hitbox().bottom - 1) // config.TILE_SIZE
+            (self.get_hitbox().bottom - 1) // config.TILE_SIZE,
         ]
         touching_tiles = []
         for i in range(x_bounds[0], x_bounds[1] + 1):
@@ -293,10 +293,12 @@ class Robot:
     ) -> tuple[int, int]:
         # Get random position
         position_x = random.randint(
-            2 * config.TILE_SIZE + self.hitbox_radius, (config.COLUMNS - 2) * config.TILE_SIZE
+            2 * config.TILE_SIZE + self.hitbox_radius,
+            (config.COLUMNS - 2) * config.TILE_SIZE,
         )
         position_y = random.randint(
-            2 * config.TILE_SIZE + self.hitbox_radius, (config.ROWS - 2) * config.TILE_SIZE
+            2 * config.TILE_SIZE + self.hitbox_radius,
+            (config.ROWS - 2) * config.TILE_SIZE,
         )
         # Check for distance to other robots
         self.x = position_x
@@ -374,7 +376,7 @@ class Robot:
         # shoot, if there is enough time and power
 
         alpha_rad = math.radians(self.alpha)
-        offset = self.hitbox_radius * 0.2 # start the bullet closer to center
+        offset = self.hitbox_radius * 0.2  # start the bullet closer to center
         start_x = self.x + offset * math.cos(alpha_rad)  # start outsinde of the robot
         start_y = self.y + offset * math.sin(alpha_rad)
         bullet = Bullet(
