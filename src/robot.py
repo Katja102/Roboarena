@@ -436,8 +436,8 @@ class Robot:
             dist_robot: list[tuple[float, "Robot"]] = self.robot_dist(potential_goals)
             prob_robot: list[tuple[float, "Robot"]] = self.dist_to_prob(dist_robot)
 
-            # avoiding: 'ValueError: Total of weights must be greater than zero'"
-            # by removing robots with zero selection probability before calling random.choices
+            # avoiding: 'ValueError: Total of weights must be greater than zero'
+            # by removing robots with zero probability before calling random.choices
             prob_robot = [(p, r) for p, r in prob_robot if p > 0]
 
             robot: "Robot" = random.choices(
