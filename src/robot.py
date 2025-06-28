@@ -198,7 +198,7 @@ class Robot:
         dist_robot = sorted(dist_robot, key=lambda x: x[0])
         return dist_robot
 
-    def get_hitbox(self, x: float = None, y: float = None) -> pygame.Rect:
+    def get_hitbox(self, x: float | None = None, y: float | None = None) -> pygame.Rect:
         """
         Returns the robot's hitbox
         If no arguments then return the hitbox at the current position
