@@ -427,8 +427,8 @@ def game_loop(map_file: str | None = None):
         robot_size,
         0,
         (255, 255, 255),
-        2 * camera.zoom,
-        3,
+        4 * camera.zoom,
+        6 * camera.zoom,
         True,
         "Tank",
     )
@@ -438,8 +438,8 @@ def game_loop(map_file: str | None = None):
         robot_size,
         0,
         (0, 100, 190),
-        2 * camera.zoom,
-        3,
+        4 * camera.zoom,
+        6 * camera.zoom,
         False,
         "Spider",
     )
@@ -449,8 +449,8 @@ def game_loop(map_file: str | None = None):
         robot_size,
         50,
         (255, 50, 120),
-        2 * camera.zoom,
-        3,
+        4 * camera.zoom,
+        6 * camera.zoom,
         False,
         "Spider",
     )
@@ -460,8 +460,8 @@ def game_loop(map_file: str | None = None):
         robot_size,
         50,
         (0, 250, 0),
-        2 * camera.zoom,
-        3,
+        4 * camera.zoom,
+        6 * camera.zoom,
         False,
         "Tank",
     )

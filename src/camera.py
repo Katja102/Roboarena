@@ -28,16 +28,17 @@ class Camera:
         adjust zoom based on average distance to enemies
         hold camera inside map boundaries
         """
-        all_bots = robots + [player]
+        # Add player again to robots in order to pull the center toward the player
+        bots_with_duplicate_player = robots + [player]
 
-        if not all_bots:
+        if not bots_with_duplicate_player:
             cx, cy = player.x, player.y
             avg_distance = 0
         else:
             # Average position of all bots
-            sum_x = sum(bot.x for bot in all_bots)
-            sum_y = sum(bot.y for bot in all_bots)
-            n = len(all_bots)
+            sum_x = sum(bot.x for bot in bots_with_duplicate_player)
+            sum_y = sum(bot.y for bot in bots_with_duplicate_player)
+            n = len(bots_with_duplicate_player)
             cx = sum_x / n
             cy = sum_y / n
 

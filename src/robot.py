@@ -35,10 +35,10 @@ class Robot:
         self.hitbox_radius = hitbox_radius  # radius of the hitbox
         self.alpha = direction % 360  # direction of the robot in degree
         self.color = color  # color of the robot
-        self.v = speed * 2  # current acceleration for moving
-        self.v_alpha = speed_alpha * 2  # current acceleration for turning
-        self.speed = speed * 2  # speed for moving
-        self.speed_alpha = speed_alpha * 2  # speed for turning
+        self.v = speed  # current acceleration for moving
+        self.v_alpha = speed_alpha  # current acceleration for turning
+        self.speed = speed # speed for moving
+        self.speed_alpha = speed_alpha  # speed for turning
         self.hp = 100  # current livepoints of the robot
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 2000  # min duration of break between shots
