@@ -103,9 +103,9 @@ class RobotRenderer:
             # Get current animation frame
             frame = self.animations[robot.robot_type][self.frame_indices.get(robot, 0)]
 
-            # Scale the image to the robot's hitbox size
+            scaled_size = int(robot.hitbox_radius * camera.zoom)
             scaled_image = pygame.transform.smoothscale(
-                frame, (robot.hitbox_radius, robot.hitbox_radius)
+                frame, (scaled_size, scaled_size)
             )
 
             # Rotate after scaling
@@ -151,8 +151,8 @@ class RobotRenderer:
         power_height = robot.hitbox_radius * 0.15
         power_width = robot.hitbox_radius
         power_x, power_y = camera.apply(
-            robot.x - (0.48 * robot.hitbox_radius),
-            robot.y + (0.8 * robot.hitbox_radius),
+            robot.x - 46 / camera.zoom,
+            robot.y + (robot.hitbox_radius * 0.5 * (-camera.zoom)) + 130,
         )
         fill_width = power_width * (robot.power / 100)
 

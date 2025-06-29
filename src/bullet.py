@@ -5,9 +5,6 @@ from map import Map
 from camera import Camera
 
 
-velocity = 10
-
-
 class Bullet:
     def __init__(
         self,
@@ -17,6 +14,7 @@ class Bullet:
         radius: int,
         color: tuple[int, int, int],
         shooter,  # :Robot
+        velocity: float,
     ):
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordiante of center

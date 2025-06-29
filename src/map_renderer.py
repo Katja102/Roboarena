@@ -34,5 +34,17 @@ class MapRenderer:
     def draw_map(self, camera: Camera) -> None:
         """Shows the visible part of the map through the camera."""
         if self.map_picture:
-            offset = camera.apply(0, 0)
-            self.camera_surface.blit(self.map_picture, offset)
+            # Move map based on camera offset and scale
+            offset_x = int(-camera.offset_x * camera.zoom)
+            offset_y = int(-camera.offset_y * camera.zoom)
+
+            # Scale map according to zoom level
+            scaled_map = pygame.transform.scale(
+                self.map_picture,
+                (
+                    int(self.map_picture.get_width() * camera.zoom),
+                    int(self.map_picture.get_height() * camera.zoom),
+                ),
+            )
+            # Draw the zoomed map
+            self.camera_surface.blit(scaled_map, (offset_x, offset_y))
