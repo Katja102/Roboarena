@@ -5,6 +5,7 @@ import math
 import random
 from map import Map
 from sounds import Sounds
+from camera import Camera
 
 # Constants
 ice_acceleration: float = 2
@@ -34,10 +35,10 @@ class Robot:
         self.hitbox_radius = hitbox_radius  # radius of the hitbox
         self.alpha = direction % 360  # direction of the robot in degree
         self.color = color  # color of the robot
-        self.v = speed * config.ZOOM  # current acceleration for moving
-        self.v_alpha = speed_alpha * config.ZOOM  # current acceleration for turning
-        self.speed = speed * config.ZOOM  # speed for moving
-        self.speed_alpha = speed_alpha * config.ZOOM  # speed for turning
+        self.v = speed  # current acceleration for moving
+        self.v_alpha = speed_alpha  # current acceleration for turning
+        self.speed = speed  # speed for moving
+        self.speed_alpha = speed_alpha  # speed for turning
         self.hp = 100  # current livepoints of the robot
         self.last_shot_time = 0  # time of last shot
         self.shot_break_duration = 2000  # min duration of break between shots
@@ -66,6 +67,7 @@ class Robot:
         game_map: Map,
         walls: list[pygame.Rect],
         bullets: list[Bullet],
+        camera: Camera,
     ) -> None:
         # Check for effect
         self.map_effects(game_map, robots)
@@ -104,7 +106,7 @@ class Robot:
 
         # check, if user used a key for shooting
         if keys[pygame.K_s]:
-            self.shoot(bullets)
+            self.shoot(bullets, camera)
 
     # Lets a robot follow another robot
     def update_enemy(
@@ -114,6 +116,7 @@ class Robot:
         game_map: Map,
         walls: list[pygame.Rect],
         bullets: list[Bullet],
+        camera: Camera,
     ) -> None:
         # Check for effect
         self.map_effects(game_map, robots)
@@ -155,7 +158,7 @@ class Robot:
         # shoot if angle to goal is under 10°
         angle_diff = abs(abs(angle_to_goal - 180) - self.alpha) % 360
         if (angle_diff <= 10) or (angle_diff >= 350):
-            self.shoot(bullets)
+            self.shoot(bullets, camera)
 
         # avoid being in range of other robots
         self.move_if_in_range(robots, walls, game_map)
@@ -365,7 +368,7 @@ class Robot:
                     self.x = xnew
                     self.y = ynew
 
-    def shoot(self, bullets: list[Bullet]):
+    def shoot(self, bullets: list[Bullet], camera: Camera):
         current_time = pygame.time.get_ticks()
         # make sure there is a break between the shots
         if current_time - self.last_shot_time < self.shot_break_duration:
@@ -383,9 +386,10 @@ class Robot:
             int(start_x),
             int(start_y),
             self.alpha,
-            7,
+            7 * camera.zoom,
             (0, 0, 0),
-            shooter=self,
+            self,
+            20 * camera.zoom,
         )  # create bullet
         self.last_shot_time = current_time  # update time of last shot
         self.power -= 20  # update power

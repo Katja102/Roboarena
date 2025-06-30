@@ -22,7 +22,7 @@ max_height: int = info.current_h
 base_tile_size = min(max_width // config.COLUMNS, max_height // config.ROWS)
 
 # Apply zoom
-config.TILE_SIZE = int(base_tile_size * config.ZOOM)
+config.TILE_SIZE = int(base_tile_size * 2)
 
 # Create window (not fullscreen)
 window_width: int = base_tile_size * config.COLUMNS
@@ -402,13 +402,17 @@ def game_loop(map_file: str | None = None):
     if map_file is None:
         map_file = "test-level.txt"
 
+    # Map setup
+    game_map = Map(map_file)
+    map_data = game_map.get_map_data()
+    map_width_px = len(map_data[0]) * config.TILE_SIZE
+    map_height_px = len(map_data) * config.TILE_SIZE
+
     # Camera setup
     camera_width = window_width
     camera_height = window_height
-    camera = Camera(camera_width, camera_height)
+    camera = Camera(camera_width, camera_height, map_width_px, map_height_px)
 
-    # Map setup
-    game_map = Map(map_file)
     map_renderer = MapRenderer(camera.surface, config.TEXTURES)
     map_renderer.draw_map_picture(game_map.get_map_data())
     walls: list[pygame.Rect] = game_map.walls()
@@ -423,8 +427,8 @@ def game_loop(map_file: str | None = None):
         robot_size,
         0,
         (255, 255, 255),
-        2,
-        3,
+        4 * camera.zoom,
+        6 * camera.zoom,
         True,
         "Tank",
     )
@@ -434,8 +438,8 @@ def game_loop(map_file: str | None = None):
         robot_size,
         0,
         (0, 100, 190),
-        2,
-        3,
+        4 * camera.zoom,
+        6 * camera.zoom,
         False,
         "Spider",
     )
@@ -445,8 +449,8 @@ def game_loop(map_file: str | None = None):
         robot_size,
         50,
         (255, 50, 120),
-        2,
-        3,
+        4 * camera.zoom,
+        6 * camera.zoom,
         False,
         "Spider",
     )
@@ -456,8 +460,8 @@ def game_loop(map_file: str | None = None):
         robot_size,
         50,
         (0, 250, 0),
-        2,
-        3,
+        4 * camera.zoom,
+        6 * camera.zoom,
         False,
         "Tank",
     )
@@ -474,7 +478,7 @@ def game_loop(map_file: str | None = None):
     # run game
     while running:
         dt = clock.tick(60) / 300  # animation speed
-        camera.follow(player.x, player.y)
+        camera.follow_dynamic_center(robots, player)
 
         # Event handling
         for event in pygame.event.get():
@@ -506,12 +510,17 @@ def game_loop(map_file: str | None = None):
                 goals.append(robot.get_robot_with_distance_prob(game_map, robots))
         for robot in robots:
             if robot is player:  # player
-                player.update_player(robots, game_map, walls, bullets)
+                player.update_player(robots, game_map, walls, bullets, camera)
                 if player.hp <= 0:
                     gameover()
             else:  # enemies
                 robot.update_enemy(
-                    goals[robots.index(robot) - 1], robots, game_map, walls, bullets
+                    goals[robots.index(robot) - 1],
+                    robots,
+                    game_map,
+                    walls,
+                    bullets,
+                    camera,
                 )
                 if robot.hp <= 0:
                     robots.remove(robot)
@@ -525,9 +534,9 @@ def game_loop(map_file: str | None = None):
             if robot.in_bush:
                 for i, j in robot.bush_tiles:
                     texture = config.TEXTURES["bush"]
-                    tile = pygame.transform.scale(
-                        texture, (config.TILE_SIZE, config.TILE_SIZE)
-                    )
+                    tile_size = int(config.TILE_SIZE * camera.zoom)
+                    tile = pygame.transform.scale(texture, (tile_size, tile_size))
+
                     camera.surface.blit(
                         tile, camera.apply(i * config.TILE_SIZE, j * config.TILE_SIZE)
                     )
