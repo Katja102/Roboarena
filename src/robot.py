@@ -244,12 +244,12 @@ class Robot:
     def map_effects(self, game_map: Map, robots: list["Robot"]) -> None:
         touched_textures = self.touched_textures(game_map)
         # stop sand and bush sounds, when robot is no longer on sand/bush
-        if "sand" not in touched_textures:
+        if "sand" not in touched_textures or not self.moving:
             self.times_without_sand += 1
             if self.times_without_sand > 50:  # avoid stopping the sound unintentionally
                 self.sounds.stop_loop("sand_sound")
                 self.times_without_sand = 0
-        if "bush" not in touched_textures:
+        if "bush" not in touched_textures or not self.moving:
             self.times_without_bush += 1
             if self.times_without_bush > 50:  # avoid stopping the sound unintentionally
                 self.sounds.stop_loop("bush_sound")
@@ -262,7 +262,7 @@ class Robot:
         elif "sand" in touched_textures:
             self.v = self.speed * sand_acceleration
             self.v_alpha = self.speed_alpha * sand_acceleration
-            if self.is_player:
+            if self.is_player and self.moving:
                 self.sounds.play_sound("sand_sound")
         elif "wall" in touched_textures:
             pass
@@ -280,7 +280,7 @@ class Robot:
             for [i, j] in self.touched_tiles():
                 if game_map.get_tile_type(i, j) == "bush":
                     self.bush_tiles.append((i, j))
-            if self.is_player:
+            if self.is_player and self.moving:
                 self.sounds.play_sound("bush_sound")
 
         else:
