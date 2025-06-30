@@ -37,7 +37,7 @@ class Robot:
         self.color = color  # color of the robot
         self.v = speed  # current acceleration for moving
         self.v_alpha = speed_alpha  # current acceleration for turning
-        self.speed = speed # speed for moving
+        self.speed = speed  # speed for moving
         self.speed_alpha = speed_alpha  # speed for turning
         self.hp = 100  # current livepoints of the robot
         self.last_shot_time = 0  # time of last shot
