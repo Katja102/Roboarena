@@ -426,7 +426,7 @@ def game_loop(map_file: str | None = None):
         2,
         3,
         True,
-        "Tank",
+        "Spider",
     )
     enemy1 = Robot(
         camera.surface,
@@ -549,6 +549,7 @@ def gameover():
 
     sounds = Sounds()
     sounds.stop_all_sounds()
+    sounds.play_sound("gameover_sound")
     running = True
     while running:
         screen.fill((30, 30, 30))
@@ -582,6 +583,7 @@ def victory():
 
     sounds = Sounds()
     sounds.stop_all_sounds()
+    sounds.play_sound("win_sound")
     running = True
     while running:
         screen.fill((30, 30, 30))

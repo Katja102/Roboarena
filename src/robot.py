@@ -58,6 +58,10 @@ class Robot:
             []
         )  # List of bush tile positions robot is currently overlapping
         self.robot_type = robot_type
+        #if robot_type == "Spider":
+        #   self.player_sound = "spider_sound"
+        #else:
+        #   self.player_sound = "drive_sound"
 
     # Lets the player move the robot on map
     def update_player(
@@ -92,11 +96,20 @@ class Robot:
             or keys[pygame.K_d]
         )
         if currently_moving and not self.moving:
-            self.sounds.play_sound("drive_sound")
+            if self.robot_type == "Spider":
+                self.sounds.play_sound("spider_sound")
+            else:
+                self.sounds.play_sound("drive_sound")
             self.moving = True
+            print(self.moving)
         if not currently_moving and self.moving:
-            self.sounds.stop_loop("drive_sound")
+            if self.robot_type == "Spider":
+                self.sounds.stop_loop("spider_sound")
+            else:
+                self.sounds.stop_loop("drive_sound")
+            print("vor moving false")
             self.moving = False
+            print(self.moving)
 
         # recharge power
         if self.power < 100:
