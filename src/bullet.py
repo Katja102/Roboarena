@@ -15,6 +15,7 @@ class Bullet:
         color: tuple[int, int, int],
         shooter,  # :Robot
         velocity: float,
+        reach: int,
     ):
         self.x = x  # x-coordiante of center
         self.y = y  # y-coordiante of center
@@ -24,12 +25,16 @@ class Bullet:
         self.color = color  # color of bullet
         self.alive = True  # if bullet is there
         self.shooter = shooter  # Robot who shot this bullet
+        self.reach = reach
 
     def update_bullet(self, map: Map, camera: Camera) -> None:
-        # update bullet position
+        # update bullet position and reach
         direction_rad = math.radians(self.direction)
-        self.x += self.velocity * math.cos(direction_rad)
-        self.y += self.velocity * math.sin(direction_rad)
+        x = self.velocity * math.cos(direction_rad)
+        y = self.velocity * math.sin(direction_rad)
+        self.x += x
+        self.y += y
+        self.reach -= x + y
 
         # stop bullet, if its outside of the screen
         width = config.COLUMNS * config.TILE_SIZE
@@ -39,12 +44,14 @@ class Bullet:
         if self.y < 0 or self.y > height:
             self.alive = False
 
-        # stop bullet, if it hits wall
+        # stop bullet, if it hits wall or at end of reach
         current_col = int(self.x / config.TILE_SIZE)
         current_row = int(self.y / config.TILE_SIZE)
         if map.get_tile_type(current_col, current_row) == "wall":
             self.alive = False
+        if self.reach <= 0:
+            self.alive = False
 
         # draw bullet
-        draw_x, draw_y = camera.apply(self.x, self.y)
+        draw_x, draw_y = camera.apply(int(self.x), int(self.y))
         pygame.draw.circle(camera.surface, self.color, (draw_x, draw_y), self.radius)

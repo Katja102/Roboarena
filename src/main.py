@@ -469,9 +469,7 @@ def game_loop(map_file: str | None = None):
 
     # Bullet and movement setup
     bullets: list[Bullet] = []
-    circle_tick: int = 100
     enemy_behaviour_tick: int = 0
-    angle: int = 180
 
     running = True
 
@@ -496,9 +494,6 @@ def game_loop(map_file: str | None = None):
 
         # Timing logic
         ticks = pygame.time.get_ticks()
-        if ticks > circle_tick:
-            circle_tick += 50
-            angle = (angle + 3) % 360
 
         # Enemy behavior update every 3 seconds
         if ticks > enemy_behaviour_tick:
@@ -528,7 +523,10 @@ def game_loop(map_file: str | None = None):
                         victory()
 
             # draw robot
-            robot_renderer.draw(robot, camera, dt)
+            if robot.in_bush:
+                robot_renderer.draw(robot, camera, dt, in_bush=True)
+            else:
+                robot_renderer.draw(robot, camera, dt)
 
             # draw bush overlay effect (if robot is next to a bush)
             if robot.in_bush:
