@@ -67,7 +67,9 @@ class Sounds:
                             0.4
                         )  # make drive sound quieter while other loop sound is playing
                     if self.spider:
-                        self.sounds["spider_sound"].set_volume(0.4) # make spider sound quieter while other loop sound is playing
+                        self.sounds["spider_sound"].set_volume(
+                            0.4
+                        )  # make spider sound quieter while other loop sound is playing
                 if not self.channel_loop.get_busy():
                     self.channel_loop.play(self.sounds[action], loops=-1)
                 self.current_loop = action
