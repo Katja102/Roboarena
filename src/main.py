@@ -540,7 +540,7 @@ def game_loop(map_file: str | None = None):
                 if player.hp <= 0:
                     player.hp = 0  # set to 0, so it does not show a negativ number
 
-                    # render everything one last time, so that you can see, that hp is at 0
+                    # render everything one last time, so that you can see, that hp is 0
                     camera.follow(player.x, player.y)
                     camera.surface.fill((0, 0, 0))
                     map_renderer.draw_map(camera)
@@ -563,7 +563,8 @@ def game_loop(map_file: str | None = None):
                 if robot.hp <= 0:
                     robots.remove(robot)
                     if len(robots) <= 1:
-                        # render everything one last time, so that you can see, that all enemies are gone
+                        # render everything one last time, so that you can see,
+                        # that all enemies are gone
                         camera.follow(player.x, player.y)
                         camera.surface.fill((0, 0, 0))
                         map_renderer.draw_map(camera)
