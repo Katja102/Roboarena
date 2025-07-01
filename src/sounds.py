@@ -48,7 +48,7 @@ class Sounds:
         self.spider = False
 
         self.sounds["drive_sound"].set_volume(0.6)
-        self.sounds["countdown_sound"].set_volume(0.8)
+        self.sounds["countdown_sound"].set_volume(0.3)
 
     def play_sound(self, action: str):
         if action == "drive_sound" and not self.move_playing:
