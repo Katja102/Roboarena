@@ -101,15 +101,12 @@ class Robot:
             else:
                 self.sounds.play_sound("drive_sound")
             self.moving = True
-            print(self.moving)
         if not currently_moving and self.moving:
             if self.robot_type == "Spider":
                 self.sounds.stop_loop("spider_sound")
             else:
                 self.sounds.stop_loop("drive_sound")
-            print("vor moving false")
             self.moving = False
-            print(self.moving)
 
         # recharge power
         if self.power < 100:

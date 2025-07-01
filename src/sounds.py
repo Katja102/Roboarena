@@ -27,8 +27,8 @@ class Sounds:
         self.channel_move = pygame.mixer.Channel(1)
         self.channel_loop = pygame.mixer.Channel(2)
         self.channel_single = pygame.mixer.Channel(3)
-        self.loops = {"bush_sound", "sand_sound", "drive_sound", "spider_sound"}
-       # self.move_sounds = {"drive_sound", "spider_sound"}
+        self.loops = {"bush_sound", "sand_sound"}
+        self.singles = {"wall_hit_sound", "lava_sound", "ice_sound", "shot_sound", "player_hit_sound", "gameover_sound", "win_sound", "countdown_sound"}
         self.current_loop = None
         self.move_playing = False
         self.drive = False
@@ -45,10 +45,7 @@ class Sounds:
             self.channel_move.play(self.sounds["spider_sound"], loops=-1)
             self.move_playing = True
             self.spider = True
-        #if action in self.move_sounds and not self.move_playing:
-        #    self.channel_move.play(self.sounds[action], loops=-1)
-        #    self.move_playing = True
-        elif action in self.loops:
+        if action in self.loops:
             if action != self.current_loop:
                 self.stop_loop(action)
                 if self.move_playing:
@@ -56,12 +53,12 @@ class Sounds:
                         self.sounds["drive_sound"].set_volume(
                             0.4
                         )  # make drive sound quieter while other loop sound is playing
-                    elif self.spider:
+                    if self.spider:
                         self.sounds["spider_sound"].set_volume(0.4)
                 if not self.channel_loop.get_busy():
                     self.channel_loop.play(self.sounds[action], loops=-1)
                 self.current_loop = action
-        else:
+        if action in self.singles:
             if not self.channel_single.get_busy() and not self.channel_single.get_sound == self.sounds[action]:
                 if action == "player_hit":
                     self.channel_single.set_volume(0.3)
@@ -70,23 +67,17 @@ class Sounds:
                 self.channel_single.play(self.sounds[action], loops=0)
 
     def stop_loop(self, action: str):
-        print("Stop loop fkt aufgerufen")
         if action == "drive_sound":
-            print("in if")
             self.move_playing = False
             self.drive = False
             if self.channel_move.get_busy():
-                print("in innerem if")
-                self.channel_move.fadeout(100)
-                print("nach stopp")
-                print(self.move_playing)
-                print(self.drive)
-        elif action == "spider_sound":
+                self.channel_move.stop()
+        if action == "spider_sound":
             self.move_playing = False
             self.spider = False
             if self.channel_move.get_busy():
                 self.channel_move.stop()
-        elif action in self.loops:
+        if action in self.loops:
             if self.channel_loop.get_busy():
                 self.sounds[action].stop()
             self.current_loop = None
@@ -98,11 +89,10 @@ class Sounds:
             if sound == "drive_sound" or sound == "spider_sound":
                 if self.channel_move.get_busy():
                     self.channel_move.stop()
-            elif sound in self.loops and self.channel_loop.get_busy():
+            if sound in self.loops and self.channel_loop.get_busy():
                 self.channel_loop.stop()
-            else:
-                if self.channel_single.get_busy():
-                    self.channel_single.stop()
+            if sound in self.singles and self.channel_single.get_busy():
+                self.channel_single.stop()
             self.current_loop = None
             self.move_playing = False
             self.drive = False
