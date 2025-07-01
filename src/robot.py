@@ -58,9 +58,9 @@ class Robot:
             []
         )  # List of bush tile positions robot is currently overlapping
         self.robot_type = robot_type
-        #if robot_type == "Spider":
+        # if robot_type == "Spider":
         #   self.player_sound = "spider_sound"
-        #else:
+        # else:
         #   self.player_sound = "drive_sound"
 
     # Lets the player move the robot on map
