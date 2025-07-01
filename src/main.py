@@ -602,6 +602,7 @@ def game_loop(map_file: str | None = None):
     sys.exit()
 
 
+# extra line
 def gameover(camera, map_renderer, robot_renderer, robots, player):
     sounds = Sounds()
     sounds.stop_all_sounds()
