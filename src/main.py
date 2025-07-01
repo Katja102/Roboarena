@@ -398,6 +398,33 @@ def instructions_menu():
         clock.tick(60)
 
 
+def countdown(surface, camera, map_renderer, robot_renderer, robots, player):
+    font = pygame.font.SysFont(None, 150)
+    countdown_numbers = ["3", "2", "1", "GO!"]
+
+    sounds = Sounds()
+    sounds.play_sound("countdown_sound")
+
+    for count in countdown_numbers:
+        camera.follow(player.x, player.y)
+        camera.surface.fill((0, 0, 0))
+        map_renderer.draw_map(camera)
+
+        for robot in robots:
+            robot_renderer.draw(robot, camera, 0)
+
+        text_surface = font.render(count, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(
+            center=(surface.get_width() // 2, surface.get_height() // 2)
+        )
+        surface.blit(camera.surface, (0, 0))
+        surface.blit(text_surface, text_rect)
+        pygame.display.flip()
+
+        # wait one second
+        pygame.time.delay(1000)
+
+
 def game_loop(map_file: str | None = None):
     if map_file is None:
         map_file = "test-level.txt"
@@ -468,6 +495,9 @@ def game_loop(map_file: str | None = None):
     circle_tick: int = 100
     enemy_behaviour_tick: int = 0
     angle: int = 180
+
+    # show countdown before game starts
+    countdown(screen, camera, map_renderer, robot_renderer, robots, player)
 
     running = True
 
