@@ -38,6 +38,9 @@ print(f"Monitor: {max_width}x{max_height}")
 print(f"Fenster: {window_width}x{window_height}")
 print(f"TILE_SIZE: {config.TILE_SIZE}")
 
+# Player variables
+type: str = "Tank"
+
 
 def draw_text(
     surface, text, x, y, font_size, color=(255, 255, 255), font_name=None, center=False
@@ -115,7 +118,7 @@ def main_menu():
                 sys.exit()
 
             if start_button.is_clicked(event):
-                game_loop()
+                class_selection()
             if options_button.is_clicked(event):
                 options()
             if instructions_button.is_clicked(event):
@@ -294,6 +297,74 @@ def options():
         pygame.display.flip()
         clock.tick(60)
 
+def class_selection():
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont(None, 40)
+    global type
+
+    start_button = Button(
+        rect=(screen.get_width() // 2 - 100, 400, 200, 50),
+        text="Start Game",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
+
+    tank_button = Button(
+        rect=(screen.get_width() // 2 - 250, 300, 200, 50),
+        text="Tank",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
+
+    spider_button = Button(
+        rect=(screen.get_width() // 2 + 50, 300, 200, 50),
+        text="Spider",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
+
+    back_button = Button(
+        rect=(screen.get_width() // 2 - 100, 570, 200, 50),
+        text="Back",
+        font=font,
+        bg_color=(200, 50, 50),
+        text_color=(255, 255, 255),
+        hover_color=(255, 80, 80),
+    )
+
+    running = True
+    while running:
+        screen.fill((30, 30, 30))
+
+        draw_text(screen, "Class Selection", 0, 150, 80, center=True)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if start_button.is_clicked(event):
+                game_loop()
+            if tank_button.is_clicked(event):
+                type = "Tank"
+            if spider_button.is_clicked(event):
+                type = "Spider"
+            if back_button.is_clicked(event):
+                return
+
+        start_button.draw(screen)
+        spider_button.draw(screen)
+        tank_button.draw(screen)
+        back_button.draw(screen)
+
+        pygame.display.flip()
+        clock.tick(60)
+
 
 def level_selection():
     clock = pygame.time.Clock()
@@ -430,7 +501,7 @@ def game_loop(map_file: str | None = None):
         4 * camera.zoom,
         6 * camera.zoom,
         True,
-        "Tank",
+        type,
     )
     enemy1 = Robot(
         camera.surface,
