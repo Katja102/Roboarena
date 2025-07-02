@@ -25,7 +25,7 @@ class Map:
             print(f"Warning: file {self.file_path} not found. Using fallback map.")
             inner_map = get_fallback_map()
         if inner_map is None:
-            print(f"Warning: No file. Using fallback map.")
+            print("Warning: No file. Using fallback map.")
             inner_map = get_fallback_map()
 
         self.create_map(inner_map)

@@ -541,7 +541,6 @@ class Robot:
             sorted_bush_tiles.append((i, j, dist))
         sorted_bush_tiles = sorted(sorted_bush_tiles, key=lambda tile: tile[2])
         nearest_bush_middle = None
-        smallest_dist = math.inf
         for i, j, d in sorted_bush_tiles:
             xn = 1
             yn = 1
