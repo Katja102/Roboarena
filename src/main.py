@@ -297,6 +297,7 @@ def options():
         pygame.display.flip()
         clock.tick(60)
 
+
 def class_selection():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 40)
