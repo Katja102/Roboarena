@@ -23,9 +23,9 @@ class Bullet:
         self.velocity = velocity  # velocity of bullet
         self.radius = radius  # radius of bullet
         self.color = color  # color of bullet
+        self.reach = reach  # distance the bullet can reach
         self.alive = True  # if bullet is there
         self.shooter = shooter  # Robot who shot this bullet
-        self.reach = reach
 
     def update_bullet(self, map: Map, camera: Camera) -> None:
         # update bullet position and reach

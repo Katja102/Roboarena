@@ -523,10 +523,7 @@ def game_loop(map_file: str | None = None):
                         victory()
 
             # draw robot
-            if robot.in_bush:
-                robot_renderer.draw(robot, camera, dt, in_bush=True)
-            else:
-                robot_renderer.draw(robot, camera, dt)
+            robot_renderer.draw(robot, camera, dt)
 
             # draw bush overlay effect (if robot is next to a bush)
             if robot.in_bush:

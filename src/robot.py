@@ -53,6 +53,7 @@ class Robot:
         # how often there was no bus in touched_textures in a row
         # while the robot was in a bush
         self.sounds = Sounds()  # loading the sounds
+        self.time_since_shooting = 0  # time of last shot fired
 
         self.in_bush = False  # Whether the robot is currently standing in a bush tile
         self.bush_tiles = (
@@ -399,6 +400,7 @@ class Robot:
         if self.power <= 20:
             return None
         # shoot, if there is enough time and power
+        self.time_since_shooting = 0
 
         alpha_rad = math.radians(self.alpha)
         offset = self.hitbox_radius * 0.2  # start the bullet closer to center
@@ -414,6 +416,12 @@ class Robot:
             20 * camera.zoom,
             250,
         )  # create bullet
+        # recoil
+        direction_rad = math.radians(self.alpha)
+        x = self.v * math.cos(direction_rad) * 2
+        y = self.v * math.sin(direction_rad) * 2
+        self.x -= x
+        self.y -= y
         self.last_shot_time = current_time  # update time of last shot
         self.power -= 20  # update power
         bullets.append(bullet)
@@ -509,6 +517,9 @@ class Robot:
         # recharge power
         if self.power < 100:
             self.power += recharge_rate
+
+        if self.time_since_shooting < 100:
+            self.time_since_shooting += 1
 
     def go_hide(
         self, game_map: Map, walls: list[pygame.Rect], robots: list["Robot"]
