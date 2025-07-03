@@ -267,7 +267,7 @@ class Robot:
         if "ice" in touched_textures:
             self.v = self.speed * ice_acceleration
             self.v_alpha = self.speed_alpha * ice_acceleration
-            if self.is_player:
+            if self.is_player and self.moving:
                 self.sounds.play_sound("ice_sound")
         elif "sand" in touched_textures:
             self.v = self.speed * sand_acceleration
