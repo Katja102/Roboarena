@@ -77,7 +77,62 @@
 
     </ul>
 
-    <h3>Coding: ...</h3>
+    <h3>Coding: Soundeffekte</h3>
+    <ul>
+        <li>
+            Zum Spiel wurden nun auch Geräusche hinzugefügt. Dazu wurde eine neue Klasse Sounds erstellt. Diese läd und verwaltet die Geräusche, 
+            die über verschiedene Channels abgespielt werden (je nachdem ob es Geräusche von der Fortbewegung des Roboters, in Dauerschleife oder 
+            einmalig abgespielte Geräusche sind).
+        </li>
+        <li>
+            Im Spiel gibt es ein Fahrgeräusch, wenn sich der Panzer-Roboter bewegt und ein Krabbelgeräusch, wenn sich der Spinnen-Roboter bewegt.
+            Wenn der Roboter über ein bestimmtes Terrain fährt z.B. durchs Gebüsch und wenn er gegen die Wand fährt, werden entsprechende Geräusche abgespielt.
+            Die Geräusche werden immer nur für den den Roboter des Spielers abgespielt, da es sonst zu viele Geräusche auf einmal werden.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_sounds_map_effects.mp4" type="video/mp4">
+            Video zu Geräuschen der versch. Terrains auf der Map.
+            </video>
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_tank_sound.mp4" type="video/mp4">
+            Video zum Fahrgeräusch des Panzer-Roboters.
+            </video>
+        </li>
+        <li>
+            Wenn der Spieler schießt, kommt das entsprechende Geräusch und auch wenn er getroffen wird, erhält er ein akustisches Signal.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_sounds_shoot.mp4" type="video/mp4">
+            Video zum Geräuschen vom Schießen und getroffen werden.
+            </video>
+        </li>
+        (Sarah)
+    </ul>
+
+    <h3>Coding: Countdown und Spielende</h3>
+    <ul>
+        <li>
+            Wenn das Spiel gestartet wird, kommt nun zuerst ein Countdown (ebenfalls mit Geräusch). Dadurch kann der Spieler zunächst die ganze Map 
+            einmal sehen und seinen Roboter darauf finden.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_countdown.mp4" type="video/mp4">
+            Video zum Countdown.
+            </video>
+        </li>
+        <li>
+            Wenn das Spiel zu Ende ist (Victory oder Game-over), wird der Bildschirm nun noch einmal gerendert, so dass der Spieler sehen kann, dass er als letztes
+            übrig ist (Victory) oder seine health-bar bei 0 ist (bei Game-over). Außerdem wurde eine kurze Verzögerung eingebaut, bevor der Victory-/Game-over-Screen
+            angezeigt wird, damit z.B. das letzte Schuss-Geräusch noch zu hören ist. Beim Victory-/Game-over-Screen ist nun auch noch die Map mit den verbleibenden
+            Spielern im Hintergrund zu sehen und es wird ein entsprechendes Geräusch abgespielt.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_victory.mp4" type="video/mp4">
+            Video zum Victory-Screen.
+            </video>
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_gameover.mp4" type="video/mp4">
+            Video zum Game-over-Screen.
+            </video>
+        </li>
+        (Sarah)
+    </ul>
 
     <h3>In Arbeit...</h3>
     
