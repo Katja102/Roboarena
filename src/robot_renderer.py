@@ -311,23 +311,23 @@ class RobotRenderer:
         if not robot.in_bush:
             self.camera_surface.blit(icon_heart, (icon_x, icon_y))
 
-        # Draw Explosion for shooting with tank
+        # Draw Explosion for shooting
         fire_height = robot.hitbox_radius * 0.15
         fire_width = robot.hitbox_radius * 0.15
         fire_x, fire_y = camera.apply(
             robot.x
-            - fire_width
+            - ((fire_width / 2) / camera.zoom)
             + (
                 math.cos(math.radians(robot.alpha))
                 * (robot.hitbox_radius * 0.35 + (fire_width / 2))
-                / camera.zoom
+                # / camera.zoom
             ),
             robot.y
-            - fire_height
+            - ((fire_height / 2) / camera.zoom)
             + (
                 math.sin(math.radians(robot.alpha))
                 * (robot.hitbox_radius * 0.35 + (fire_height / 2))
-                / camera.zoom
+                # / camera.zoom
             ),
         )
 
@@ -340,5 +340,6 @@ class RobotRenderer:
             icon_fire, -robot.alpha - 90
         )  # angle image to fit robot.angle
 
-        if robot.time_since_shooting < 30:
+        current_time = pygame.time.get_ticks()
+        if current_time - robot.last_shot_time < 30:
             self.camera_surface.blit(icon_fire, (fire_x, fire_y))

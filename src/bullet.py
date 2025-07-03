@@ -34,7 +34,7 @@ class Bullet:
         y = self.velocity * math.sin(direction_rad)
         self.x += x
         self.y += y
-        self.reach -= x + y
+        self.reach -= abs(x + y)
 
         # stop bullet, if its outside of the screen
         width = config.COLUMNS * config.TILE_SIZE

@@ -40,7 +40,7 @@ class Robot:
         self.speed = speed  # speed for moving
         self.speed_alpha = speed_alpha  # speed for turning
         self.hp = 100  # current livepoints of the robot
-        self.last_shot_time = 0  # time of last shot
+        self.last_shot_time = 100  # time of last shot
         self.shot_break_duration = 2000  # min duration of break between shots
         self.power = 100  # current power for attacks
         self.moving = False  # if robot is currently moving
@@ -53,7 +53,6 @@ class Robot:
         # how often there was no bus in touched_textures in a row
         # while the robot was in a bush
         self.sounds = Sounds()  # loading the sounds
-        self.time_since_shooting = 0  # time of last shot fired
 
         self.in_bush = False  # Whether the robot is currently standing in a bush tile
         self.bush_tiles = (
@@ -100,7 +99,7 @@ class Robot:
 
         # check, if user used a key for shooting
         if keys[pygame.K_s]:
-            self.shoot(bullets, camera)
+            self.shoot(bullets, camera, walls, robots, game_map)
 
     # Lets a robot follow another robot
     def update_enemy(
@@ -144,7 +143,7 @@ class Robot:
         # shoot if angle to goal is under 10°
         angle_diff = abs(abs(angle_to_goal - 180) - self.alpha) % 360
         if (angle_diff <= 10) or (angle_diff >= 350):
-            self.shoot(bullets, camera)
+            self.shoot(bullets, camera, walls, robots, game_map)
 
         # avoid being in range of other robots
         self.move_if_in_range(robots, walls, game_map)
@@ -391,7 +390,14 @@ class Robot:
                         self.y -= y
                         self.robot_collision(robot, robots, walls)
 
-    def shoot(self, bullets: list[Bullet], camera: Camera) -> None:
+    def shoot(
+        self,
+        bullets: list[Bullet],
+        camera: Camera,
+        walls: list[pygame.Rect],
+        robots: list["Robot"],
+        game_map: Map,
+    ) -> None:
         current_time = pygame.time.get_ticks()
         # make sure there is a break between the shots
         if current_time - self.last_shot_time < self.shot_break_duration:
@@ -400,7 +406,6 @@ class Robot:
         if self.power <= 20:
             return None
         # shoot, if there is enough time and power
-        self.time_since_shooting = 0
 
         alpha_rad = math.radians(self.alpha)
         offset = self.hitbox_radius * 0.2  # start the bullet closer to center
@@ -414,14 +419,13 @@ class Robot:
             (0, 0, 0),
             self,
             20 * camera.zoom,
-            250,
+            800,  # reach
         )  # create bullet
         # recoil
         direction_rad = math.radians(self.alpha)
-        x = self.v * math.cos(direction_rad) * 2
-        y = self.v * math.sin(direction_rad) * 2
-        self.x -= x
-        self.y -= y
+        x = self.v * -math.cos(direction_rad) * 2
+        y = self.v * -math.sin(direction_rad) * 2
+        self.move_if_no_walls(x, y, walls, robots, game_map)
         self.last_shot_time = current_time  # update time of last shot
         self.power -= 20  # update power
         bullets.append(bullet)
@@ -517,9 +521,6 @@ class Robot:
         # recharge power
         if self.power < 100:
             self.power += recharge_rate
-
-        if self.time_since_shooting < 100:
-            self.time_since_shooting += 1
 
     def go_hide(
         self, game_map: Map, walls: list[pygame.Rect], robots: list["Robot"]
