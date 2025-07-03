@@ -498,9 +498,7 @@ def game_loop(map_file: str | None = None):
 
     # Bullet and movement setup
     bullets: list[Bullet] = []
-    circle_tick: int = 100
     enemy_behaviour_tick: int = 0
-    angle: int = 180
 
     # show countdown before game starts
     countdown(screen, camera, map_renderer, robot_renderer, robots, player)
@@ -528,9 +526,6 @@ def game_loop(map_file: str | None = None):
 
         # Timing logic
         ticks = pygame.time.get_ticks()
-        if ticks > circle_tick:
-            circle_tick += 50
-            angle = (angle + 3) % 360
 
         # Enemy behavior update every 3 seconds
         if ticks > enemy_behaviour_tick:

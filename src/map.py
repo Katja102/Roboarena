@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import pygame
 import config
+from pathlib import Path
 from math import sqrt, ceil
 from random import randint
 from fallback_map import get_fallback_map
@@ -18,13 +19,13 @@ class Map:
         self.map_data = self.initialize_map()
 
         # If a file path is provided: load from file, otherwise use the fallback map
-        if self.file_path is not None:
-            try:
-                inner_map = self.get_inner_map()
-            except FileNotFoundError:
-                print(f"Warning: file {self.file_path} not found. Using fallback map.")
-                inner_map = get_fallback_map()
-        else:
+        try:
+            inner_map = self.get_inner_map()
+        except FileNotFoundError:
+            print(f"Warning: file {self.file_path} not found. Using fallback map.")
+            inner_map = get_fallback_map()
+        if inner_map is None:
+            print("Warning: No file. Using fallback map.")
             inner_map = get_fallback_map()
 
         self.create_map(inner_map)
@@ -41,9 +42,11 @@ class Map:
             map_data.append(row)
         return map_data
 
-    def get_inner_map(self) -> List[List[str]]:
+    def get_inner_map(self) -> List[List[str]] | None:
         """Read map file and convert characters to tile types"""
-        with open(self.file_path, "r", encoding="utf-8") as file:
+        if not self.file_path:
+            return None
+        with open(Path(self.file_path), "r", encoding="utf-8") as file:
             lines = file.readlines()
 
         if len(lines) != self.rows - 2:
