@@ -319,14 +319,14 @@ class RobotRenderer:
             - ((fire_width / 2) / camera.zoom)
             + (
                 math.cos(math.radians(robot.alpha))
-                * (robot.hitbox_radius * 0.35 + (fire_width / 2))
+                * (robot.hitbox_radius * 0.35 + (fire_width))
                 # / camera.zoom
             ),
             robot.y
             - ((fire_height / 2) / camera.zoom)
             + (
                 math.sin(math.radians(robot.alpha))
-                * (robot.hitbox_radius * 0.35 + (fire_height / 2))
+                * (robot.hitbox_radius * 0.35 + (fire_height))
                 # / camera.zoom
             ),
         )
