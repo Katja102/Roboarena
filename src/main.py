@@ -405,8 +405,10 @@ def countdown(surface, camera, map_renderer, robot_renderer, robots, player):
     sounds = Sounds()
     sounds.play_sound("countdown_sound")
 
+    # player can see whole arena during countdown
+    camera.zoom = 0.5
+
     for count in countdown_numbers:
-        camera.follow(player.x, player.y)
         camera.surface.fill((0, 0, 0))
         map_renderer.draw_map(camera)
 
@@ -545,7 +547,7 @@ def game_loop(map_file: str | None = None):
                     player.hp = 0  # set to 0, so it does not show a negativ number
 
                     # render everything one last time, so that you can see, that hp is 0
-                    camera.follow(player.x, player.y)
+                    camera.follow_dynamic_center(robots, player)
                     camera.surface.fill((0, 0, 0))
                     map_renderer.draw_map(camera)
 
@@ -574,7 +576,7 @@ def game_loop(map_file: str | None = None):
                     if len(robots) <= 1:
                         # render everything one last time, so that you can see,
                         # that all enemies are gone
-                        camera.follow(player.x, player.y)
+                        camera.follow_dynamic_center(robots, player)
                         camera.surface.fill((0, 0, 0))
                         map_renderer.draw_map(camera)
 
@@ -620,7 +622,7 @@ def gameover(camera, map_renderer, robot_renderer, robots, player):
     running = True
     while running:
         if player:
-            camera.follow(player.x, player.y)
+            camera.follow_dynamic_center(robots, player)
         camera.surface.fill((0, 0, 0))
         map_renderer.draw_map(camera)
 
@@ -661,7 +663,7 @@ def victory(camera, map_renderer, robot_renderer, robots, player):
     running = True
     while running:
         if player:
-            camera.follow(player.x, player.y)
+            camera.follow_dynamic_center(robots, player)
         camera.surface.fill((0, 0, 0))
         map_renderer.draw_map(camera)
 
