@@ -398,6 +398,33 @@ def instructions_menu():
         clock.tick(60)
 
 
+def countdown(surface, camera, map_renderer, robot_renderer, robots, player):
+    font = pygame.font.SysFont(None, 150)
+    countdown_numbers = ["3", "2", "1", "GO!"]
+
+    sounds = Sounds()
+    sounds.play_sound("countdown_sound")
+
+    for count in countdown_numbers:
+        camera.follow(player.x, player.y)
+        camera.surface.fill((0, 0, 0))
+        map_renderer.draw_map(camera)
+
+        for robot in robots:
+            robot_renderer.draw(robot, camera, 0)
+
+        text_surface = font.render(count, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(
+            center=(surface.get_width() // 2, surface.get_height() // 2)
+        )
+        surface.blit(camera.surface, (0, 0))
+        surface.blit(text_surface, text_rect)
+        pygame.display.flip()
+
+        # wait one second
+        pygame.time.delay(1000)
+
+
 def game_loop(map_file: str | None = None):
     if map_file is None:
         map_file = "test-level.txt"
@@ -430,7 +457,7 @@ def game_loop(map_file: str | None = None):
         4 * camera.zoom,
         6 * camera.zoom,
         True,
-        "Tank",
+        "Spider",
     )
     enemy1 = Robot(
         camera.surface,
@@ -473,6 +500,9 @@ def game_loop(map_file: str | None = None):
     enemy_behaviour_tick: int = 0
     angle: int = 180
 
+    # show countdown before game starts
+    countdown(screen, camera, map_renderer, robot_renderer, robots, player)
+
     running = True
 
     # run game
@@ -512,7 +542,24 @@ def game_loop(map_file: str | None = None):
             if robot is player:  # player
                 player.update_player(robots, game_map, walls, bullets, camera)
                 if player.hp <= 0:
-                    gameover()
+                    player.hp = 0  # set to 0, so it does not show a negativ number
+
+                    # render everything one last time, so that you can see, that hp is 0
+                    camera.follow(player.x, player.y)
+                    camera.surface.fill((0, 0, 0))
+                    map_renderer.draw_map(camera)
+
+                    for robot in robots:
+                        robot_renderer.draw(robot, camera, 0)
+
+                    screen.blit(camera.surface, (0, 0))
+                    pygame.display.flip()
+
+                    # short break, so that you can hear the sound of getting shot or lava
+                    pygame.time.delay(900)
+
+                    # call gameover function
+                    gameover(camera, map_renderer, robot_renderer, robots, player)
             else:  # enemies
                 robot.update_enemy(
                     goals[robots.index(robot) - 1],
@@ -525,7 +572,18 @@ def game_loop(map_file: str | None = None):
                 if robot.hp <= 0:
                     robots.remove(robot)
                     if len(robots) <= 1:
-                        victory()
+                        # render everything one last time, so that you can see,
+                        # that all enemies are gone
+                        camera.follow(player.x, player.y)
+                        camera.surface.fill((0, 0, 0))
+                        map_renderer.draw_map(camera)
+
+                        for robot in robots:
+                            robot_renderer.draw(robot, camera, 0)
+
+                        screen.blit(camera.surface, (0, 0))
+                        pygame.display.flip()
+                        victory(camera, map_renderer, robot_renderer, robots, player)
 
             # draw robot
             robot_renderer.draw(robot, camera, dt)
@@ -554,13 +612,20 @@ def game_loop(map_file: str | None = None):
     sys.exit()
 
 
-def gameover():
-
+def gameover(camera, map_renderer, robot_renderer, robots, player):
     sounds = Sounds()
     sounds.stop_all_sounds()
+    sounds.play_sound("gameover_sound")
+
     running = True
     while running:
-        screen.fill((30, 30, 30))
+        if player:
+            camera.follow(player.x, player.y)
+        camera.surface.fill((0, 0, 0))
+        map_renderer.draw_map(camera)
+
+        for robot in robots:
+            robot_renderer.draw(robot, camera, 0)
 
         draw_text(screen, "GAME OVER", 0, 200, 100, center=True)
 
@@ -587,13 +652,21 @@ def gameover():
         clock.tick(60)
 
 
-def victory():
+def victory(camera, map_renderer, robot_renderer, robots, player):
 
     sounds = Sounds()
     sounds.stop_all_sounds()
+    sounds.play_sound("win_sound")
+
     running = True
     while running:
-        screen.fill((30, 30, 30))
+        if player:
+            camera.follow(player.x, player.y)
+        camera.surface.fill((0, 0, 0))
+        map_renderer.draw_map(camera)
+
+        for robot in robots:
+            robot_renderer.draw(robot, camera, 0)
 
         draw_text(screen, "VICTORY", 0, 200, 100, center=True)
 
