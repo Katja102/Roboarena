@@ -304,7 +304,7 @@ def level_selection():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 40)
     global random_map
-    random_map = False # reset this variable each time level selection is called
+    random_map = False  # reset this variable each time level selection is called
 
     start_button = Button(
         rect=(screen.get_width() // 2 - 100, 510, 200, 50),
@@ -477,7 +477,7 @@ def game_loop(map_file: str | None = None):
 
     # Map setup
     if random_map:
-        game_map = Map(random_map = True)
+        game_map = Map(random_map=True)
     else:
         game_map = Map(map_file)
     map_data = game_map.get_map_data()
