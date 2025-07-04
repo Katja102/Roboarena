@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>5. Sprint</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <h1>5. Sprint (6.6. - 27.6.):</h1>
+    
+    <h3>Unsere Meetings in diesem Sprint</h3>
+    <h4>6.6. 12 Uhr</h4>
+    <ul>
+        <li>kurze Besprechung, wer über die Ferien Zeit hat am Projekt zu arbeiten
+            und welche Aufgaben in dieser Zeit von wem übernommen werden
+        </li>
+    </ul>
+    <h4>17.6. 10 Uhr</h4>
+    <ul>
+        <li>Besprechung des Codes zu enemy behaviour (Katja erklärt kurz was sie gemacht hat und
+            gemeinsames überlegen, was noch fehlt): Katja ergänzt noch, dass Roboter nicht in die Lava fahren
+            und dass sie andere Roboter nicht sehen, wenn diese im Gebüsch sind, Sarah macht Review
+        </li>
+        <li>
+            Besprechung der Geräusche-Auswahl: die ausgewählten Geräusche passen soweit, Sarah fügt sie mal ins Spiel
+            ein, damit man es besser beurteilen kann, nur für das Eis-Geräusch sucht sie noch etwas anderes
+        </li>
+        <li>
+            neue Aufgabenverteilung: Sarah macht Geräusche fertig und kümmert sich dann um einige kleine noch zu erledigende Issues (z.B.Physik, Power-Ups)
+            und recherchiert zum Thema Spiel auf Website spielbar machen. Für die Anleitung wird der Teil gebraucht an dem Walid arbeitet, deshalb erstmal verschoben.
+            Katja macht enemy behaviour fertig und beginnt mit stretch goals (z.B. Schwierigkeit, Kamera-Zooom).
+            Nico und Walid sind noch beschäftigt.
+        </li>
+    </ul>
+    <h4>25.6. 10 Uhr</h4>
+    <ul>
+        <li>
+            2 neue Roboterklassen sind bereits erstellt. Es wird noch eine neue Anzeige der Leben eingefügt (kontinuierlich, ähnlich wie Power-bar).
+            Dann wird erstmal gemered, dass alle einen aktuellen Stand davon haben. Dann folgt noch eine dritte Roboterklasse (Drohne) und eine Auswahlmöglichkeit
+            zu Spielbeginn. Unterschiedliches Verhalten für die verschiedenen Robotern wird erst ggf. später als stretch goal implementiert. (Walid)
+        </li>
+        <li>
+            Kamerazoom wurde von Walid auch schon begonnen, macht er noch fertig, aber wegen der Übersichtlichkeit in einem extra branch.
+        </li>
+        <li>
+            Katja hat noch Verbesserungen im enemy behavior vorgenommen und kleine Fehler behoben.
+        </li>
+        <li>
+            Geräusche sind im Prinzip fertig, Sarah macht noch ein paar kleine Verbesserungen und ergänzt Victory/Game-over Sounds und
+            ein anderes fahr-Geräusch für die Spinne.
+        </li>
+        <li>
+            Alle Issues für minimal product sind fertig oder in Arbeit (nur Anleitung wird erst später geschrieben, damit sie den aktuellen Stand des Spiels repräsentiert),
+             deshalb wurden schon weitere stretch goals als neue Issues angelegt.
+        </li>
+        <li>
+            neue Aufgabenverteilung: Nico und Walid sind noch beschäftigt. Katja baut noch Physik (Rückstoß und Flugbahn) ein, Sarah macht Geräusche fertig
+            und probiert online spielbar machen aus. Arena sollte nach Spielende noch kurz zu sehen sein und ggf. Victory und Game-Over auf transparenter Arena
+            (Sarah oder Nico)
+        </li>
+    </ul>
+    <h4>1.7. 10 Uhr</h4>
+    <ul>
+        <li>
+            neue Designideen besprochen z.B Büsche und Wände dreidimensionaler gestalten, 
+            etwas anderes Design/Farbe für Spieler für beseere Erkennbarkeit. Walid kennt sich mittlerweile 
+            am Besten mit Design aus und bleibt deshalb bis zum Ende des Projekts dafür zuständig
+        </li>
+        <li>
+            neue Aufgabenverteilung: alle sind noch mit ihren Aufgaben beschäftigt und arbeiten daran weiter, 
+            Ziel ist bis Freitag damit jeweils fertig zu sein. Sarah übernimmt den Teil mit Countdown und Game-over/Victory-
+            Screens, der zuvor Sarah oder Nico zugeorndet war.
+        </li>
+        <li>
+            Nico präsentiert diese Woche.
+        </li>
+
+    </ul>
+
+    <h3>Coding: Soundeffekte</h3>
+    <ul>
+        <li>
+            Zum Spiel wurden nun auch Geräusche hinzugefügt. Dazu wurde eine neue Klasse Sounds erstellt. Diese läd und verwaltet die Geräusche, 
+            die über verschiedene Channels abgespielt werden (je nachdem ob es Geräusche von der Fortbewegung des Roboters, in Dauerschleife oder 
+            einmalig abgespielte Geräusche sind).
+        </li>
+        <li>
+            Im Spiel gibt es ein Fahrgeräusch, wenn sich der Panzer-Roboter bewegt und ein Krabbelgeräusch, wenn sich der Spinnen-Roboter bewegt.
+            Wenn der Roboter über ein bestimmtes Terrain fährt z.B. durchs Gebüsch und wenn er gegen die Wand fährt, werden entsprechende Geräusche abgespielt.
+            Die Geräusche werden immer nur für den den Roboter des Spielers abgespielt, da es sonst zu viele Geräusche auf einmal werden.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_sounds_map_effects.mp4" type="video/mp4">
+            Video zu Geräuschen der versch. Terrains auf der Map.
+            </video>
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_tank_sound.mp4" type="video/mp4">
+            Video zum Fahrgeräusch des Panzer-Roboters.
+            </video>
+        </li>
+        <li>
+            Wenn der Spieler schießt, kommt das entsprechende Geräusch und auch wenn er getroffen wird, erhält er ein akustisches Signal.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_sounds_shoot.mp4" type="video/mp4">
+            Video zum Geräuschen vom Schießen und getroffen werden.
+            </video>
+        </li>
+        (Sarah)
+    </ul>
+
+    <h3>Coding: Countdown und Spielende</h3>
+    <ul>
+        <li>
+            Wenn das Spiel gestartet wird, kommt nun zuerst ein Countdown (ebenfalls mit Geräusch). Dadurch kann der Spieler zunächst die ganze Map 
+            einmal sehen und seinen Roboter darauf finden.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_countdown.mp4" type="video/mp4">
+            Video zum Countdown.
+            </video>
+        </li>
+        <li>
+            Wenn das Spiel zu Ende ist (Victory oder Game-over), wird der Bildschirm nun noch einmal gerendert, so dass der Spieler sehen kann, dass er als letztes
+            übrig ist (Victory) oder seine health-bar bei 0 ist (bei Game-over). Außerdem wurde eine kurze Verzögerung eingebaut, bevor der Victory-/Game-over-Screen
+            angezeigt wird, damit z.B. das letzte Schuss-Geräusch noch zu hören ist. Beim Victory-/Game-over-Screen ist nun auch noch die Map mit den verbleibenden
+            Spielern im Hintergrund zu sehen und es wird ein entsprechendes Geräusch abgespielt.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_victory.mp4" type="video/mp4">
+            Video zum Victory-Screen.
+            </video>
+            <video controls>
+            <source src="../Sprint_5/sreenshots/video_gameover.mp4" type="video/mp4">
+            Video zum Game-over-Screen.
+            </video>
+        </li>
+        (Sarah)
+    </ul>
+
+    <h3>Coding: Maps</h3>
+    <ul>
+        <li>
+            Es wurde ein Fenster zur Auswahl der Klassen hinzugefügt
+        </li>
+        <li>
+            Ein Random Map generator wurde erstellt um zufällige maps zu erzeugen
+        </li>
+        (Nico)
+    </ul>
+
+    <h3>Coding: Enemy and Physics</h3>
+    <ul>
+        <li>
+            Das Verhalten der Gegner wurde erweitert und verbessert.<br>
+            Die Power und health-bars wurden versteckt, wenn der Roboter im im Gebüsch ist.<br>
+            Für die Bullets wurde anpassbare Reichweite eingefügt und ein Rückstoß für die Roboter beim Schießen gemacht.<br>
+            Zusätzlich wurde auch noch ein visueller "Funke" beim Shießen hinzugefügt.
+            <video controls>
+            <source src="../Sprint_5/sreenshots/shots_fired.mov" type="video/mp4">
+            Video zum Game-over-Screen.
+            </video>
+        </li>
+        (Katja)
+
+    <h3>In Arbeit...</h3>
+    <ul>
+        <li>
+            Es wurde begonnen das Spiel so umzuwandeln, dass es auch als Online-Game spielbar ist. Das funktioniert aber leider noch nicht.
+            Da es sich hier um ein stretch goal mit niedriger Priorität handelt, wird die Lösungssuche erstmal hinten angestellt bis dringendere Aufgaben
+            erledigt sind bzw. daran gearbeitet, wenn gerade kurz Zeit dafür ist. <br>
+            (Sarah)
+        </li>
+        <li>
+            Verschiedene Schwierigkeiten und ein Survival-Mode ist fast fertig. <br>
+            (Katja)
+        </li>
+        <li>
+            Ein Map Editor ist noch in arbeit.<br>
+            (Nico)
+        </li>
+        <li>
+            Für die Roboter wird ein alternativer Weg mit Blender ausprobiert, bei dem "Rigging" (Skelettstruktur) eingesetzt wird, um Drehungen und Animationen effizienter zu ermöglichen.
+            Ein erstes Spinnenmodell wurde dafür erfolgreich erstellt.
+            Ziel dieser Idee ist es, langfristig flexibler zu sein und mehr Richtungen abzudecken – insbesondere im Hinblick auf eine mögliche 2,5D-Perspektive und weiteren Animationen.
+            Auch für die Map-Grafik wird momentan überlegt, ob und wie man sie in eine 2,5D-Ansicht überführen könnte.
+            Beide Ansätze befinden sich noch in der Erprobungsphase.<br>
+            (Walid)
+        </li>
+
+    </ul>
+    
+    <h3>Sonstiges (Absprachen, Probleme, Fragen etc.)</h3>
+    
+    <a style="display: block; text-align: center;" href="../index.html">zurück zur Startseite</a>
+</body>
+</html>
