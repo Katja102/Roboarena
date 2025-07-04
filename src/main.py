@@ -38,6 +38,9 @@ print(f"Monitor: {max_width}x{max_height}")
 print(f"Fenster: {window_width}x{window_height}")
 print(f"TILE_SIZE: {config.TILE_SIZE}")
 
+# Map data
+random_map = False
+
 
 def draw_text(
     surface, text, x, y, font_size, color=(255, 255, 255), font_name=None, center=False
@@ -298,9 +301,11 @@ def options():
 def level_selection():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 40)
+    global random_map
+    random_map = False  # reset this variable each time level selection is called
 
     start_button = Button(
-        rect=(screen.get_width() // 2 - 100, 400, 200, 50),
+        rect=(screen.get_width() // 2 - 100, 510, 200, 50),
         text="Start Game",
         font=font,
         bg_color=(20, 130, 200),
@@ -326,8 +331,35 @@ def level_selection():
         hover_color=(40, 160, 255),
     )
 
+    level3_button = Button(
+        rect=(screen.get_width() // 2 - 250, 370, 200, 50),
+        text="Level 3",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
+
+    level4_button = Button(
+        rect=(screen.get_width() // 2 + 50, 370, 200, 50),
+        text="Level 4",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
+
+    random_button = Button(
+        rect=(screen.get_width() // 2 - 100, 440, 200, 50),
+        text="Random",
+        font=font,
+        bg_color=(20, 130, 200),
+        text_color=(255, 255, 255),
+        hover_color=(40, 160, 255),
+    )
+
     back_button = Button(
-        rect=(screen.get_width() // 2 - 100, 570, 200, 50),
+        rect=(screen.get_width() // 2 - 100, 580, 200, 50),
         text="Back",
         font=font,
         bg_color=(200, 50, 50),
@@ -351,12 +383,22 @@ def level_selection():
                 game_loop("test-level.txt")
             if level2_button.is_clicked(event):
                 game_loop("test-level2.txt")
+            if level3_button.is_clicked(event):
+                pass
+            if level4_button.is_clicked(event):
+                pass
+            if random_button.is_clicked(event):
+                random_map = True
+                game_loop()
             if back_button.is_clicked(event):
                 return
 
         start_button.draw(screen)
         level1_button.draw(screen)
         level2_button.draw(screen)
+        level3_button.draw(screen)
+        level4_button.draw(screen)
+        random_button.draw(screen)
         back_button.draw(screen)
 
         pygame.display.flip()
@@ -432,7 +474,10 @@ def game_loop(map_file: str | None = None):
         map_file = "test-level.txt"
 
     # Map setup
-    game_map = Map(map_file)
+    if random_map:
+        game_map = Map(random_map=True)
+    else:
+        game_map = Map(map_file)
     map_data = game_map.get_map_data()
     map_width_px = len(map_data[0]) * config.TILE_SIZE
     map_height_px = len(map_data) * config.TILE_SIZE

@@ -8,10 +8,16 @@ from fallback_map import get_fallback_map
 
 
 class Map:
-    def __init__(self, file_path: str | None = None, player_count: int = 4):
+    def __init__(
+        self,
+        file_path: str | None = None,
+        player_count: int = 4,
+        random_map: bool = False,
+    ):
         """Initializes the map with default player-size and optional file input"""
         self.player_count = player_count
         self.file_path = file_path
+        self.random_map = random_map
         self.rows = config.ROWS
         self.cols = config.COLUMNS
 
@@ -19,13 +25,17 @@ class Map:
         self.map_data = self.initialize_map()
 
         # If a file path is provided: load from file, otherwise use the fallback map
-        try:
-            inner_map = self.get_inner_map()
-        except FileNotFoundError:
-            print(f"Warning: file {self.file_path} not found. Using fallback map.")
-            inner_map = get_fallback_map()
-        if inner_map is None:
-            print("Warning: No file. Using fallback map.")
+
+        if random_map:
+            inner_map = self.generate_random_inner_map()
+        elif self.file_path is not None:
+            try:
+                inner_map = self.get_inner_map()
+            except FileNotFoundError:
+                print(f"Warning: file {self.file_path} not found. Using fallback map.")
+                inner_map = get_fallback_map()
+        else:
+
             inner_map = get_fallback_map()
 
         self.create_map(inner_map)
@@ -41,6 +51,56 @@ class Map:
                 row.append(tile)
             map_data.append(row)
         return map_data
+
+    def generate_random_inner_map(self) -> list[list[str]]:
+        inner_map = []
+        for y in range(self.rows - 2):  # ohne Rahmen
+            row = ["ground"] * (self.cols - 2)
+            inner_map.append(row)
+
+        # create patches (this can be adjusted manually)
+        self.generate_patch(
+            inner_map, tile="wall", num_patches=5, min_size=2, max_size=15
+        )
+        self.generate_patch(
+            inner_map, tile="bush", num_patches=6, min_size=1, max_size=5
+        )
+        self.generate_patch(
+            inner_map, tile="lava", num_patches=4, min_size=1, max_size=9
+        )
+        self.generate_patch(
+            inner_map, tile="sand", num_patches=5, min_size=3, max_size=7
+        )
+        self.generate_patch(
+            inner_map, tile="ice", num_patches=7, min_size=1, max_size=5
+        )
+
+        return inner_map
+
+    def generate_patch(
+        self,
+        map_data: list[list[str]],
+        tile: str,
+        num_patches: int,
+        min_size: int,
+        max_size: int,
+        irregular: bool = True,
+    ) -> None:
+        for _ in range(num_patches):
+            width = randint(min_size, max_size)
+            height = randint(min_size, max_size)
+            start_x = randint(1, self.cols - 2 - width - 1)
+            start_y = randint(1, self.rows - 2 - height - 1)
+
+            if irregular:
+                init_start_x = randint(3, self.cols - 2 - max_size)
+
+            for i in range(height):
+                if irregular:
+                    width = randint(int(0.7 * max_size), max_size)
+                    start_x = init_start_x - randint(1, 2)
+                for j in range(width):
+                    map_data[start_y + i][start_x + j] = tile
 
     def get_inner_map(self) -> List[List[str]] | None:
         """Read map file and convert characters to tile types"""
