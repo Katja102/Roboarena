@@ -20,6 +20,7 @@ ICONS: dict[str, pygame.Surface] = {
     "explosion": pygame.image.load(
         "../resources/Icons/Explosion.png"
     ),  # Explosion icon
+    "shield": pygame.image.load("../resources/Icons/Shield.png"),  # Shield icon
 }
 
 

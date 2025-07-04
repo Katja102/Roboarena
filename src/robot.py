@@ -6,6 +6,7 @@ import random
 from map import Map
 from sounds import Sounds
 from camera import Camera
+from power_up import Powerup
 
 # Constants
 ice_acceleration: float = 2
@@ -13,6 +14,10 @@ sand_acceleration: float = 1 / 2
 
 # Recharge-rate (how much power will be recharged every frame)
 recharge_rate: float = 0.05
+
+# Time with powerups
+double_speed_time: int = 300
+indestructible_time: int = 300
 
 
 class Robot:
@@ -52,6 +57,8 @@ class Robot:
         self.times_without_bush = 0
         # how often there was no bus in touched_textures in a row
         # while the robot was in a bush
+        self.time_left_with_powerup = 0  # variable for powerups with limited time
+        self.powerup = None  # current Powerup
         self.sounds = Sounds()  # loading the sounds
 
         self.in_bush = False  # Whether the robot is currently standing in a bush tile
@@ -72,9 +79,10 @@ class Robot:
         walls: list[pygame.Rect],
         bullets: list[Bullet],
         camera: Camera,
+        powerups: list[Powerup],
     ) -> None:
         # Check for effect
-        self.exist(game_map, robots, bullets)
+        self.exist(game_map, robots, bullets, powerups)
 
         # Update player position based on key inputs
         keys = pygame.key.get_pressed()
@@ -120,9 +128,10 @@ class Robot:
         walls: list[pygame.Rect],
         bullets: list[Bullet],
         camera: Camera,
+        powerups: list[Powerup],
     ) -> None:
         # Check for effect
-        self.exist(game_map, robots, bullets)
+        self.exist(game_map, robots, bullets, powerups)
 
         # Check for goal
         if not goal:
@@ -266,11 +275,15 @@ class Robot:
         if "ice" in touched_textures:
             self.v = self.speed * ice_acceleration
             self.v_alpha = self.speed_alpha * ice_acceleration
+            if (self.powerup is not None) or (self.powerup == "double_speed"):
+                self.v *= 2
             if self.is_player and self.moving:
                 self.sounds.play_sound("ice_sound")
         elif "sand" in touched_textures:
             self.v = self.speed * sand_acceleration
             self.v_alpha = self.speed_alpha * sand_acceleration
+            if (self.powerup is not None) or (self.powerup == "double_speed"):
+                self.v *= 2
             if self.is_player and self.moving:
                 self.sounds.play_sound("sand_sound")
         elif "wall" in touched_textures:
@@ -278,6 +291,8 @@ class Robot:
         else:
             self.v = self.speed
             self.v_alpha = self.speed_alpha
+            if (self.powerup is not None) or (self.powerup == "double_speed"):
+                self.v *= 2
         if "lava" in touched_textures:
             self.get_spawn_position(game_map, robots)
             self.hp -= 40
@@ -453,7 +468,8 @@ class Robot:
             max_dist = bullet.radius + self.hitbox_radius * 0.35
             if dist < max_dist:
                 bullet.alive = False
-                self.hp = self.hp - 15
+                if (self.powerup is None) or (self.powerup != "indestructible"):
+                    self.hp = self.hp - 15
                 if self.is_player:
                     self.sounds.play_sound("player_hit_sound")
 
@@ -522,15 +538,29 @@ class Robot:
 
     # Robot does nothing (but still experience effects of map and bullets)
     def exist(
-        self, game_map: Map, robots: list["Robot"], bullets: list[Bullet]
+        self,
+        game_map: Map,
+        robots: list["Robot"],
+        bullets: list[Bullet],
+        powerups: list[Powerup],
     ) -> None:
         # Check for effects and bullets
         self.map_effects(game_map, robots)
         self.getting_shot(bullets)
+        self.getting_powerup(powerups)
 
         # recharge power
         if self.power < 100:
             self.power += recharge_rate
+
+        # set time left with powerup
+        if self.time_left_with_powerup > 0:
+            self.time_left_with_powerup -= 1
+            if self.time_left_with_powerup == 0:
+                # Set back
+                self.powerup = None
+                self.v = self.speed
+                self.v_alpha = self.speed_alpha
 
     def go_hide(
         self, game_map: Map, walls: list[pygame.Rect], robots: list["Robot"]
@@ -596,3 +626,35 @@ class Robot:
         self.alpha += math.copysign(self.v_alpha, angle_to_goal)
         self.alpha = self.alpha % 360
         self.move_if_no_walls(x, y, walls, robots, game_map, check_for_lava=True)
+
+    # checks and react if robot is touching a powerup
+    def getting_powerup(self, powerups: list[Powerup]) -> None:
+        robot_box = pygame.Rect(
+            self.x,
+            self.y,
+            self.hitbox_radius * 2,
+            self.hitbox_radius * 2,
+        )
+        for powerup in powerups:
+            if powerup.rect.colliderect(robot_box):
+                powerup.alive = False
+                if powerup.type == "double_speed":
+                    self.powerup = "double_speed"
+                    self.time_left_with_powerup = double_speed_time
+                    self.v *= 2
+                    self.v_alpha *= 2
+                    if self.is_player:  # for evtl. sound
+                        pass
+                if powerup.type == "health_boost":
+                    self.hp = min(100, self.hp + 50)
+                    if self.is_player:  # for evtl. sound
+                        pass
+                if powerup.type == "power_boost":
+                    self.power = min(100, self.power + 50)
+                    if self.is_player:  # for evtl. sound
+                        pass
+                if powerup.type == "indestructible":
+                    self.powerup = "indestructible"
+                    self.time_left_with_powerup = indestructible_time
+                    if self.is_player:  # for evtl. sound
+                        pass
