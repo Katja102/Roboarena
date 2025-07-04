@@ -6,6 +6,7 @@ import random
 from map import Map
 from sounds import Sounds
 from camera import Camera
+from power_up import Powerup
 
 # Constants
 ice_acceleration: float = 2
@@ -72,9 +73,10 @@ class Robot:
         walls: list[pygame.Rect],
         bullets: list[Bullet],
         camera: Camera,
+        powerups: list[Powerup],
     ) -> None:
         # Check for effect
-        self.exist(game_map, robots, bullets)
+        self.exist(game_map, robots, bullets, powerups)
 
         # Update player position based on key inputs
         keys = pygame.key.get_pressed()
@@ -120,9 +122,10 @@ class Robot:
         walls: list[pygame.Rect],
         bullets: list[Bullet],
         camera: Camera,
+        powerups: list[Powerup],
     ) -> None:
         # Check for effect
-        self.exist(game_map, robots, bullets)
+        self.exist(game_map, robots, bullets, powerups)
 
         # Check for goal
         if not goal:
@@ -522,11 +525,16 @@ class Robot:
 
     # Robot does nothing (but still experience effects of map and bullets)
     def exist(
-        self, game_map: Map, robots: list["Robot"], bullets: list[Bullet]
+        self,
+        game_map: Map,
+        robots: list["Robot"],
+        bullets: list[Bullet],
+        powerups: list[Powerup],
     ) -> None:
         # Check for effects and bullets
         self.map_effects(game_map, robots)
         self.getting_shot(bullets)
+        self.getting_powerup(powerups)
 
         # recharge power
         if self.power < 100:
@@ -596,3 +604,31 @@ class Robot:
         self.alpha += math.copysign(self.v_alpha, angle_to_goal)
         self.alpha = self.alpha % 360
         self.move_if_no_walls(x, y, walls, robots, game_map, check_for_lava=True)
+
+    # checks and react if robot is touching a powerup
+    def getting_powerup(self, powerups: list[Powerup]) -> None:
+        robot_box = pygame.Rect(
+            self.x,
+            self.y,
+            self.hitbox_radius * 2,
+            self.hitbox_radius * 2,
+        )
+        for powerup in powerups:
+            if powerup.rect.colliderect(robot_box):
+                powerup.alive = False
+                if powerup.type == "double_speed":
+                    self.speed *= 2
+                    if self.is_player:
+                        pass
+                if powerup.type == "health_boost":
+                    self.hp = min(100, self.hp + 50)
+                    if self.is_player:
+                        pass
+                if powerup.type == "power_boost":
+                    self.power = min(100, self.power + 50)
+                    if self.is_player:
+                        pass
+                if powerup.type == "indestructible":
+                    self.power = min(100, self.power + 50)
+                    if self.is_player:
+                        pass
