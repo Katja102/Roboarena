@@ -617,7 +617,7 @@ class Robot:
             if powerup.rect.colliderect(robot_box):
                 powerup.alive = False
                 if powerup.type == "double_speed":
-                    self.speed *= 2
+                    self.v *= 2
                     if self.is_player:
                         pass
                 if powerup.type == "health_boost":

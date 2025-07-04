@@ -18,13 +18,29 @@ class Powerup:
         # draw powerup
         draw_x, draw_y = camera.apply(int(self.rect.x), int(self.rect.y))
         if self.type == "double_speed":
-            pygame.draw.circle(camera.surface, (250, 0, 0), (draw_x, draw_y), 3)
+            icon_fire = pygame.transform.scale(
+                config.ICONS["explosion"],
+                (int(self.rect.width + 3)*camera.zoom, int(self.rect.height + 3)*camera.zoom),
+            ).convert_alpha()
+            camera.surface.blit(icon_fire, (draw_x, draw_y))
         if self.type == "health_boost":
-            pygame.draw.circle(camera.surface, (0, 250, 0), (draw_x, draw_y), 3)
+            icon_health = pygame.transform.scale(
+                config.ICONS["heart"],
+                (int(self.rect.width + 3)*camera.zoom, int(self.rect.height + 3)*camera.zoom),
+            ).convert_alpha()
+            camera.surface.blit(icon_health, (draw_x, draw_y))
         if self.type == "power_boost":
-            pygame.draw.circle(camera.surface, (0, 0, 250), (draw_x, draw_y), 3)
+            icon_power = pygame.transform.scale(
+                config.ICONS["power"],
+                (int(self.rect.width + 3)*camera.zoom, int(self.rect.height + 3)*camera.zoom),
+            ).convert_alpha()
+            camera.surface.blit(icon_power, (draw_x, draw_y))
         if self.type == "indestructible":
-            pygame.draw.circle(camera.surface, (0, 0, 250), (draw_x, draw_y), 3)
+            icon_shield = pygame.transform.scale(
+                config.ICONS["shield"],
+                (int(self.rect.width + 3)*camera.zoom, int(self.rect.height + 3)*camera.zoom),
+            ).convert_alpha()
+            camera.surface.blit(icon_shield, (draw_x, draw_y))
 
     # Get the list of tiles touched by the robot
     def touched_tiles(self) -> list[tuple[int, int]]:
