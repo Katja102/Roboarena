@@ -1,5 +1,3 @@
-from random import random
-
 import pygame
 import sys
 import config
