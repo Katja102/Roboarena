@@ -17,6 +17,9 @@ TEXTURES: dict[str, pygame.Surface] = {
 ICONS: dict[str, pygame.Surface] = {
     "heart": pygame.image.load("../resources/Icons/Heart.png"),  # HP icon
     "power": pygame.image.load("../resources/Icons/Power.png"),  # Power icon
+    "explosion": pygame.image.load(
+        "../resources/Icons/Explosion.png"
+    ),  # Explosion icon
 }
 
 

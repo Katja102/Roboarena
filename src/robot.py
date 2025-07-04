@@ -40,7 +40,7 @@ class Robot:
         self.speed = speed  # speed for moving
         self.speed_alpha = speed_alpha  # speed for turning
         self.hp = 100  # current livepoints of the robot
-        self.last_shot_time = 0  # time of last shot
+        self.last_shot_time = 100  # time of last shot
         self.shot_break_duration = 2000  # min duration of break between shots
         self.power = 100  # current power for attacks
         self.moving = False  # if robot is currently moving
@@ -74,19 +74,16 @@ class Robot:
         camera: Camera,
     ) -> None:
         # Check for effect
-        self.map_effects(game_map, robots)
-        self.robot_collision(robots, walls, game_map)
+        self.exist(game_map, robots, bullets)
 
         # Update player position based on key inputs
         keys = pygame.key.get_pressed()
 
         x = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.v
         y = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.v
-        self.move_if_no_walls(x, y, walls, game_map)
+        self.move_if_no_walls(x, y, walls, robots, game_map)
         self.alpha += (keys[pygame.K_d] - keys[pygame.K_a]) * self.v_alpha
         self.alpha = self.alpha % 360
-
-        self.getting_shot(bullets)
 
         # sound for moving
         currently_moving = (
@@ -110,13 +107,9 @@ class Robot:
                 self.sounds.stop_loop("drive_sound")
             self.moving = False
 
-        # recharge power
-        if self.power < 100:
-            self.power += recharge_rate
-
         # check, if user used a key for shooting
         if keys[pygame.K_s]:
-            self.shoot(bullets, camera)
+            self.shoot(bullets, camera, walls, robots, game_map)
 
     # Lets a robot follow another robot
     def update_enemy(
@@ -129,11 +122,11 @@ class Robot:
         camera: Camera,
     ) -> None:
         # Check for effect
-        self.map_effects(game_map, robots)
-        self.robot_collision(robots, walls, game_map)
+        self.exist(game_map, robots, bullets)
 
         # Check for goal
         if not goal:
+            self.go_hide(game_map, walls, robots)
             return None
 
         # Move towards a goal position
@@ -141,8 +134,7 @@ class Robot:
         y_to_goal = goal.y - self.y
         x = math.copysign(self.v, x_to_goal)
         y = math.copysign(self.v, y_to_goal)
-        self.move_if_no_walls(x, y, walls, game_map, check_for_lava=True)
-        self.robot_collision(robots, walls, game_map)
+        self.move_if_no_walls(x, y, walls, robots, game_map, check_for_lava=True)
 
         # Adjust rotation to face the goal
         rad_to_goal = math.atan2(y_to_goal, x_to_goal)
@@ -158,21 +150,13 @@ class Robot:
         self.alpha += math.copysign(self.v_alpha, angle_to_goal)
         self.alpha = self.alpha % 360
 
-        # check if self gets shot
-        self.getting_shot(bullets)
-
-        # recharge power
-        if self.power < 100:
-            self.power += recharge_rate
-
         # shoot if angle to goal is under 10°
         angle_diff = abs(abs(angle_to_goal - 180) - self.alpha) % 360
         if (angle_diff <= 10) or (angle_diff >= 350):
-            self.shoot(bullets, camera)
+            self.shoot(bullets, camera, walls, robots, game_map)
 
         # avoid being in range of other robots
         self.move_if_in_range(robots, walls, game_map)
-        self.robot_collision(robots, walls, game_map)
 
         # # check, if robot NPC is moving
         self.moving = (
@@ -183,17 +167,29 @@ class Robot:
 
     # React to collisions with other robots
     def robot_collision(
-        self, robots: list["Robot"], walls: list[pygame.Rect], game_map: Map
+        self, robot: "Robot", robots: list["Robot"], walls: list[pygame.Rect]
     ) -> None:
-        if len(robots) > 1:
+        rad_to_goal = math.atan2(robot.y - self.y, robot.x - self.x)
+        angle_to_goal = (math.degrees(rad_to_goal) + 180) % 360
+        angle_away = angle_to_goal
+        x = 10 * math.cos(angle_away * math.pi / 180)
+        y = 10 * math.sin(angle_away * math.pi / 180)
+        xnew = self.x + x
+        ynew = self.y + y
+        newRect = pygame.Rect(
+            xnew - self.hitbox_radius,
+            ynew - self.hitbox_radius,
+            self.hitbox_radius * 2,
+            self.hitbox_radius * 2,
+        )
+        # moves robot to direct wanted path if no wall
+        if newRect.collidelist(walls) == -1:
+            self.x = xnew
+            self.y = ynew
             (dist, robot) = self.robot_dist(robots)[0]
             if dist <= 0:
-                rad_to_goal = math.atan2(robot.y - self.y, robot.x - self.x)
-                angle_to_goal = math.degrees(rad_to_goal) + 180 % 360
-                angle_away = angle_to_goal
-                x = 10 * math.cos(angle_away * math.pi / 180)
-                y = 10 * math.sin(angle_away * math.pi / 180)
-                self.move_if_no_walls(x, y, walls, game_map)
+                self.x -= x
+                self.y -= y
 
     # Detect distances to other robots
     def robot_dist(self, robots: list["Robot"]) -> list[tuple[float, "Robot"]]:
@@ -204,8 +200,8 @@ class Robot:
                 y_to_robot = robot.y - self.y
                 dist = (
                     math.sqrt((x_to_robot) ** 2 + (y_to_robot) ** 2)
-                    - self.hitbox_radius * 0.3
-                    - robot.hitbox_radius * 0.3
+                    - self.hitbox_radius * 0.4
+                    - robot.hitbox_radius * 0.4
                 )
                 dist_robot.append((dist, robot))
         dist_robot = sorted(dist_robot, key=lambda x: x[0])
@@ -339,6 +335,7 @@ class Robot:
         x: float,
         y: float,
         walls: list[pygame.Rect],
+        robots: list["Robot"],
         game_map: Map,
         check_for_lava: bool = False,
     ) -> None:
@@ -352,9 +349,26 @@ class Robot:
             if check_for_lava:
                 touched_textures = self.touched_textures(game_map)
                 if "lava" in touched_textures:
+                    self.y -= y
+                    touched_textures = self.touched_textures(game_map)
+                    if "lava" in touched_textures:
+                        self.x -= x
+                        self.y += y
+                        if "lava" in touched_textures:
+                            self.y -= y
+                else:
+                    (dist, robot) = self.robot_dist(robots)[0]
+                    if dist <= 0:
+                        self.x -= x
+                        self.y -= y
+                        self.robot_collision(robot, robots, walls)
+                check_for_lava = False
+            else:
+                (dist, robot) = self.robot_dist(robots)[0]
+                if dist <= 0:
                     self.x -= x
                     self.y -= y
-                check_for_lava = False
+                    self.robot_collision(robot, robots, walls)
         # to avoid not moving at all when goal is behind wall
         else:
             current_time = pygame.time.get_ticks()
@@ -369,6 +383,10 @@ class Robot:
             if hitbox.collidelist(walls) == -1:
                 self.x = xnew
                 self.y = ynew
+                (dist, robot) = self.robot_dist(robots)[0]
+                if dist <= 0:
+                    self.x -= x
+                    self.robot_collision(robot, robots, walls)
             else:
                 # check and move if only in y direction is no wall
                 xnew = self.x
@@ -377,8 +395,19 @@ class Robot:
                 if hitbox.collidelist(walls) == -1:
                     self.x = xnew
                     self.y = ynew
+                    (dist, robot) = self.robot_dist(robots)[0]
+                    if dist <= 0:
+                        self.y -= y
+                        self.robot_collision(robot, robots, walls)
 
-    def shoot(self, bullets: list[Bullet], camera: Camera):
+    def shoot(
+        self,
+        bullets: list[Bullet],
+        camera: Camera,
+        walls: list[pygame.Rect],
+        robots: list["Robot"],
+        game_map: Map,
+    ) -> None:
         current_time = pygame.time.get_ticks()
         # make sure there is a break between the shots
         if current_time - self.last_shot_time < self.shot_break_duration:
@@ -396,11 +425,17 @@ class Robot:
             int(start_x),
             int(start_y),
             self.alpha,
-            7 * camera.zoom,
+            int(7 * camera.zoom),
             (0, 0, 0),
             self,
             20 * camera.zoom,
+            800,  # reach
         )  # create bullet
+        # recoil
+        direction_rad = math.radians(self.alpha)
+        x = self.v * -math.cos(direction_rad) * 2
+        y = self.v * -math.sin(direction_rad) * 2
+        self.move_if_no_walls(x, y, walls, robots, game_map)
         self.last_shot_time = current_time  # update time of last shot
         self.power -= 20  # update power
         bullets.append(bullet)
@@ -444,7 +479,9 @@ class Robot:
     ) -> "None | Robot":
         potential_goals: list["Robot"] = []
         for robot in robots:
-            if "bush" not in robot.touched_textures(game_map) and robot is not self:
+            if (
+                not all("bush" == tile for tile in robot.touched_textures(game_map))
+            ) and robot is not self:
                 potential_goals.append(robot)
         if len(potential_goals) > 0:
             dist_robot: list[tuple[float, "Robot"]] = self.robot_dist(potential_goals)
@@ -468,7 +505,7 @@ class Robot:
             if robot == self:
                 continue
             rad_to_robot = math.atan2(robot.y - self.y, robot.x - self.x)
-            angle_to_robot = math.degrees(rad_to_robot) + 180 % 360
+            angle_to_robot = (math.degrees(rad_to_robot) + 180) % 360
             angle_diff = abs(abs(angle_to_robot) - robot.alpha) % 360
             if (angle_diff <= 10) or (angle_diff >= 350):  # in range of robot
                 x_to_goal = robot.x - self.x
@@ -481,4 +518,81 @@ class Robot:
                     y = math.copysign(self.v, x_to_goal * -1)
                 else:
                     y = math.copysign(0, x_to_goal * -1)
-                self.move_if_no_walls(x, y, walls, game_map)  # move to side
+                self.move_if_no_walls(x, y, walls, robots, game_map)  # move to side
+
+    # Robot does nothing (but still experience effects of map and bullets)
+    def exist(
+        self, game_map: Map, robots: list["Robot"], bullets: list[Bullet]
+    ) -> None:
+        # Check for effects and bullets
+        self.map_effects(game_map, robots)
+        self.getting_shot(bullets)
+
+        # recharge power
+        if self.power < 100:
+            self.power += recharge_rate
+
+    def go_hide(
+        self, game_map: Map, walls: list[pygame.Rect], robots: list["Robot"]
+    ) -> None:
+        # Already in bush
+        if all("bush" == tile for tile in self.touched_textures(game_map)):
+            return None
+        # Search for nearest Bush
+        bush_tiles = []
+        for i in range(0, config.COLUMNS):
+            for j in range(0, config.ROWS):
+                if game_map.get_tile_type(i, j) == "bush":
+                    bush_tiles.append((i, j))
+        sorted_bush_tiles = []
+        for i, j in bush_tiles:
+            tile_x = (i + 1 / 2) * config.TILE_SIZE
+            tile_y = (j + 1 / 2) * config.TILE_SIZE
+            dist = math.sqrt((tile_x - self.x) ** 2 + (tile_y - self.y) ** 2)
+            sorted_bush_tiles.append((i, j, dist))
+        sorted_bush_tiles = sorted(sorted_bush_tiles, key=lambda tile: tile[2])
+        nearest_bush_middle = None
+        for i, j, d in sorted_bush_tiles:
+            xn = 1
+            yn = 1
+            while (2 * self.get_hitbox().width) >= (xn * config.TILE_SIZE):
+                if i + xn <= config.COLUMNS and (i + xn, j) in bush_tiles:
+                    xn += 1
+                else:
+                    break
+            while (2 * self.get_hitbox().height) >= (yn * config.TILE_SIZE):
+                if j + yn <= config.ROWS:
+                    if (((i + n, j + yn) in bush_tiles) for n in range(xn)):
+                        yn += 1
+                else:
+                    break
+            if (
+                2 * self.get_hitbox().width < xn * config.TILE_SIZE
+                and 2 * self.get_hitbox().height < yn * config.TILE_SIZE
+            ):
+                # get middle
+                x = (i + (xn - 1)) * config.TILE_SIZE
+                y = (j + (yn - 1)) * config.TILE_SIZE
+                nearest_bush_middle = (x, y)
+                break
+        # go to bush
+        if not nearest_bush_middle:
+            return None
+        x = math.copysign(self.v, nearest_bush_middle[0] - self.x)
+        y = math.copysign(self.v, nearest_bush_middle[1] - self.y)
+        # Adjust rotation to face the goal
+        rad_to_goal = math.atan2(
+            nearest_bush_middle[1] - self.y, nearest_bush_middle[0] - self.x
+        )
+        angle_to_goal = (math.degrees(rad_to_goal) + 180) % 360
+
+        # Invert direction if shortest rotation is the other way
+        if angle_to_goal < self.alpha:
+            if abs(angle_to_goal - self.alpha) > 180:
+                angle_to_goal *= -1
+        else:
+            if abs(angle_to_goal - self.alpha) < 180:
+                angle_to_goal *= -1
+        self.alpha += math.copysign(self.v_alpha, angle_to_goal)
+        self.alpha = self.alpha % 360
+        self.move_if_no_walls(x, y, walls, robots, game_map, check_for_lava=True)
