@@ -13,6 +13,9 @@ from robot_renderer import RobotRenderer
 # Initialisation
 pygame.init()
 
+# Game-variables
+difficulty: str = "medium"
+
 # Get current screen resolution
 info = pygame.display.Info()
 max_width: int = info.current_w
@@ -49,6 +52,189 @@ def draw_text(
         surface.blit(text_surface, text_rect)
     else:
         surface.blit(text_surface, (x, y))
+
+
+def difficulty_easy(camera, game_map) -> list[Robot]:
+    game_map.player_count = 3
+    spawn_positions = game_map.generate_spawn_positions()
+    robot_size = int(config.TILE_SIZE * 1.3)
+    speed = 3 * camera.zoom
+    turnspeed = 4 * camera.zoom
+    player = Robot(
+        camera.surface,
+        spawn_positions[0][0],
+        spawn_positions[0][1],
+        robot_size,
+        0,
+        (255, 255, 255),
+        speed,
+        turnspeed,
+        True,
+        "Spider",
+    )
+    enemy1 = Robot(
+        camera.surface,
+        spawn_positions[1][0],
+        spawn_positions[1][1],
+        robot_size,
+        0,
+        (0, 100, 190),
+        speed,
+        turnspeed,
+        False,
+        "Spider",
+    )
+    enemy2 = Robot(
+        camera.surface,
+        spawn_positions[2][0],
+        spawn_positions[2][1],
+        robot_size,
+        50,
+        (255, 50, 120),
+        speed,
+        turnspeed,
+        False,
+        "Spider",
+    )
+    robots: list[Robot] = [player, enemy1, enemy2]
+    for robot in robots:
+        robot.shot_break_duration = 2000
+        robot.recharge_rate = 0.05
+    return robots
+
+
+def difficulty_medium(camera, game_map) -> list[Robot]:
+    game_map.player_count = 4
+    spawn_positions = game_map.generate_spawn_positions()
+    robot_size = int(config.TILE_SIZE * 1.3)
+    speed = 4 * camera.zoom
+    turnspeed = 5 * camera.zoom
+    player = Robot(
+        camera.surface,
+        spawn_positions[0][0],
+        spawn_positions[0][1],
+        robot_size,
+        0,
+        (255, 255, 255),
+        speed,
+        turnspeed,
+        True,
+        "Spider",
+    )
+    enemy1 = Robot(
+        camera.surface,
+        spawn_positions[1][0],
+        spawn_positions[1][1],
+        robot_size,
+        0,
+        (0, 100, 190),
+        speed,
+        turnspeed,
+        False,
+        "Spider",
+    )
+    enemy2 = Robot(
+        camera.surface,
+        spawn_positions[2][0],
+        spawn_positions[2][1],
+        robot_size,
+        50,
+        (255, 50, 120),
+        speed,
+        turnspeed,
+        False,
+        "Spider",
+    )
+    enemy3 = Robot(
+        camera.surface,
+        spawn_positions[3][0],
+        spawn_positions[3][1],
+        robot_size,
+        50,
+        (0, 250, 0),
+        speed,
+        turnspeed,
+        False,
+        "Tank",
+    )
+    robots: list[Robot] = [player, enemy1, enemy2, enemy3]
+    for robot in robots:
+        robot.shot_break_duration = 1500
+        robot.recharge_rate = 0.1
+    return robots
+
+
+def difficulty_hard(camera, game_map) -> list[Robot]:
+    game_map.player_count = 5
+    spawn_positions = game_map.generate_spawn_positions()
+    robot_size = int(config.TILE_SIZE * 1.3)
+    speed = 5 * camera.zoom
+    turnspeed = 6 * camera.zoom
+    player = Robot(
+        camera.surface,
+        spawn_positions[0][0],
+        spawn_positions[0][1],
+        robot_size,
+        0,
+        (255, 255, 255),
+        speed,
+        turnspeed,
+        True,
+        "Spider",
+    )
+    enemy1 = Robot(
+        camera.surface,
+        spawn_positions[1][0],
+        spawn_positions[1][1],
+        robot_size,
+        0,
+        (0, 100, 190),
+        speed,
+        turnspeed,
+        False,
+        "Spider",
+    )
+    enemy2 = Robot(
+        camera.surface,
+        spawn_positions[2][0],
+        spawn_positions[2][1],
+        robot_size,
+        50,
+        (255, 50, 120),
+        speed,
+        turnspeed,
+        False,
+        "Spider",
+    )
+    enemy3 = Robot(
+        camera.surface,
+        spawn_positions[3][0],
+        spawn_positions[3][1],
+        robot_size,
+        80,
+        (0, 250, 0),
+        speed,
+        turnspeed,
+        False,
+        "Tank",
+    )
+    enemy4 = Robot(
+        camera.surface,
+        spawn_positions[4][0],
+        spawn_positions[4][1],
+        robot_size,
+        150,
+        (0, 0, 250),
+        speed,
+        turnspeed,
+        False,
+        "Tank",
+    )
+    robots: list[Robot] = [player, enemy1, enemy2, enemy3, enemy4]
+    for robot in robots:
+        robot.shot_break_duration = 1000
+        robot.recharge_rate = 0.2
+    return robots
 
 
 def main_menu():
@@ -272,17 +458,19 @@ def options():
 
         draw_text(screen, "Difficulty", 0, 250, 50, center=True)
 
+        global difficulty
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
             if easy_button.is_clicked(event):
-                pass
+                difficulty = "easy"
             if medium_button.is_clicked(event):
-                pass
+                difficulty = "medium"
             if hard_button.is_clicked(event):
-                pass
+                difficulty = "hard"
             if back_button.is_clicked(event):
                 return
 
@@ -448,53 +636,13 @@ def game_loop(map_file: str | None = None):
 
     # Robot setup
     robot_renderer = RobotRenderer(camera.surface)
-    spawn_positions = game_map.generate_spawn_positions()
-    robot_size = int(config.TILE_SIZE * 1.3)
-    player = Robot(
-        camera.surface,
-        *spawn_positions[0],
-        robot_size,
-        0,
-        (255, 255, 255),
-        4 * camera.zoom,
-        6 * camera.zoom,
-        True,
-        "Spider",
-    )
-    enemy1 = Robot(
-        camera.surface,
-        *spawn_positions[1],
-        robot_size,
-        0,
-        (0, 100, 190),
-        4 * camera.zoom,
-        6 * camera.zoom,
-        False,
-        "Spider",
-    )
-    enemy2 = Robot(
-        camera.surface,
-        *spawn_positions[2],
-        robot_size,
-        50,
-        (255, 50, 120),
-        4 * camera.zoom,
-        6 * camera.zoom,
-        False,
-        "Spider",
-    )
-    enemy3 = Robot(
-        camera.surface,
-        *spawn_positions[3],
-        robot_size,
-        50,
-        (0, 250, 0),
-        4 * camera.zoom,
-        6 * camera.zoom,
-        False,
-        "Tank",
-    )
-    robots: list[Robot] = [player, enemy1, enemy2, enemy3]
+    if difficulty == "easy":
+        robots = difficulty_easy(camera, game_map)
+    if difficulty == "medium":
+        robots = difficulty_medium(camera, game_map)
+    if difficulty == "hard":
+        robots = difficulty_hard(camera, game_map)
+    player = robots[0]
 
     # Bullet and movement setup
     bullets: list[Bullet] = []

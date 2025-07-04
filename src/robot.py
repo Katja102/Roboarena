@@ -12,7 +12,7 @@ ice_acceleration: float = 2
 sand_acceleration: float = 1 / 2
 
 # Recharge-rate (how much power will be recharged every frame)
-recharge_rate: float = 0.05
+recharge_rate: float = 0.1
 
 
 class Robot:
@@ -41,8 +41,9 @@ class Robot:
         self.speed_alpha = speed_alpha  # speed for turning
         self.hp = 100  # current livepoints of the robot
         self.last_shot_time = 100  # time of last shot
-        self.shot_break_duration = 2000  # min duration of break between shots
+        self.shot_break_duration = 1500  # min duration of break between shots
         self.power = 100  # current power for attacks
+        self.recharge_rate = recharge_rate
         self.moving = False  # if robot is currently moving
         self.is_player = is_player  # if robot is player (not enemy)
         self.last_wall_hit_time = 0  # time of last wall hit sound
@@ -530,7 +531,7 @@ class Robot:
 
         # recharge power
         if self.power < 100:
-            self.power += recharge_rate
+            self.power += self.recharge_rate
 
     def go_hide(
         self, game_map: Map, walls: list[pygame.Rect], robots: list["Robot"]
